@@ -58,7 +58,7 @@ Synthetic customers only. No real message, payment or Google account was touched
 - The form's summary-privacy setting
 - Authorization screens
 
-## Open questions for Eliana
-1. Delivered free loaf: ₪0 or ₪5 delivery? (Currently ₪5 if the loaf's value is under ₪100.)
-2. Order at exactly 2:00pm on cutoff day: on time or late? (Currently late.)
-3. Remove the three real phone numbers from the branch history (rewrite + force-push)?
+## Answered by Eliana (2026-09-24, after the reviews)
+1. Delivered free loaf: **no delivery fee**. Changed in `src/pricing.js` with two tests; lint, 127 tests and 100% coverage re-run clean.
+2. Order at exactly 2:00pm: **late** (already the behavior).
+3. Real phone numbers in the history of `dfdc097`: **leave as is**.

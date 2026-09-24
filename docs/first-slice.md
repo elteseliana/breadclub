@@ -15,6 +15,8 @@ Status: **approved 2026-09-24.** Building.
   The menu and form text are right; **the Sheet's total formula (₪10) is the bug**.
 - **Friday orders close Wednesday 2pm**; Tuesday orders close Sunday 2pm. The form's "Friday (order by Tuesday)"
   text is wrong and will be corrected.
+- A delivered free loaf (gift) has **no delivery fee**. An order at **exactly 2:00pm** on cutoff day is **late**.
+- Real phone numbers in the history of an early commit: Eliana chose **not** to rewrite history.
 - **Status: APPROVED by Eliana on 2026-09-24.** Build on a test copy with fake customers.
 - **Customers pay Bit to 054-911-2175** (Eliana's mom's Bit). The settle-up counts that money as held by Eliana's side.
 

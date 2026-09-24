@@ -373,7 +373,8 @@ var BreadClub = (() => {
     if (loaves.total === 0 && order.staff.adjustment === 0) problems.push("No loaves ordered");
     const speltExtra = Math.ceil(loaves.spelt / 2) * settings.speltExtraPerPair;
     const subtotal = loavesSubtotal + speltExtra;
-    const deliveryFee = order.method === "delivery" && subtotal < settings.freeDeliveryFrom ? settings.deliveryFee : 0;
+    const gift = subtotal + order.staff.adjustment <= 0;
+    const deliveryFee = order.method === "delivery" && subtotal < settings.freeDeliveryFrom && !gift ? settings.deliveryFee : 0;
     if (order.method === "delivery" && !order.address) warnings.push("Delivery with no address");
     const total = subtotal + deliveryFee + order.staff.adjustment;
     if (total < 0) problems.push("Total is below \u20AA0: check Adjustment \u20AA");

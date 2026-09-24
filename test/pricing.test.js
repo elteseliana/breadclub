@@ -43,6 +43,16 @@ describe('order totals (examples approved by Eliana)', () => {
     expect(p).toMatchObject({ total: 0, problems: [] });
   });
 
+  it('a free loaf that is delivered costs nothing (no delivery fee)', () => {
+    const p = total({ items: { rosemary: 1 }, method: 'Delivery', address: 'x' }, { 'Adjustment ₪': -44 });
+    expect(p).toMatchObject({ deliveryFee: 0, total: 0, problems: [] });
+  });
+
+  it('a partly discounted delivery still pays the fee', () => {
+    const p = total({ items: { plain: 1, rosemary: 1 }, method: 'Delivery', address: 'x' }, { 'Adjustment ₪': -44 });
+    expect(p).toMatchObject({ deliveryFee: 5, total: 40 });
+  });
+
   it('a gift with no loaves on the form is fine when there is an adjustment', () => {
     expect(total({ items: {} }, { 'Adjustment ₪': 10 }).problems).toEqual([]);
   });

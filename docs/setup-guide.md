@@ -54,7 +54,7 @@ the left, so on a phone scroll right until you reach them. The **Bake Plan** tab
 | **Money went to** | you | Bit (054-911-2175) / Eliana cash / Shayna cash / Shayna's mom Bit / Other. This feeds the settle-up later. |
 | **Handoff at** | you | For mixed orders: whose house the loaves meet at. The customer picks up there, or that person delivers. |
 | **Baked by (change)** | you | Leave empty for the usual split. `Shayna` = she bakes the whole order. `garlic=Eliana` = only the garlic moves (use **=**, not :). |
-| **Adjustment ₪** | you | `-44` for a free rosemary garlic, `5` for something extra. |
+| **Adjustment ₪** | you | `-44` for a free rosemary garlic (a fully free order is delivered free too), `5` for something extra. |
 | **Late/holiday decision** | you | For late orders or a no-baking day: **Accept** or **Move to next bake day** (always a later day). |
 | **Bake date (change)** | you | Type the date as year-month-day, e.g. `2026-10-02`, to put an order on a specific day. |
 | **Cancelled?** | you | The order stays in the list but isn't counted. |

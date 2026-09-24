@@ -9,7 +9,7 @@ describe('bake dates and cutoffs (Tue closes Sun 2pm, Fri closes Wed 2pm, Israel
     });
   });
 
-  it('Sunday 13:59 is on time for Tuesday, 14:00 is late', () => {
+  it('Sunday 13:59 is on time for Tuesday, 14:00 is late (confirmed by Eliana)', () => {
     expect(scheduleOrder(il('2026-09-27', '13:59'), 'Tuesday', S).late).toBe(false);
     const late = scheduleOrder(il('2026-09-27', '14:00'), 'Tuesday', S);
     expect(late).toMatchObject({ bakeDate: '2026-09-29', late: true, nextOpen: '2026-10-02' });
