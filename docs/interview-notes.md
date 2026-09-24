@@ -89,3 +89,18 @@ Items marked **(unclear)** are waiting on her answer.
 
 ### Priority
 - All five pain points matter equally (no single one picked yet).
+
+## Round 3 (2026-09-24)
+
+- Repeated messages: "your order is ready" (pickup or delivery) and the late-payment reminder. Also a weekly
+  menu broadcast with the form link; its wording changes for holiday weeks (e.g. Sukkot: Friday only).
+- Tools: WhatsApp, Bit (Eliana finally has her own Bit), Google Form/Sheet/Doc. Nothing else.
+- Google account: elteseliana@gmail.com. Eliana grants access to everything; she wants a yes/no list of what is
+  automatic and what stays manual.
+- Free delivery threshold: anything in the order total counts toward ₪100, including spelt.
+- Payment reality: money reaches Eliana's Bit, Eliana's cash, Shayna's mom's Bit, and sometimes goes through
+  Eliana's mom. Some customers pay the week after ("your total from last week was ...").
+- A customer's Bit screenshot can show "Pending". A screenshot is not proof of payment.
+- Last week's settle-up took ~45 minutes of chat and one wrong first attempt. Final answer ₪749.20 each.
+  The worked numbers are in `workflow-map.md`; customer names are left out of the repo.
+- A promised free loaf was almost forgotten.
