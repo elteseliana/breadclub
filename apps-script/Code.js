@@ -752,12 +752,31 @@ var BreadClub = (() => {
       }
     };
     const dataRows = (sheet) => Math.max(sheet.getMaxRows() - 1, 1);
-    function applyValidations(orders, headers) {
-      for (const header of CHECKBOX_HEADERS) {
-        orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireCheckbox().build());
+    function tidyRows(orders, headers, data) {
+      let lastOrderRow = 1;
+      data.forEach((row, i) => {
+        if (!isBlankRow(headers, row)) lastOrderRow = i + 2;
+      });
+      const orderRows = lastOrderRow - 1;
+      const emptyRows = data.length - orderRows;
+      const checkboxCols = CHECKBOX_HEADERS.map((h) => columnIndex(headers, h) + 1);
+      const listCols = Object.keys(LIST_HEADERS).map((h) => columnIndex(headers, h) + 1);
+      if (orderRows > 0) {
+        for (const col of checkboxCols) {
+          orders.getRange(2, col, orderRows, 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireCheckbox().build());
+        }
+        Object.values(LIST_HEADERS).forEach((options, k) => {
+          orders.getRange(2, listCols[k], orderRows, 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireValueInList(options, true).build());
+        });
       }
-      for (const [header, options] of Object.entries(LIST_HEADERS)) {
-        orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireValueInList(options, true).build());
+      if (emptyRows > 0) {
+        for (const col of [...checkboxCols, ...listCols]) {
+          orders.getRange(lastOrderRow + 1, col, emptyRows, 1).clearDataValidations();
+        }
+        for (const col of checkboxCols) {
+          const range = orders.getRange(lastOrderRow + 1, col, emptyRows, 1);
+          range.setValues(range.getValues().map(([v]) => [v === false ? "" : v]));
+        }
       }
     }
     function applyLook(orders, headers) {
@@ -779,9 +798,7 @@ var BreadClub = (() => {
         const room = orders.getMaxColumns() - orders.getLastColumn();
         if (missing.length > room) orders.insertColumnsAfter(orders.getMaxColumns(), missing.length - room);
         if (missing.length) orders.getRange(1, orders.getLastColumn() + 1, 1, missing.length).setValues([missing]);
-        const headers = headersOf(orders);
-        applyValidations(orders, headers);
-        applyLook(orders, headers);
+        applyLook(orders, headersOf(orders));
         if (!ss.getSheetByName(SETTINGS_SHEET)) {
           const sheet = ss.insertSheet(SETTINGS_SHEET);
           const today = localParts(clock(), DEFAULT_SETTINGS.timeZone).iso;
@@ -795,7 +812,7 @@ var BreadClub = (() => {
         }
         ScriptApp2.newTrigger("onFormSubmitTrigger").forSpreadsheet(ss).onFormSubmit().create();
         ScriptApp2.newTrigger("dailyRefresh").timeBased().atHour(8).everyDays(1).create();
-        refreshLocked(ss);
+        refreshLocked(ss, { withValidations: true });
         return missing;
       });
     }
@@ -806,9 +823,9 @@ var BreadClub = (() => {
       const headers = headersOf(sheet);
       const missing = COMPUTED_HEADERS.filter((h) => columnIndex(headers, h) === -1);
       if (missing.length) throw new Error(`Run "Bread Club > Set up" first (missing columns: ${missing.join(", ")})`);
-      if (withValidations) applyValidations(sheet, headers);
       const lastRow = sheet.getLastRow();
       const data = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, headers.length).getValues() : [];
+      if (withValidations) tidyRows(sheet, headers, data);
       const orders = [];
       data.forEach((row, i) => {
         if (!isBlankRow(headers, row)) orders.push(readOrder(headers, row, i + 2, settings));

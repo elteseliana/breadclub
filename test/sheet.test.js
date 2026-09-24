@@ -52,7 +52,7 @@ describe('setup', () => {
   });
 
   it('adds checkboxes, dropdowns, colours, a plain-text bake date, and freezes the header', () => {
-    const w = world();
+    const w = world([formRow()]);
     const rules = w.orders.validations.map((v) => [header(w.orders)[v.col - 1], v.rule.type]);
     expect(rules).toContainEqual(['Paid?', 'checkbox']);
     expect(rules).toContainEqual(['Money went to', 'list']);
@@ -149,13 +149,36 @@ describe('a week of orders (synthetic customers)', () => {
     expect(planText(w.ss)).toContain('Shayna: 2 loaves, 1 batch');
   });
 
-  it('a form answer past the rows set up earlier also gets checkboxes and dropdowns', () => {
-    w.orders.put(1500, 1, '');
+  it('each new form answer gets checkboxes and dropdowns, on order rows only', () => {
+    submit(w, { name: 'First Test' });
     const before = w.orders.validations.length;
-    submit(w, { name: 'After Growth' });
+    submit(w, { name: 'Second Test', phone: '050-000-0002' });
     const added = w.orders.validations.slice(before);
-    expect(added.length).toBeGreaterThan(0);
-    expect(added.every((v) => v.rows === 1499)).toBe(true); // setup covered 999 rows; the sheet now has 1500
+    expect(added.length).toBe(7); // 3 checkbox + 4 dropdown columns
+    expect(added.every((v) => v.rows === 2)).toBe(true); // exactly the 2 order rows, never empty rows
+  });
+
+  it('clears leftover FALSE checkboxes in empty rows, so new form answers land right under the last order', () => {
+    const r = submit(w, { name: 'Only Order' });
+    const paidCol = col(w.orders, 'Paid?');
+    const cancelCol = col(w.orders, 'Cancelled?');
+    w.orders.put(r, paidCol, false);
+    for (let row = r + 1; row <= r + 5; row += 1) {
+      w.orders.put(row, paidCol, false);
+      w.orders.put(row, cancelCol, false);
+    }
+    w.orders.put(r + 3, col(w.orders, 'Money went to'), 'note'); // not a checkbox value: left alone
+    w.orders.cleared = [];
+    w.app.onFormSubmit();
+    expect(w.orders.getLastRow()).toBe(r + 3);
+    for (let row = r + 1; row <= r + 5; row += 1) {
+      expect(w.orders.cell(row, paidCol)).toBe('');
+      expect(w.orders.cell(row, cancelCol)).toBe('');
+    }
+    expect(w.orders.cell(r + 3, col(w.orders, 'Money went to'))).toBe('note');
+    expect(w.orders.cell(r, paidCol)).toBe(false); // the order's own box is kept
+    expect(w.orders.cleared.every((c) => c.row === r + 1)).toBe(true);
+    expect(w.orders.cleared).toHaveLength(7);
   });
 
   it('never changes form answers or staff columns', () => {

@@ -38,6 +38,11 @@ class FakeRange {
     return this;
   }
 
+  clearDataValidations() {
+    this.sheet.cleared.push({ row: this.row, col: this.col, rows: this.rows });
+    return this;
+  }
+
   setNumberFormat(format) {
     this.sheet.formats.push({ col: this.col, format });
     return this;
@@ -65,6 +70,7 @@ export class FakeSheet {
     this.grid = grid.map((r) => [...r]);
     this.maxColumns = maxColumns ?? Math.max(1, ...this.grid.map((r) => r.length));
     this.validations = [];
+    this.cleared = [];
     this.formats = [];
     this.wrapped = [];
     this.rules = [];
