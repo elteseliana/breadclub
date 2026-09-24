@@ -51,7 +51,7 @@ describe('setup', () => {
     expect(w.services.lock.held).toBe(false);
   });
 
-  it('adds checkboxes, dropdowns, colours, plain-text computed columns, and freezes the name', () => {
+  it('adds checkboxes, dropdowns, colours, a plain-text bake date, and freezes the header', () => {
     const w = world();
     const rules = w.orders.validations.map((v) => [header(w.orders)[v.col - 1], v.rule.type]);
     expect(rules).toContainEqual(['Paid?', 'checkbox']);
@@ -60,9 +60,11 @@ describe('setup', () => {
     expect(rules).toContainEqual(['Order taken by', 'list']);
     expect(w.orders.rules.map((r) => [r.startsWith, r.background, header(w.orders)[r.ranges[0].getColumn() - 1]]))
       .toEqual(STATUS_COLOURS.map(([t, c]) => [t, c, 'Status']));
-    expect(w.orders.formats.map((f) => header(w.orders)[f.col - 1])).toEqual(COMPUTED_HEADERS);
+    // Only the bake date is plain text: link formulas in plain-text cells would show as text.
+    expect(w.orders.formats.map((f) => header(w.orders)[f.col - 1])).toEqual(['Bake date']);
     expect(w.orders.wrapped.map((f) => header(w.orders)[f.col - 1])).toEqual(['Needs attention']);
-    expect(w.orders.frozen).toEqual({ rows: 1, columns: 2 });
+    expect(w.orders.frozen).toEqual({ rows: 1, columns: 0 });
+    expect(w.ss.getSheetByName(PLAN_SHEET).widths).toEqual({ 2: 240, 3: 280 });
   });
 
   it('keeps other colour rules and replaces its own on a second setup', () => {
@@ -145,7 +147,15 @@ describe('a week of orders (synthetic customers)', () => {
     expect(cellOf(w.orders, r, 'Status')).toBe('Unpaid');
     expect(cellOf(w.orders, r, 'Ready msg')).toMatch(/^=HYPERLINK\("https:\/\/wa\.me\/972500000001\?text=/);
     expect(planText(w.ss)).toContain('Shayna: 2 loaves, 1 batch');
-    expect(w.orders.validations.at(-1).rows).toBe(999); // new rows get dropdowns too
+  });
+
+  it('a form answer past the rows set up earlier also gets checkboxes and dropdowns', () => {
+    w.orders.put(1500, 1, '');
+    const before = w.orders.validations.length;
+    submit(w, { name: 'After Growth' });
+    const added = w.orders.validations.slice(before);
+    expect(added.length).toBeGreaterThan(0);
+    expect(added.every((v) => v.rows === 1499)).toBe(true); // setup covered 999 rows; the sheet now has 1500
   });
 
   it('never changes form answers or staff columns', () => {

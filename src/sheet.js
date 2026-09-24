@@ -79,13 +79,11 @@ export function createApp({ SpreadsheetApp, LockService, ScriptApp, clock = () =
     const ours = STATUS_COLOURS.map(([text, colour]) => SpreadsheetApp.newConditionalFormatRule()
       .whenTextStartsWith(text).setBackground(colour).setRanges([statusRange]).build());
     orders.setConditionalFormatRules([...others, ...ours]);
-    for (const header of COMPUTED_HEADERS) {
-      // Plain text, so Sheets never turns "Fri 2 Oct" into a date shown some other way.
-      orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setNumberFormat('@');
-    }
+    // Plain text only for the bake date, so Sheets never turns "Fri 2 Oct" into a date shown some
+    // other way. (Not the link columns: a formula in a plain-text cell would show as text.)
+    orders.getRange(2, columnIndex(headers, 'Bake date') + 1, dataRows(orders), 1).setNumberFormat('@');
     orders.getRange(2, columnIndex(headers, 'Needs attention') + 1, dataRows(orders), 1).setWrap(true);
     orders.setFrozenRows(1);
-    orders.setFrozenColumns(columnIndex(headers, FORM_HEADERS.name) + 1);
   }
 
   function setup() {
@@ -169,6 +167,8 @@ export function createApp({ SpreadsheetApp, LockService, ScriptApp, clock = () =
       rows.push(...planRows(planFor(date, results, settings), settings));
     }
     sheet.clear();
+    sheet.setColumnWidth(2, 240);
+    sheet.setColumnWidth(3, 280);
     sheet.getRange(1, 1, rows.length, 3).setValues(rows.map((r) => [0, 1, 2].map((i) => r[i] ?? '')));
   }
 

@@ -137,7 +137,7 @@ var BreadClub = (() => {
       { name: "Friday", weekday: 5, cutoffWeekday: 3 }
     ],
     skipDates: [],
-    // Orders placed before this date are left alone (no status, no reminders, not counted).
+    // Orders baked before this date are left alone (no status, no reminders, not counted).
     trackFrom: "",
     flavors: [
       { key: "plain", label: "Plain sourdough", price: 35, baker: "Eliana" },
@@ -160,7 +160,7 @@ var BreadClub = (() => {
     ["Eliana's address", "address:Eliana"],
     ["Shayna's address", "address:Shayna"],
     ["No baking on (dates like 2026-10-06, comma separated)", "skipDates"],
-    ["Track orders from (date)", "trackFrom"]
+    ["Track orders baked from (date)", "trackFrom"]
   ];
   var NUMBER_KEYS = /* @__PURE__ */ new Set([
     "deliveryFee",
@@ -464,7 +464,7 @@ var BreadClub = (() => {
 
   // src/process.js
   var DAY_MS = 24 * 60 * 60 * 1e3;
-  function resolveBakeDate(order, settings, flags) {
+  function resolveBakeDate(order, settings, flags, todayIso) {
     if (order.staff.bakeDateChange !== "" && order.staff.bakeDateChange !== null) {
       const iso = toIsoDate(order.staff.bakeDateChange, settings.timeZone);
       if (!iso) {
@@ -473,6 +473,8 @@ var BreadClub = (() => {
       }
       if (order.timestamp && iso < localParts(order.timestamp, settings.timeZone).iso) {
         flags.blocking.push(`"Bake date (change)" ${formatDate(iso)} is before the order was placed`);
+      } else if (iso < todayIso && !order.staff.paid) {
+        flags.blocking.push(`"Bake date (change)" ${formatDate(iso)} has already passed: fix the date, or tick Paid? or Cancelled?`);
       } else if (!isBakeWeekday(iso, settings)) {
         flags.notes.push(`${formatDate(iso)} isn't a usual bake day`);
       }
@@ -514,7 +516,7 @@ var BreadClub = (() => {
     flags.warnings.push(...price.warnings);
     const assignment = assignBakers(order, settings);
     if (assignment.error) flags.blocking.push(assignment.error);
-    const bakeDate = resolveBakeDate(order, settings, flags);
+    const bakeDate = resolveBakeDate(order, settings, flags, localParts(now, settings.timeZone).iso);
     const hub = resolveHub(assignment, order.staff.handoff, flags);
     const { paid, paidTo } = order.staff;
     if (paid && !paidTo) flags.warnings.push('Paid: choose "Money went to"');
@@ -589,7 +591,9 @@ var BreadClub = (() => {
   function processOrders(orders, settings, now) {
     const results = orders.map((o) => {
       const r = processOrder(o, settings, now);
-      r.beforeTracking = Boolean(settings.trackFrom && o.timestamp && localParts(o.timestamp, settings.timeZone).iso < settings.trackFrom);
+      const placed = o.timestamp ? localParts(o.timestamp, settings.timeZone).iso : "";
+      const when = r.bakeDate || placed;
+      r.beforeTracking = Boolean(settings.trackFrom && when && when < settings.trackFrom);
       return r;
     });
     markDuplicates(results);
@@ -760,12 +764,9 @@ var BreadClub = (() => {
       const others = orders.getConditionalFormatRules().filter((rule) => !rule.getRanges().every((r) => r.getColumn() === statusCol));
       const ours = STATUS_COLOURS.map(([text, colour]) => SpreadsheetApp2.newConditionalFormatRule().whenTextStartsWith(text).setBackground(colour).setRanges([statusRange]).build());
       orders.setConditionalFormatRules([...others, ...ours]);
-      for (const header of COMPUTED_HEADERS) {
-        orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setNumberFormat("@");
-      }
+      orders.getRange(2, columnIndex(headers, "Bake date") + 1, dataRows(orders), 1).setNumberFormat("@");
       orders.getRange(2, columnIndex(headers, "Needs attention") + 1, dataRows(orders), 1).setWrap(true);
       orders.setFrozenRows(1);
-      orders.setFrozenColumns(columnIndex(headers, FORM_HEADERS.name) + 1);
     }
     function setup() {
       const ss = SpreadsheetApp2.getActiveSpreadsheet();
@@ -846,6 +847,8 @@ var BreadClub = (() => {
         rows.push(...planRows(planFor(date, results, settings), settings));
       }
       sheet.clear();
+      sheet.setColumnWidth(2, 240);
+      sheet.setColumnWidth(3, 280);
       sheet.getRange(1, 1, rows.length, 3).setValues(rows.map((r) => [0, 1, 2].map((i) => {
         var _a2;
         return (_a2 = r[i]) != null ? _a2 : "";

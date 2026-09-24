@@ -73,7 +73,7 @@ describe('Settings tab', () => {
   it('reads dates that Sheets stored as real dates', () => {
     const r = rows.map(([l, v]) => {
       if (l.startsWith('No baking')) return [l, new Date(Date.UTC(2026, 9, 5, 21, 0))]; // 6 Oct 00:00 in Israel
-      if (l.startsWith('Track orders from')) return [l, new Date(Date.UTC(2026, 8, 23, 21, 0))];
+      if (l.startsWith('Track orders baked from')) return [l, new Date(Date.UTC(2026, 8, 23, 21, 0))];
       return [l, v];
     });
     const { settings, errors } = parseSettings(r, flavorRows);
@@ -83,10 +83,10 @@ describe('Settings tab', () => {
   });
 
   it('reports an unreadable tracking date', () => {
-    const r = rows.map(([l, v]) => (l.startsWith('Track orders from') ? [l, 'last week'] : [l, v]));
+    const r = rows.map(([l, v]) => (l.startsWith('Track orders baked from') ? [l, 'last week'] : [l, v]));
     const { settings, errors } = parseSettings(r, flavorRows);
     expect(settings.trackFrom).toBe('');
-    expect(errors).toEqual(['Settings: can\'t read "Track orders from (date)" (use 2026-10-06)']);
+    expect(errors).toEqual(['Settings: can\'t read "Track orders baked from (date)" (use 2026-10-06)']);
   });
 
   it('allows no holiday dates', () => {

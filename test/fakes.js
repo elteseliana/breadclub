@@ -125,6 +125,8 @@ export class FakeSheet {
 
   setFrozenColumns(n) { this.frozen.columns = n; }
 
+  setColumnWidth(col, px) { this.widths = { ...this.widths, [col]: px }; }
+
   clear() { this.grid = []; }
 }
 

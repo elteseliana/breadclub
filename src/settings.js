@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     { name: 'Friday', weekday: 5, cutoffWeekday: 3 },
   ],
   skipDates: [],
-  // Orders placed before this date are left alone (no status, no reminders, not counted).
+  // Orders baked before this date are left alone (no status, no reminders, not counted).
   trackFrom: '',
   flavors: [
     { key: 'plain', label: 'Plain sourdough', price: 35, baker: 'Eliana' },
@@ -49,7 +49,7 @@ export const SETTING_ROWS = [
   ["Eliana's address", 'address:Eliana'],
   ["Shayna's address", 'address:Shayna'],
   ['No baking on (dates like 2026-10-06, comma separated)', 'skipDates'],
-  ['Track orders from (date)', 'trackFrom'],
+  ['Track orders baked from (date)', 'trackFrom'],
 ];
 
 const NUMBER_KEYS = new Set([

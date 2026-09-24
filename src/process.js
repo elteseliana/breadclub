@@ -14,7 +14,7 @@ import { DECISION_OPTIONS, PAID_TO_OPTIONS } from './order.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function resolveBakeDate(order, settings, flags) {
+function resolveBakeDate(order, settings, flags, todayIso) {
   if (order.staff.bakeDateChange !== '' && order.staff.bakeDateChange !== null) {
     const iso = toIsoDate(order.staff.bakeDateChange, settings.timeZone);
     if (!iso) {
@@ -23,6 +23,9 @@ function resolveBakeDate(order, settings, flags) {
     }
     if (order.timestamp && iso < localParts(order.timestamp, settings.timeZone).iso) {
       flags.blocking.push(`"Bake date (change)" ${formatDate(iso)} is before the order was placed`);
+    } else if (iso < todayIso && !order.staff.paid) {
+      // A typed date in the past would silently miss every Bake Plan: hold it until checked.
+      flags.blocking.push(`"Bake date (change)" ${formatDate(iso)} has already passed: fix the date, or tick Paid? or Cancelled?`);
     } else if (!isBakeWeekday(iso, settings)) {
       flags.notes.push(`${formatDate(iso)} isn't a usual bake day`);
     }
@@ -67,7 +70,7 @@ export function processOrder(order, settings, now) {
   flags.warnings.push(...price.warnings);
   const assignment = assignBakers(order, settings);
   if (assignment.error) flags.blocking.push(assignment.error);
-  const bakeDate = resolveBakeDate(order, settings, flags);
+  const bakeDate = resolveBakeDate(order, settings, flags, localParts(now, settings.timeZone).iso);
   const hub = resolveHub(assignment, order.staff.handoff, flags);
 
   const { paid, paidTo } = order.staff;
@@ -153,8 +156,11 @@ function statusOf(r, settings) {
 export function processOrders(orders, settings, now) {
   const results = orders.map((o) => {
     const r = processOrder(o, settings, now);
-    r.beforeTracking = Boolean(settings.trackFrom && o.timestamp
-      && localParts(o.timestamp, settings.timeZone).iso < settings.trackFrom);
+    // Switch-over: leave alone orders for bakes that already happened before tracking started
+    // (or, with no bake date, orders placed before it). Orders for upcoming bakes are tracked.
+    const placed = o.timestamp ? localParts(o.timestamp, settings.timeZone).iso : '';
+    const when = r.bakeDate || placed;
+    r.beforeTracking = Boolean(settings.trackFrom && when && when < settings.trackFrom);
     return r;
   });
   markDuplicates(results);

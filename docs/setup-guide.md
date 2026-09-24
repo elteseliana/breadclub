@@ -9,8 +9,8 @@ Your real Sheet and form stay untouched until you decide to switch. Do all of th
    - Delete the **Flavor of the season** row from the flavor grid.
    - Change the day choices to exactly: **`Tuesday (order by Sunday 2pm)`** and **`Friday (order by Wednesday 2pm)`**.
    - Keep the delivery choice starting with **Delivery** (e.g. `Delivery (+5₪, free from 100₪)`) and pickup starting with **Pickup**.
-   - Optional: add a grid question titled exactly **`Spelt — how many of each?`** with the same flavor rows. If you skip it,
-     add spelt orders yourself (see "Spelt" below).
+   - Add a grid question titled exactly **`Spelt — how many of each?`** with the same flavor rows as the main grid
+     (you can say in its description "only if we agreed on spelt"). This is how spelt gets priced (+₪17 per pair).
    - **Privacy check:** open Settings → Responses and make sure **"See summary charts and text responses"** is OFF.
      If it's on, every customer can see everyone's names, phones and addresses.
 3. **Link the test form to a new Sheet:** Responses tab → **Link to Sheets** → *Create a new spreadsheet*.
@@ -33,8 +33,10 @@ Your real Sheet and form stay untouched until you decide to switch. Do all of th
 1. **Back up the old script first:** in the real Sheet, Extensions → Apps Script, select everything, copy it into a
    Google Doc named "Old Bread Club script". (This is what updates your old "Bake Day Summary" tab.)
 2. Do steps 2 (form edits, on the real form), 4 and 5 on the real Sheet.
-3. Setup sets **Track orders from** in Settings to today. Older orders show **Before tracking**, get no reminders,
-   and aren't counted, so nobody who already paid gets a reminder. Nothing in those rows is changed.
+3. Setup sets **Track orders baked from** in Settings to today. Orders for bakes that already happened show
+   **Before tracking**, get no reminders, and aren't counted, so nobody who already paid gets a reminder.
+   Orders for the coming Tuesday/Friday are tracked as normal. Tick **Paid?** on the ones already paid.
+   Nothing in the old rows is changed.
 4. Delete the old **Order total (₪)** column, because it uses the wrong ₪10 delivery fee. The new **Total ₪** replaces it.
    Delete the old **Bake Day Summary** tab too, because it adds up every week together. The new **Bake Plan** replaces it.
 
@@ -90,14 +92,15 @@ The **Settings** tab holds:
 - prices, the delivery fee and the cutoff hour
 - the Bit number and your addresses
 - **No baking on** dates (e.g. `2026-10-06` for a holiday)
-- **Track orders from**
+- **Track orders baked from**
 
 Only you and Shayna change these. If something you type there can't be read, a ⚠ line appears at the top of the Bake Plan.
 
 **WhatsApp orders:** fill in the form for the customer so the order gets a time. That's what makes the late check
 and the unpaid reminder work. If you add a row by hand instead, fill in **Bake date (change)**.
 
-**Spelt:** always in pairs; Eliana bakes it. Without a spelt question on the form, add a row by hand or write it in Notes and adjust.
+**Spelt:** always in pairs; Eliana bakes it. For a spelt order that came by WhatsApp, fill in the form for the
+customer and put the loaves in the **Spelt** grid. A single spelt loaf is held with "Spelt comes in pairs" until fixed.
 
 ## What stays manual
 Sending any message · marking paid · accepting late orders · choosing handoff places · changing prices and bake days.

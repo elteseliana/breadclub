@@ -61,6 +61,10 @@ describe('one order', () => {
     const saturday = one({}, { 'Bake date (change)': '2026-10-03' });
     expect(saturday).toMatchObject({ bakeDate: '2026-10-03', counted: true, status: 'Unpaid' });
     expect(saturday.attention).toEqual(["Sat 3 Oct isn't a usual bake day"]);
+    const passed = one({ at: '' }, { 'Bake date (change)': '2026-09-18' });
+    expect(passed).toMatchObject({ counted: false, pending: true, status: 'Needs attention' });
+    expect(passed.attention).toEqual(['"Bake date (change)" Fri 18 Sep has already passed: fix the date, or tick Paid? or Cancelled?']);
+    expect(one({ at: '' }, { 'Bake date (change)': '2026-09-18', 'Paid?': true, 'Money went to': 'Bit' }).status).toBe('Paid');
     const past = one({}, { 'Bake date (change)': '2026-02-10' });
     expect(past).toMatchObject({ counted: false, pending: true, status: 'Needs attention' });
     expect(past.attention).toEqual(['"Bake date (change)" Tue 10 Feb is before the order was placed']);
@@ -145,16 +149,22 @@ describe('one order', () => {
     expect(r).toMatchObject({ status: 'Cancelled', counted: false, pending: false, attention: [], readyFormula: '', reminderFormula: '' });
   });
 
-  it('orders from before "Track orders from" are left alone (no false reminders at switch-over)', () => {
+  it('at switch-over, orders for bakes that already happened are left alone; upcoming ones are tracked', () => {
     const settings = { ...S, trackFrom: '2026-09-24' };
-    const [old, fresh, typed] = processOrders([
-      order({ at: il('2026-09-08') }, {}, 2),
-      order({ at: il('2026-09-24', '09:00'), phone: '050-000-0002', day: 'Tuesday' }, {}, 3),
-      order({ at: '', phone: '050-000-0003' }, { 'Bake date (change)': '2026-09-25' }, 4),
+    const [old, oldLate, oldUndated, placedBefore, typed, undated] = processOrders([
+      order({ at: il('2026-09-08') }, {}, 2), // baked Fri 11 Sep
+      order({ at: il('2026-09-21'), day: 'Tuesday', phone: '050-000-0005' }, {}, 3), // late for 22 Sep, never decided
+      order({ at: il('2026-09-10'), day: 'Someday', phone: '050-000-0006' }, {}, 4), // no bake date, placed before
+      order({ at: il('2026-09-22', '09:00'), phone: '050-000-0002' }, {}, 5), // placed before switch, for Fri 25 Sep
+      order({ at: '', phone: '050-000-0003', name: 'Typed In' }, { 'Bake date (change)': '2026-09-25' }, 6),
+      order({ at: '', phone: '050-000-0004' }, {}, 7), // no time, no date: needs a person
     ], settings, il('2026-09-24', '12:00'));
-    expect(old).toMatchObject({ status: 'Before tracking', counted: false, pending: false, attention: [], reminderFormula: '' });
-    expect(fresh).toMatchObject({ status: 'Unpaid', counted: true });
+    for (const r of [old, oldLate, oldUndated]) {
+      expect(r).toMatchObject({ status: 'Before tracking', counted: false, pending: false, attention: [], reminderFormula: '' });
+    }
+    expect(placedBefore).toMatchObject({ status: 'Unpaid 2 days: send reminder', counted: true, bakeDate: '2026-09-25' });
     expect(typed).toMatchObject({ status: 'Unpaid', counted: true });
+    expect(undated).toMatchObject({ status: 'Needs attention', pending: true });
   });
 });
 

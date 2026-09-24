@@ -14,7 +14,7 @@ beforeAll(() => {
 });
 
 function load() {
-  const orders = new FakeSheet('Form Responses 1', [[...HEADERS, 'Paid?'], [...formRow({ name: 'Bundle Test' }), false]]);
+  const orders = new FakeSheet('Form Responses 1', [[...HEADERS, 'Paid?'], [...formRow({ name: 'Bundle Test', at: new Date('2020-01-07T10:00:00Z') }), false]]);
   const ss = new FakeSpreadsheet([orders]);
   const services = fakeServices(ss);
   const toasts = [];
@@ -36,7 +36,7 @@ describe('the Apps Script bundle', () => {
     context.setupBreadClub();
     expect(alerts[0]).toMatch(/^Bread Club is set up\. Added columns: Money went to/);
     const status = orders.grid[0].indexOf('Status');
-    // The order in the sheet is older than the setup day, so it is left alone.
+    // The order in the sheet was baked long before setup (real clock), so it is left alone.
     expect(orders.grid[1][status]).toBe('Before tracking');
     context.onFormSubmitTrigger();
     context.dailyRefresh();
