@@ -76,7 +76,10 @@ Items marked **(unclear)** are waiting on her answer.
 ### Capacity
 - 6 bannetons each (6 loaves per baker per bake).
 - Breads for Friday are usually ready by Thursday; extra orders mean a few more batches Thursday night.
-- They have never sold out.
+- No hard sell-out point mentioned; more orders means more batches.
+
+### Changes and cancellations
+- Has never happened so far. No policy yet.
 
 ### Away weeks
 - When one partner is away, the other takes over and keeps all that week's profit.
