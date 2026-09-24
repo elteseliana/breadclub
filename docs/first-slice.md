@@ -9,9 +9,13 @@ Status: **waiting for Eliana's approval.** Nothing is built yet.
 - **Always manual:** sending any WhatsApp; marking an order paid; accepting a late order.
 - Prices and bake days live in a Settings tab that only Eliana and Shayna edit. Nothing changes them automatically.
 - **Seasonal flavor removed** from the menu.
-- Eliana will share the current Form, Sheet and Doc (read-only) with theeltesfamily@gmail.com.
+- Eliana shared "The Bread Club — Orders" Sheet read-only.
+- WhatsApp Business account: **not doing it** (Eliana, 2026-09-24).
 
 ## What it will be
+**Update:** Eliana shared the real Sheet (see `current-sheet-review.md`). The plan is to **upgrade that Sheet and its form**,
+not start a new one. Every change is built and tested first on a copy with fake customers.
+
 A Google Sheet that you both already know how to use, fed by a Google Form. Small scripts inside the Sheet
 (Google Apps Script) do the math and the flags. The math is also kept as plain code with automated tests.
 Customers keep ordering by WhatsApp or the form. WhatsApp orders are typed into the same form by
@@ -44,8 +48,10 @@ Every check uses fake test customers in a separate test copy of the Sheet.
    WhatsApp to that customer with the message already typed. Nothing sends until you press send.
 8. **Bake-day view.** For each bake day and each baker: the list of loaves, number of batches, flour bags and starter
    grams. Spelt always counts in pairs.
-9. **Survives reloads.** Close and reopen the Sheet and every order and status is still there.
-10. **Your old setup keeps working.** Your current form and Doc stay as they are until you choose to switch.
+9. **One week at a time.** Every order is tied to a bake date (e.g. Fri 2 Oct), so the bake list shows only that
+   week and never adds in earlier weeks. Day choices use one fixed wording.
+10. **Survives reloads.** Close and reopen the Sheet and every order and status is still there.
+11. **Your old setup keeps working.** Your current form and Doc stay as they are until you choose to switch.
 
 ## Wording to approve (drafts)
 - Ready (pickup): "Hi {name}! Your sourdough is ready for pickup at {address} 🍞 Total ₪{total}{unpaid note}"
@@ -53,5 +59,8 @@ Every check uses fake test customers in a separate test copy of the Sheet.
 - Reminder: "Hi {name}! Just a reminder that your total is ₪{total}. You can Bit {number} or pay cash. Thank you!"
 
 ## Still needed from Eliana
-- Share the current Form, Sheet and Doc.
+- Is delivery ₪5 or ₪10? (The Sheet charges ₪10.)
+- Do Friday orders close Tuesday or Wednesday? (The form says Tuesday.)
+- Which Bit number should customers pay now: yours, or your mom's?
+- Optional: the code of the current script (Sheet → Extensions → Apps Script → copy everything).
 - Approve or edit the criteria and wording above.
