@@ -1,0 +1,21 @@
+{
+  "name": "breadclub",
+  "private": true,
+  "type": "module",
+  "description": "Order list upgrade for The Bread Club Google Sheet (Apps Script).",
+  "scripts": {
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "build": "node scripts/build-gas.mjs",
+    "check": "npm run lint && npm run coverage && npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@vitest/coverage-v8": "^5.0.1",
+    "esbuild": "^0.28.0",
+    "eslint": "^9.0.0",
+    "globals": "^16.0.0",
+    "vitest": "^5.0.1"
+  }
+}

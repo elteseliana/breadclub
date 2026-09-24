@@ -52,7 +52,7 @@ Items marked **(unclear)** are waiting on her answer.
 
 ### Pickup and delivery
 - Delivery +₪5, free when the order total is ₪100 or more. Customers can always choose pickup instead.
-  **(still unclear: does the spelt +₪17 count toward ₪100? Assumed yes, since it is part of the order total.)**
+  (Confirmed: spelt counts toward the ₪100.)
 - Pickup at the baker's house: Achi Dakar 62 (Eliana) or Hakdoshim 4 (Shayna).
 - The baker delivers. In a mixed order, the other partner drops her loaves at the delivering partner's house.
 - Mixed orders: whoever lives closer to the customer delivers, with exceptions. Example: a customer picking up
