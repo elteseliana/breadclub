@@ -591,9 +591,10 @@ var BreadClub = (() => {
   function processOrders(orders, settings, now) {
     const results = orders.map((o) => {
       const r = processOrder(o, settings, now);
+      const typed = o.staff.bakeDateChange !== "" && o.staff.bakeDateChange !== null;
       const placed = o.timestamp ? localParts(o.timestamp, settings.timeZone).iso : "";
       const when = r.bakeDate || placed;
-      r.beforeTracking = Boolean(settings.trackFrom && when && when < settings.trackFrom);
+      r.beforeTracking = Boolean(settings.trackFrom && !typed && when && when < settings.trackFrom);
       return r;
     });
     markDuplicates(results);

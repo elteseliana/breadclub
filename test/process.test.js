@@ -166,6 +166,23 @@ describe('one order', () => {
     expect(typed).toMatchObject({ status: 'Unpaid', counted: true });
     expect(undated).toMatchObject({ status: 'Needs attention', pending: true });
   });
+
+  it('an order baked on the tracking start day itself is tracked', () => {
+    const r = processOrders([order({ at: il('2026-09-22') })], { ...S, trackFrom: '2026-09-25' }, il('2026-09-24'))[0];
+    expect(r).toMatchObject({ bakeDate: '2026-09-25', beforeTracking: false, counted: true });
+  });
+
+  it('a typed bake date before tracking started is flagged, never hidden as "Before tracking"', () => {
+    const settings = { ...S, trackFrom: '2026-09-20' };
+    const [misread, handTyped] = processOrders([
+      order({ at: il('2026-09-23') }, { 'Bake date (change)': '2026-02-10' }, 2), // "2/10" read as 10 Feb
+      order({ at: '', phone: '050-000-0002' }, { 'Bake date (change)': '2026-09-18' }, 3),
+    ], settings, il('2026-09-24', '18:00'));
+    expect(misread).toMatchObject({ status: 'Needs attention', pending: true });
+    expect(misread.attention).toEqual(['"Bake date (change)" Tue 10 Feb is before the order was placed']);
+    expect(handTyped).toMatchObject({ status: 'Needs attention', pending: true });
+    expect(handTyped.attention[0]).toMatch(/Fri 18 Sep has already passed/);
+  });
 });
 
 describe('duplicates', () => {
