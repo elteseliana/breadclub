@@ -24,12 +24,12 @@ Items marked **(unclear)** are waiting on her answer.
 
 ### Schedule
 - Delivery/pickup Tuesday and Friday.
-- Orders close Sunday for Tuesday, Wednesday for Friday. **(unclear: what time?)**
+- Orders close Sunday for Tuesday, Wednesday for Friday, around 2pm (that's when baking starts).
 
 ### How people order
 - Mostly family friends from the neighborhood.
 - Private WhatsApp to Eliana or Shayna, at random.
-- There is also a Google Doc/form that connects to a Sheet. **(unclear: is this a Google Form feeding a Sheet? Do customers use it?)**
+- There is also a Google Doc/form that connects to a Sheet; many customers use it. Ordering is a mix of the form and WhatsApp.
 
 ### Where orders live
 - A shared Google Doc, copied in by hand.
@@ -37,7 +37,7 @@ Items marked **(unclear)** are waiting on her answer.
 ### Payment
 - Bit to Eliana (connected to Pepper) or cash.
 - Preferably paid when ordering.
-- Reminder 2 days after an unpaid order. **(unclear: who sends it, and is it sent by hand today?)**
+- Reminder 2 days after an unpaid order, sent by hand. One reminder is usually enough; people just forget.
 
 ### Baking and shopping
 - One batch = 2 loaves = one 1 kg bag of flour. A batch can be split into two flavors.
@@ -51,10 +51,13 @@ Items marked **(unclear)** are waiting on her answer.
 - Money settled weekly; moms are paid back first, then profit split.
 
 ### Pickup and delivery
-- Delivery +₪5, free from ₪100. **(unclear: is ₪100 counted before the fee, and does spelt's +₪17 count?)**
+- Delivery +₪5, free when the order total is ₪100 or more. Customers can always choose pickup instead.
+  **(still unclear: does the spelt +₪17 count toward ₪100? Assumed yes, since it is part of the order total.)**
 - Pickup at the baker's house: Achi Dakar 62 (Eliana) or Hakdoshim 4 (Shayna).
 - The baker delivers. In a mixed order, the other partner drops her loaves at the delivering partner's house.
-  **(unclear: in a mixed order, who is the delivering partner / where is pickup?)**
+- Mixed orders: whoever lives closer to the customer delivers, with exceptions. Example: a customer picking up
+  garlic at Shayna's also ordered plain, so Eliana walks the plain over to Shayna's. The handoff location is a
+  per-order decision, not a fixed rule.
 
 ### Current pain points
 1. Orders split across two phones.
@@ -62,3 +65,24 @@ Items marked **(unclear)** are waiting on her answer.
 3. Every "ready" message sent by hand.
 4. Not knowing who paid.
 5. Complicated money calculations.
+
+## Round 2 (2026-09-24)
+
+### Late orders
+- After ~2pm on cutoff day, a late customer is told baking has started and is offered the next bake day
+  (for example, Friday instead of Tuesday).
+- Exception: if the late loaf would fill an odd half-batch (the second loaf of a batch that's already being baked), accept it.
+
+### Capacity
+- 6 bannetons each (6 loaves per baker per bake).
+- Breads for Friday are usually ready by Thursday; extra orders mean a few more batches Thursday night.
+- They have never sold out.
+
+### Away weeks
+- When one partner is away, the other takes over and keeps all that week's profit.
+
+### Language
+- Hebrew and English, mainly English.
+
+### Priority
+- All five pain points matter equally (no single one picked yet).
