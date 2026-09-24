@@ -37,6 +37,8 @@ Your real Sheet and form stay untouched until you decide to switch. Do all of th
    **Before tracking**, get no reminders, and aren't counted, so nobody who already paid gets a reminder.
    Orders for the coming Tuesday/Friday are tracked as normal. Tick **Paid?** on the ones already paid.
    Nothing in the old rows is changed.
+   One-time cleanup: an old row where someone typed a bake date by hand shows **Needs attention** ("has already
+   passed") until you tick **Paid?** or **Cancelled?** on it. This is on purpose, so a mistyped date is never hidden.
 4. Delete the old **Order total (₪)** column, because it uses the wrong ₪10 delivery fee. The new **Total ₪** replaces it.
    Delete the old **Bake Day Summary** tab too, because it adds up every week together. The new **Bake Plan** replaces it.
 
