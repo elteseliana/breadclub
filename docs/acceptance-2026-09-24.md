@@ -10,8 +10,8 @@ Synthetic customers only. No real message, payment or Google account was touched
 | 1. Eliana approved the workflow and criteria | ✅ 2026-09-24 (`first-slice.md`) |
 | 2. Checks and coverage | ✅ lint clean · 125/125 tests · 100% statements/branches/functions/lines · build matches source |
 | 3. Business, UI/UX and code-quality reviewers each PASS on the same revision | ✅ all three PASS on `952c0dc` (after 3 rounds of fixes) |
-| 4. Synthetic order end to end in a real, isolated Google test copy; found after reload; duplicate and failure visible | ✅ mostly, on a real Google Sheet (see below). ⏳ Still to do: a real **form** submission |
-| 5. Eliana approves going live (real Sheet/form) | ⏳ not yet |
+| 4. Synthetic order end to end in a real, isolated Google test copy; found after reload; duplicate and failure visible | ✅ on real Google Sheets, including a real form submission (see below) |
+| 5. Eliana approves going live (real Sheet/form) | ⏳ next step |
 
 ## What reviewers found and what was fixed
 - **Round 1 (3 × FAIL):**
@@ -80,4 +80,14 @@ Eliana installed `apps-script/Code.js` and ran Set up. Claude read the Sheet bac
 | Close and reopen → everything kept | ✅ |
 | Ready ▶ on a phone opens WhatsApp with the text typed (not sent) | ✅ (Eliana) |
 | Bake Plan (flour bags, starter, handoffs, deliveries, pickups) | ✅ |
-| A customer submitting the Google Form | ⏳ not tested yet (no form linked) |
+| A customer submitting the Google Form | ✅ on a copy of the real form (below) |
+
+## Real form submission (2026-09-24, commit 2580a7b)
+A copy of the real order form was linked to a new Sheet, with the script installed and Set up run. Setup cleared the leftover empty checkboxes.
+Eliana submitted one order in Preview. It landed in **row 2**, and without anyone touching the Sheet it showed:
+- total ₪121 (plain 35 + garlic 42 + rosemary garlic 44)
+- bake date Tue 29 Sep (ordered Thursday evening, before Sunday's cutoff)
+- Eliana: plain; Shayna: garlic, rosemary garlic
+- status "Needs attention: Two bakers: choose Handoff at"
+
+The first attempt had failed to show up. The cause was setup pre-filling every row with FALSE checkboxes; fixed in `2580a7b`.
