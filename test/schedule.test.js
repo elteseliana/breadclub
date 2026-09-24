@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { scheduleOrder, upcomingBakeDates, formatDate, toIsoDate, addDays, parseBakeDay, localParts } from '../src/schedule.js';
+import { scheduleOrder, upcomingBakeDates, formatDate, toIsoDate, addDays, parseBakeDay, localParts, isBakeWeekday } from '../src/schedule.js';
 import { il, S } from './helpers.js';
 
 describe('bake dates and cutoffs (Tue closes Sun 2pm, Fri closes Wed 2pm, Israel time)', () => {
   it('Thursday order for Tuesday -> next Tuesday, on time', () => {
     expect(scheduleOrder(il('2026-09-24'), 'Tuesday', S)).toEqual({
-      bakeDate: '2026-09-29', late: false, skipped: false, nextOpen: '2026-09-29',
+      bakeDate: '2026-09-29', late: false, skipped: false, nextOpen: '2026-10-02',
     });
   });
 
@@ -48,6 +48,17 @@ describe('bake dates and cutoffs (Tue closes Sun 2pm, Fri closes Wed 2pm, Israel
     const settings = { ...S, skipDates: ['2026-09-29'] };
     expect(scheduleOrder(il('2026-09-24'), 'Tuesday', settings))
       .toMatchObject({ bakeDate: '2026-09-29', skipped: true, late: false, nextOpen: '2026-10-02' });
+  });
+
+  it('"next" never moves an order earlier: a Friday holiday moves to the next Tuesday, not back', () => {
+    const settings = { ...S, skipDates: ['2026-10-02'] };
+    expect(scheduleOrder(il('2026-09-27', '18:00'), 'Friday', settings))
+      .toMatchObject({ bakeDate: '2026-10-02', skipped: true, nextOpen: '2026-10-06' });
+  });
+
+  it('knows the usual bake weekdays', () => {
+    expect(isBakeWeekday('2026-10-02', S)).toBe(true);
+    expect(isBakeWeekday('2026-10-03', S)).toBe(false);
   });
 
   it('next open date skips holidays on both days', () => {

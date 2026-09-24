@@ -36,7 +36,8 @@ describe('the Apps Script bundle', () => {
     context.setupBreadClub();
     expect(alerts[0]).toMatch(/^Bread Club is set up\. Added columns: Money went to/);
     const status = orders.grid[0].indexOf('Status');
-    expect(orders.grid[1][status]).toBe('Unpaid');
+    // The order in the sheet is older than the setup day, so it is left alone.
+    expect(orders.grid[1][status]).toBe('Before tracking');
     context.onFormSubmitTrigger();
     context.dailyRefresh();
     context.refreshNow();

@@ -1,3 +1,5 @@
+import { toIsoDate } from './schedule.js';
+
 // Business rules confirmed by Eliana (see docs/interview-notes.md).
 // The Settings tab in the Sheet overrides these; nothing changes them automatically.
 
@@ -22,6 +24,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
     { name: 'Friday', weekday: 5, cutoffWeekday: 3 },
   ],
   skipDates: [],
+  // Orders placed before this date are left alone (no status, no reminders, not counted).
+  trackFrom: '',
   flavors: [
     { key: 'plain', label: 'Plain sourdough', price: 35, baker: 'Eliana' },
     { key: 'garlic', label: 'Garlic', price: 42, baker: 'Shayna' },
@@ -45,6 +49,7 @@ export const SETTING_ROWS = [
   ["Eliana's address", 'address:Eliana'],
   ["Shayna's address", 'address:Shayna'],
   ['No baking on (dates like 2026-10-06, comma separated)', 'skipDates'],
+  ['Track orders from (date)', 'trackFrom'],
 ];
 
 const NUMBER_KEYS = new Set([
@@ -81,10 +86,15 @@ export function parseSettings(rows, flavorRows, base = DEFAULT_SETTINGS) {
     if (key.startsWith('address:')) {
       settings.addresses[key.slice(8)] = String(value).trim();
     } else if (key === 'skipDates') {
-      const dates = String(value).split(',').map((d) => d.trim()).filter(Boolean);
-      const bad = dates.filter((d) => !/^\d{4}-\d{2}-\d{2}$/.test(d));
+      const parts = value instanceof Date ? [value] : String(value).split(',').map((d) => d.trim()).filter(Boolean);
+      const dates = parts.map((d) => [d, toIsoDate(d, settings.timeZone)]);
+      const bad = dates.filter(([, iso]) => !iso).map(([d]) => d);
       if (bad.length) errors.push(`Settings: can't read date(s) ${bad.join(', ')} (use 2026-10-06)`);
-      settings.skipDates = dates.filter((d) => !bad.includes(d));
+      settings.skipDates = dates.map(([, iso]) => iso).filter(Boolean);
+    } else if (key === 'trackFrom') {
+      const iso = toIsoDate(value, settings.timeZone);
+      if (value !== '' && !iso) errors.push(`Settings: can't read "${label}" (use 2026-10-06)`);
+      settings.trackFrom = iso ?? '';
     } else if (NUMBER_KEYS.has(key)) {
       const n = Number(value);
       if (value === '' || !Number.isFinite(n) || n < 0) {

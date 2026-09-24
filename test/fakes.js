@@ -38,6 +38,16 @@ class FakeRange {
     return this;
   }
 
+  setNumberFormat(format) {
+    this.sheet.formats.push({ col: this.col, format });
+    return this;
+  }
+
+  setWrap(wrap) {
+    this.sheet.wrapped.push({ col: this.col, wrap });
+    return this;
+  }
+
   getColumn() {
     return this.col;
   }
@@ -48,10 +58,17 @@ class FakeRange {
 }
 
 export class FakeSheet {
-  constructor(name, grid = []) {
+  // Like a real form-response tab, a sheet built from a grid has no spare columns
+  // unless maxColumns says so; new tabs get Google's default 26.
+  constructor(name, grid = [], { maxColumns } = {}) {
     this.name = name;
     this.grid = grid.map((r) => [...r]);
+    this.maxColumns = maxColumns ?? Math.max(1, ...this.grid.map((r) => r.length));
     this.validations = [];
+    this.formats = [];
+    this.wrapped = [];
+    this.rules = [];
+    this.frozen = { rows: 0, columns: 0 };
     this.writes = [];
   }
 
@@ -85,10 +102,28 @@ export class FakeSheet {
 
   getMaxRows() { return Math.max(this.grid.length, 1000); }
 
+  getMaxColumns() { return this.maxColumns; }
+
+  insertColumnsAfter(after, howMany) {
+    if (after > this.maxColumns) throw new Error('insertColumnsAfter: out of bounds');
+    this.maxColumns += howMany;
+  }
+
   getRange(row, col, rows = 1, cols = 1) {
     if (row < 1 || col < 1 || rows < 1 || cols < 1) throw new Error('bad range');
+    if (col + cols - 1 > this.maxColumns) {
+      throw new Error('Exception: The coordinates of the range are outside the dimensions of the sheet.');
+    }
     return new FakeRange(this, row, col, rows, cols);
   }
+
+  getConditionalFormatRules() { return [...this.rules]; }
+
+  setConditionalFormatRules(rules) { this.rules = [...rules]; }
+
+  setFrozenRows(n) { this.frozen.rows = n; }
+
+  setFrozenColumns(n) { this.frozen.columns = n; }
 
   clear() { this.grid = []; }
 }
@@ -101,7 +136,7 @@ export class FakeSpreadsheet {
   getSheetByName(name) { return this.sheets.find((s) => s.name === name) ?? null; }
 
   insertSheet(name) {
-    const s = new FakeSheet(name);
+    const s = new FakeSheet(name, [], { maxColumns: 26 });
     this.sheets.push(s);
     return s;
   }
@@ -132,6 +167,16 @@ export function fakeServices(ss) {
     };
     return b;
   };
+  const conditionalRule = () => {
+    const rule = {};
+    const b = {
+      whenTextStartsWith(text) { rule.startsWith = text; return b; },
+      setBackground(colour) { rule.background = colour; return b; },
+      setRanges(ranges) { rule.ranges = ranges; return b; },
+      build() { return { ...rule, getRanges: () => rule.ranges }; },
+    };
+    return b;
+  };
   return {
     menus,
     triggers,
@@ -139,6 +184,7 @@ export function fakeServices(ss) {
     SpreadsheetApp: {
       getActiveSpreadsheet: () => ss,
       newDataValidation: builder,
+      newConditionalFormatRule: conditionalRule,
       getUi: () => ({
         createMenu(title) {
           const menu = { title, items: [] };

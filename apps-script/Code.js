@@ -24,6 +24,98 @@ var BreadClub = (() => {
     app: () => app
   });
 
+  // src/schedule.js
+  var WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function localParts(date, timeZone) {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(date);
+    const get = (type) => parts.find((p) => p.type === type).value;
+    return {
+      iso: `${get("year")}-${get("month")}-${get("day")}`,
+      weekday: WEEKDAYS.indexOf(get("weekday")),
+      minutes: Number(get("hour")) * 60 + Number(get("minute"))
+    };
+  }
+  function addDays(iso, days) {
+    const d = /* @__PURE__ */ new Date(`${iso}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+  function formatDate(iso) {
+    const d = /* @__PURE__ */ new Date(`${iso}T00:00:00Z`);
+    return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+  }
+  function toIsoDate(value, timeZone) {
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : localParts(value, timeZone).iso;
+    const text = String(value != null ? value : "").trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
+  }
+  function parseBakeDay(choice, settings) {
+    var _a;
+    const text = String(choice != null ? choice : "").trim().toLowerCase();
+    return (_a = settings.bakeDays.find((d) => text.startsWith(d.name.toLowerCase()))) != null ? _a : null;
+  }
+  function cutoffFor(bakeIso, bakeDay) {
+    const back = (bakeDay.weekday - bakeDay.cutoffWeekday + 7) % 7;
+    return addDays(bakeIso, -back);
+  }
+  function isAfterCutoff(local, cutoffIso, settings) {
+    if (local.iso !== cutoffIso) return local.iso > cutoffIso;
+    return local.minutes >= settings.cutoffHour * 60;
+  }
+  function firstOnOrAfter(iso, weekdayOfIso, weekday) {
+    return addDays(iso, (weekday - weekdayOfIso + 7) % 7);
+  }
+  function nextOpenBakeDate(local, afterIso, settings) {
+    const afterWeekday = (/* @__PURE__ */ new Date(`${afterIso}T00:00:00Z`)).getUTCDay();
+    const options = settings.bakeDays.map((day) => {
+      let bake = firstOnOrAfter(addDays(afterIso, 1), (afterWeekday + 1) % 7, day.weekday);
+      while (isAfterCutoff(local, cutoffFor(bake, day), settings) || settings.skipDates.includes(bake)) {
+        bake = addDays(bake, 7);
+      }
+      return bake;
+    });
+    return options.sort()[0];
+  }
+  function scheduleOrder(timestamp, choice, settings) {
+    const day = parseBakeDay(choice, settings);
+    if (!day) return { error: `Can't tell which bake day "${choice}" means` };
+    if (!(timestamp instanceof Date) || Number.isNaN(timestamp.getTime())) {
+      return { error: 'No order time: fill in "Bake date (change)"' };
+    }
+    const local = localParts(timestamp, settings.timeZone);
+    const bakeDate = firstOnOrAfter(local.iso, local.weekday, day.weekday);
+    return {
+      bakeDate,
+      late: isAfterCutoff(local, cutoffFor(bakeDate, day), settings),
+      skipped: settings.skipDates.includes(bakeDate),
+      nextOpen: nextOpenBakeDate(local, bakeDate, settings)
+    };
+  }
+  function isBakeWeekday(iso, settings) {
+    const weekday = (/* @__PURE__ */ new Date(`${iso}T00:00:00Z`)).getUTCDay();
+    return settings.bakeDays.some((d) => d.weekday === weekday);
+  }
+  function upcomingBakeDates(now, settings, count2) {
+    const local = localParts(now, settings.timeZone);
+    const dates = [];
+    for (let offset = 0; dates.length < count2; offset += 1) {
+      const iso = addDays(local.iso, offset);
+      const weekday = (local.weekday + offset) % 7;
+      if (settings.bakeDays.some((d) => d.weekday === weekday) && !settings.skipDates.includes(iso)) dates.push(iso);
+    }
+    return dates;
+  }
+
   // src/settings.js
   var BAKERS = ["Eliana", "Shayna"];
   var DEFAULT_SETTINGS = Object.freeze({
@@ -45,6 +137,8 @@ var BreadClub = (() => {
       { name: "Friday", weekday: 5, cutoffWeekday: 3 }
     ],
     skipDates: [],
+    // Orders placed before this date are left alone (no status, no reminders, not counted).
+    trackFrom: "",
     flavors: [
       { key: "plain", label: "Plain sourdough", price: 35, baker: "Eliana" },
       { key: "garlic", label: "Garlic", price: 42, baker: "Shayna" },
@@ -65,7 +159,8 @@ var BreadClub = (() => {
     ["Bannetons per baker", "bannetonsPerBaker"],
     ["Eliana's address", "address:Eliana"],
     ["Shayna's address", "address:Shayna"],
-    ["No baking on (dates like 2026-10-06, comma separated)", "skipDates"]
+    ["No baking on (dates like 2026-10-06, comma separated)", "skipDates"],
+    ["Track orders from (date)", "trackFrom"]
   ];
   var NUMBER_KEYS = /* @__PURE__ */ new Set([
     "deliveryFee",
@@ -101,10 +196,15 @@ var BreadClub = (() => {
       if (key.startsWith("address:")) {
         settings.addresses[key.slice(8)] = String(value).trim();
       } else if (key === "skipDates") {
-        const dates = String(value).split(",").map((d) => d.trim()).filter(Boolean);
-        const bad = dates.filter((d) => !/^\d{4}-\d{2}-\d{2}$/.test(d));
+        const parts = value instanceof Date ? [value] : String(value).split(",").map((d) => d.trim()).filter(Boolean);
+        const dates = parts.map((d) => [d, toIsoDate(d, settings.timeZone)]);
+        const bad = dates.filter(([, iso]) => !iso).map(([d]) => d);
         if (bad.length) errors.push(`Settings: can't read date(s) ${bad.join(", ")} (use 2026-10-06)`);
-        settings.skipDates = dates.filter((d) => !bad.includes(d));
+        settings.skipDates = dates.map(([, iso]) => iso).filter(Boolean);
+      } else if (key === "trackFrom") {
+        const iso = toIsoDate(value, settings.timeZone);
+        if (value !== "" && !iso) errors.push(`Settings: can't read "${label}" (use 2026-10-06)`);
+        settings.trackFrom = iso != null ? iso : "";
       } else if (NUMBER_KEYS.has(key)) {
         const n = Number(value);
         if (value === "" || !Number.isFinite(n) || n < 0) {
@@ -140,8 +240,7 @@ var BreadClub = (() => {
     address: "Delivery address",
     day: "Pickup / delivery day",
     notes: "Notes or allergies",
-    payment: "Payment",
-    takenBy: "Order taken by"
+    payment: "Payment"
   };
   var STAFF_HEADERS = {
     paid: "Paid?",
@@ -152,9 +251,11 @@ var BreadClub = (() => {
     decision: "Late/holiday decision",
     bakeDateChange: "Bake date (change)",
     cancelled: "Cancelled?",
-    notDuplicate: "Not a duplicate"
+    notDuplicate: "Not a duplicate",
+    takenBy: "Order taken by"
   };
-  var PAID_TO_OPTIONS = ["Bit 054-911-2175", "Eliana cash", "Shayna cash", "Shayna's mom Bit", "Other"];
+  var PAID_TO_OPTIONS = ["Bit", "Eliana cash", "Shayna cash", "Shayna's mom Bit", "Other"];
+  var TAKEN_BY_OPTIONS = ["Eliana", "Shayna"];
   var DECISION_OPTIONS = ["Accept", "Move to next bake day"];
   var HANDOFF_OPTIONS = ["Eliana's", "Shayna's"];
   var norm = (s) => String(s != null ? s : "").trim().toLowerCase();
@@ -237,7 +338,8 @@ var BreadClub = (() => {
         decision: text(STAFF_HEADERS.decision),
         bakeDateChange: cell(STAFF_HEADERS.bakeDateChange),
         cancelled: isTicked(cell(STAFF_HEADERS.cancelled)),
-        notDuplicate: isTicked(cell(STAFF_HEADERS.notDuplicate))
+        notDuplicate: isTicked(cell(STAFF_HEADERS.notDuplicate)),
+        takenBy: text(STAFF_HEADERS.takenBy)
       }
     };
   }
@@ -260,6 +362,7 @@ var BreadClub = (() => {
   }
   function priceOrder(order, settings) {
     const problems = [];
+    const warnings = [];
     let loavesSubtotal = 0;
     for (const flavor of settings.flavors) {
       const qty = order.items[flavor.key];
@@ -271,10 +374,10 @@ var BreadClub = (() => {
     const speltExtra = Math.ceil(loaves.spelt / 2) * settings.speltExtraPerPair;
     const subtotal = loavesSubtotal + speltExtra;
     const deliveryFee = order.method === "delivery" && subtotal < settings.freeDeliveryFrom ? settings.deliveryFee : 0;
-    if (order.method === "delivery" && !order.address) problems.push("Delivery with no address");
+    if (order.method === "delivery" && !order.address) warnings.push("Delivery with no address");
     const total = subtotal + deliveryFee + order.staff.adjustment;
     if (total < 0) problems.push("Total is below \u20AA0: check Adjustment \u20AA");
-    return { loavesSubtotal, speltExtra, subtotal, deliveryFee, total, loaves, problems };
+    return { loavesSubtotal, speltExtra, subtotal, deliveryFee, total, loaves, problems, warnings };
   }
 
   // src/bakers.js
@@ -312,15 +415,15 @@ var BreadClub = (() => {
     };
     for (const flavor of settings.flavors) {
       const qty = order.items[flavor.key];
-      for (const [kind, count] of [["white", qty.white], ["spelt", qty.spelt]]) {
-        if (!count) continue;
+      for (const [kind, count2] of [["white", qty.white], ["spelt", qty.spelt]]) {
+        if (!count2) continue;
         const baker = choose(flavor, kind === "spelt");
         let line = byBaker[baker].find((l) => l.flavor === flavor.key);
         if (!line) {
           line = { flavor: flavor.key, label: flavor.label, white: 0, spelt: 0 };
           byBaker[baker].push(line);
         }
-        line[kind] += count;
+        line[kind] += count2;
       }
     }
     const bakers = BAKERS.filter((b) => byBaker[b].length);
@@ -330,109 +433,21 @@ var BreadClub = (() => {
     return assignment.bakers.map((b) => `${b}: ${assignment.byBaker[b].map((l) => [l.white && `${l.white} ${l.label}`, l.spelt && `${l.spelt} spelt ${l.label}`].filter(Boolean).join(", ")).join(", ")}`).join(" \xB7 ");
   }
 
-  // src/schedule.js
-  var WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  function localParts(date, timeZone) {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23"
-    }).formatToParts(date);
-    const get = (type) => parts.find((p) => p.type === type).value;
-    return {
-      iso: `${get("year")}-${get("month")}-${get("day")}`,
-      weekday: WEEKDAYS.indexOf(get("weekday")),
-      minutes: Number(get("hour")) * 60 + Number(get("minute"))
-    };
-  }
-  function addDays(iso, days) {
-    const d = /* @__PURE__ */ new Date(`${iso}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + days);
-    return d.toISOString().slice(0, 10);
-  }
-  function formatDate(iso) {
-    const d = /* @__PURE__ */ new Date(`${iso}T00:00:00Z`);
-    return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
-  }
-  function toIsoDate(value, timeZone) {
-    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : localParts(value, timeZone).iso;
-    const text = String(value != null ? value : "").trim();
-    return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
-  }
-  function parseBakeDay(choice, settings) {
-    var _a;
-    const text = String(choice != null ? choice : "").trim().toLowerCase();
-    return (_a = settings.bakeDays.find((d) => text.startsWith(d.name.toLowerCase()))) != null ? _a : null;
-  }
-  function cutoffFor(bakeIso, bakeDay) {
-    const back = (bakeDay.weekday - bakeDay.cutoffWeekday + 7) % 7;
-    return addDays(bakeIso, -back);
-  }
-  function isAfterCutoff(local, cutoffIso, settings) {
-    if (local.iso !== cutoffIso) return local.iso > cutoffIso;
-    return local.minutes >= settings.cutoffHour * 60;
-  }
-  function firstOnOrAfter(iso, weekdayOfIso, weekday) {
-    return addDays(iso, (weekday - weekdayOfIso + 7) % 7);
-  }
-  function nextOpenBakeDate(local, settings) {
-    const options = settings.bakeDays.map((day) => {
-      let bake = firstOnOrAfter(local.iso, local.weekday, day.weekday);
-      while (isAfterCutoff(local, cutoffFor(bake, day), settings) || settings.skipDates.includes(bake)) {
-        bake = addDays(bake, 7);
-      }
-      return bake;
-    });
-    return options.sort()[0];
-  }
-  function scheduleOrder(timestamp, choice, settings) {
-    const day = parseBakeDay(choice, settings);
-    if (!day) return { error: `Can't tell which bake day "${choice}" means` };
-    if (!(timestamp instanceof Date) || Number.isNaN(timestamp.getTime())) {
-      return { error: 'No order time: fill in "Bake date (change)"' };
-    }
-    const local = localParts(timestamp, settings.timeZone);
-    const bakeDate = firstOnOrAfter(local.iso, local.weekday, day.weekday);
-    return {
-      bakeDate,
-      late: isAfterCutoff(local, cutoffFor(bakeDate, day), settings),
-      skipped: settings.skipDates.includes(bakeDate),
-      nextOpen: nextOpenBakeDate(local, settings)
-    };
-  }
-  function upcomingBakeDates(now, settings, count) {
-    const local = localParts(now, settings.timeZone);
-    const dates = [];
-    for (let offset = 0; dates.length < count; offset += 1) {
-      const iso = addDays(local.iso, offset);
-      const weekday = (local.weekday + offset) % 7;
-      if (settings.bakeDays.some((d) => d.weekday === weekday) && !settings.skipDates.includes(iso)) dates.push(iso);
-    }
-    return dates;
-  }
-
   // src/messages.js
   function whatsappNumber(phone) {
-    const digits = String(phone != null ? phone : "").replace(/\D/g, "");
-    if (/^9725\d{8}$/.test(digits)) return digits;
-    if (/^05\d{8}$/.test(digits)) return `972${digits.slice(1)}`;
-    return null;
+    const digits = String(phone != null ? phone : "").replace(/\D/g, "").replace(/^9720?(?=5)/, "").replace(/^0(?=5)/, "");
+    return /^5\d{8}$/.test(digits) ? `972${digits}` : null;
   }
   function firstName(name) {
     const first = String(name != null ? name : "").trim().split(/\s+/)[0];
     return first ? first[0].toUpperCase() + first.slice(1) : "there";
   }
   function payHow(settings) {
-    return `You can Bit ${settings.bitNumber} (please write your name in the note) or pay cash.`;
+    return `You can Bit ${settings.bitNumber} or pay cash.`;
   }
   function readyMessage({ name, method, pickupAddress, total, paid }, settings) {
     const where = method === "delivery" ? "Your sourdough is on its way \u{1F35E}" : `Your sourdough is ready for pickup at ${pickupAddress} \u{1F35E}`;
+    if (total <= 0) return `Hi ${firstName(name)}! ${where}`;
     const money = paid ? `Total \u20AA${total}, paid. Thank you!` : `Total \u20AA${total}. ${payHow(settings)}`;
     return `Hi ${firstName(name)}! ${where} ${money}`;
   }
@@ -449,115 +464,144 @@ var BreadClub = (() => {
 
   // src/process.js
   var DAY_MS = 24 * 60 * 60 * 1e3;
-  function resolveBakeDate(order, settings, attention) {
+  function resolveBakeDate(order, settings, flags) {
     if (order.staff.bakeDateChange !== "" && order.staff.bakeDateChange !== null) {
       const iso = toIsoDate(order.staff.bakeDateChange, settings.timeZone);
-      if (iso) return { bakeDate: iso, pending: false };
-      attention.push(`Can't read "Bake date (change)": use a date like 2026-10-02`);
-      return { bakeDate: null, pending: true };
+      if (!iso) {
+        flags.blocking.push(`Can't read "Bake date (change)": use a date like 2026-10-02`);
+        return null;
+      }
+      if (order.timestamp && iso < localParts(order.timestamp, settings.timeZone).iso) {
+        flags.blocking.push(`"Bake date (change)" ${formatDate(iso)} is before the order was placed`);
+      } else if (!isBakeWeekday(iso, settings)) {
+        flags.notes.push(`${formatDate(iso)} isn't a usual bake day`);
+      }
+      return iso;
     }
     const s = scheduleOrder(order.timestamp, order.dayChoice, settings);
     if (s.error) {
-      attention.push(s.error);
-      return { bakeDate: null, pending: true };
+      flags.blocking.push(s.error);
+      return null;
     }
     const decision = order.staff.decision;
     if (decision && !DECISION_OPTIONS.includes(decision)) {
-      attention.push(`Late/holiday decision must be "${DECISION_OPTIONS.join('" or "')}"`);
+      flags.warnings.push(`Late/holiday decision must be "${DECISION_OPTIONS.join('" or "')}"`);
     }
-    if (!s.late && !s.skipped) return { bakeDate: s.bakeDate, pending: false };
-    if (decision === "Accept") return { bakeDate: s.bakeDate, pending: false };
-    if (decision === "Move to next bake day") return { bakeDate: s.nextOpen, pending: false };
-    attention.push(s.skipped ? `No baking on ${formatDate(s.bakeDate)}: Accept, or Move to next bake day (${formatDate(s.nextOpen)})` : `Late order for ${formatDate(s.bakeDate)}: Accept, or Move to next bake day (${formatDate(s.nextOpen)})`);
-    return { bakeDate: s.bakeDate, pending: true };
+    if (!s.late && !s.skipped) return s.bakeDate;
+    if (decision === "Accept") {
+      if (s.skipped) flags.notes.push(`Accepted for ${formatDate(s.bakeDate)}, which is marked "No baking" in Settings`);
+      return s.bakeDate;
+    }
+    if (decision === "Move to next bake day") return s.nextOpen;
+    flags.blocking.push(s.skipped ? `No baking on ${formatDate(s.bakeDate)}: Accept, or Move to next bake day (${formatDate(s.nextOpen)})` : `Late order for ${formatDate(s.bakeDate)}: Accept, or Move to next bake day (${formatDate(s.nextOpen)})`);
+    return s.bakeDate;
   }
-  function resolveHub(assignment, handoff, attention) {
+  function resolveHub(assignment, handoff, flags) {
     var _a;
     const h = handoff.toLowerCase();
     const chosen = h.startsWith("eliana") ? "Eliana" : h.startsWith("shayna") ? "Shayna" : null;
-    if (handoff && !chosen) attention.push(`Handoff at must be "Eliana's" or "Shayna's"`);
+    if (handoff && !chosen) flags.warnings.push(`Handoff at must be "Eliana's" or "Shayna's"`);
     if (assignment.bakers.length === 2) {
-      if (!chosen) attention.push("Two bakers: choose Handoff at (Eliana's or Shayna's)");
+      if (!chosen) flags.warnings.push("Two bakers: choose Handoff at (Eliana's or Shayna's)");
       return chosen;
     }
     return (_a = chosen != null ? chosen : assignment.bakers[0]) != null ? _a : null;
   }
-  function identity(order) {
-    const digits = order.phone.replace(/\D/g, "").replace(/^972/, "0");
-    return { phone: digits.length >= 9 ? digits : "", name: order.name.toLowerCase().replace(/\s+/g, " ") };
-  }
-  function itemsKey(order) {
-    return JSON.stringify([order.items, order.method]);
-  }
   function processOrder(order, settings, now) {
-    const attention = [...order.problems];
-    const notes = [];
+    const flags = { blocking: [...order.problems], warnings: [], notes: [] };
     const price = priceOrder(order, settings);
-    attention.push(...price.problems);
+    flags.blocking.push(...price.problems);
+    flags.warnings.push(...price.warnings);
     const assignment = assignBakers(order, settings);
-    if (assignment.error) attention.push(assignment.error);
-    const { bakeDate, pending } = resolveBakeDate(order, settings, attention);
-    const hub = resolveHub(assignment, order.staff.handoff, attention);
+    if (assignment.error) flags.blocking.push(assignment.error);
+    const bakeDate = resolveBakeDate(order, settings, flags);
+    const hub = resolveHub(assignment, order.staff.handoff, flags);
     const { paid, paidTo } = order.staff;
-    if (paid && !paidTo) attention.push('Paid: choose "Money went to"');
-    if (!paid && paidTo) attention.push(`"Money went to" is filled but Paid? isn't ticked`);
-    if (paidTo && !PAID_TO_OPTIONS.includes(paidTo)) attention.push('"Money went to" must be one of the list options');
-    let unpaidDays = 0;
-    if (!paid && order.timestamp) unpaidDays = Math.floor((now - order.timestamp) / DAY_MS);
+    if (paid && !paidTo) flags.warnings.push('Paid: choose "Money went to"');
+    if (!paid && paidTo) flags.warnings.push(`"Money went to" is filled but Paid? isn't ticked`);
+    if (paidTo && !PAID_TO_OPTIONS.includes(paidTo)) flags.warnings.push('"Money went to" must be one of the list options');
+    const unpaidDays = !paid && order.timestamp ? Math.floor((now - order.timestamp) / DAY_MS) : 0;
     const draft = { name: order.name, method: order.method, pickupAddress: hub ? settings.addresses[hub] : "", total: price.total, paid };
     const readyUrl = whatsappLink(order.phone, readyMessage(draft, settings));
-    const reminderUrl = whatsappLink(order.phone, reminderMessage(draft, settings));
-    if (!readyUrl) attention.push("Check phone number (no WhatsApp link)");
+    if (!readyUrl) flags.warnings.push("Check phone number (no WhatsApp link)");
     return {
       row: order.row,
       order,
       bakeDate,
-      pending,
       price,
       assignment,
       hub,
-      attention,
-      notes,
+      blocking: flags.blocking,
+      warnings: flags.warnings,
+      notes: flags.notes,
       unpaidDays,
       whoBakes: describeBakers(assignment),
-      readyFormula: readyUrl ? linkFormula(readyUrl, "Ready \u25B6") : "",
-      reminderFormula: readyUrl && !paid ? linkFormula(reminderUrl, "Remind \u25B6") : ""
+      readyUrl,
+      reminderUrl: readyUrl && whatsappLink(order.phone, reminderMessage(draft, settings))
     };
   }
+  function phoneDigits(order) {
+    const digits = order.phone.replace(/\D/g, "").replace(/^9720?(?=5)/, "0");
+    return digits.length >= 9 ? digits : "";
+  }
+  function oneTypoApart(a, b) {
+    if (Math.abs(a.length - b.length) > 1) return false;
+    let i = 0;
+    while (i < a.length && a[i] === b[i]) i += 1;
+    const rest = (x, skip) => x.slice(i + skip);
+    return rest(a, 1) === rest(b, 1) || rest(a, 1) === rest(b, 0) || rest(a, 0) === rest(b, 1);
+  }
+  function sameCustomer(x, y) {
+    const [px, py] = [phoneDigits(x), phoneDigits(y)];
+    const nameMatch = x.name !== "" && x.name.toLowerCase().replace(/\s+/g, " ") === y.name.toLowerCase().replace(/\s+/g, " ");
+    if (px && py) return px === py || nameMatch && oneTypoApart(px, py);
+    return nameMatch;
+  }
   function markDuplicates(results) {
-    const kept = [];
+    var _a;
+    const keptByDate = /* @__PURE__ */ new Map();
     for (const r of results) {
       r.duplicateOf = null;
-      if (r.order.staff.cancelled || !r.bakeDate) continue;
-      const me = identity(r.order);
-      const sameCustomer = kept.filter((k) => k.bakeDate === r.bakeDate && (me.phone && identity(k.order).phone === me.phone || me.name && identity(k.order).name === me.name));
-      const twin = sameCustomer.find((k) => itemsKey(k.order) === itemsKey(r.order));
+      if (r.order.staff.cancelled || r.beforeTracking || !r.bakeDate) continue;
+      const kept = (_a = keptByDate.get(r.bakeDate)) != null ? _a : [];
+      keptByDate.set(r.bakeDate, kept);
+      const same = kept.filter((k) => sameCustomer(k.order, r.order));
+      const key = JSON.stringify([r.order.items, r.order.method]);
+      const twin = same.find((k) => JSON.stringify([k.order.items, k.order.method]) === key);
       if (twin && !r.order.staff.notDuplicate) {
         r.duplicateOf = twin.row;
         continue;
       }
-      for (const k of sameCustomer) r.notes.push(`Same customer also ordered in row ${k.row}`);
+      for (const k of same) r.notes.push(`Same customer also ordered in row ${k.row}`);
       kept.push(r);
     }
   }
   function statusOf(r, settings) {
     if (r.order.staff.cancelled) return "Cancelled";
+    if (r.beforeTracking) return "Before tracking";
     if (r.duplicateOf) return `Possible duplicate of row ${r.duplicateOf}`;
-    if (r.attention.length) return "Needs attention";
+    if (r.blocking.length || r.warnings.length) return "Needs attention";
     if (r.order.staff.paid) return "Paid";
+    if (r.price.total <= 0) return "Free";
     if (r.unpaidDays >= settings.unpaidReminderDays) return `Unpaid ${r.unpaidDays} days: send reminder`;
     return "Unpaid";
   }
   function processOrders(orders, settings, now) {
-    const results = orders.map((o) => processOrder(o, settings, now));
+    const results = orders.map((o) => {
+      const r = processOrder(o, settings, now);
+      r.beforeTracking = Boolean(settings.trackFrom && o.timestamp && localParts(o.timestamp, settings.timeZone).iso < settings.trackFrom);
+      return r;
+    });
     markDuplicates(results);
     for (const r of results) {
       r.status = statusOf(r, settings);
-      r.counted = !r.order.staff.cancelled && !r.duplicateOf && !r.pending && Boolean(r.bakeDate);
-      if (!r.counted) {
-        r.readyFormula = "";
-        r.reminderFormula = "";
-      }
+      const skip = r.order.staff.cancelled || r.beforeTracking || r.duplicateOf;
+      r.pending = !skip && r.blocking.length > 0;
+      r.counted = !skip && !r.pending;
+      r.attention = skip ? [] : [...r.blocking, ...r.warnings, ...r.notes];
+      const linksOk = r.counted && r.warnings.length === 0;
+      r.readyFormula = linksOk ? linkFormula(r.readyUrl, "Ready \u25B6") : "";
+      r.reminderFormula = linksOk && !r.order.staff.paid && r.price.total > 0 ? linkFormula(r.reminderUrl, "Remind \u25B6") : "";
     }
     return results;
   }
@@ -566,7 +610,8 @@ var BreadClub = (() => {
   function planFor(bakeDate, results, settings) {
     var _a, _b;
     const orders = results.filter((r) => r.counted && r.bakeDate === bakeDate);
-    const waiting = results.filter((r) => r.bakeDate === bakeDate && !r.counted && !r.order.staff.cancelled);
+    const waiting = results.filter((r) => r.bakeDate === bakeDate && r.pending);
+    const unfinished = orders.filter((r) => r.warnings.length);
     const bakers = {};
     for (const name of BAKERS) {
       const lines = {};
@@ -607,21 +652,39 @@ var BreadClub = (() => {
       return { row: r.row, name: r.order.name, from, to: r.hub, loaves };
     });
     const stops = (method) => orders.filter((r) => r.order.method === method).map((r) => ({ row: r.row, name: r.order.name, hub: r.hub, address: r.order.address }));
-    return { bakeDate, bakers, handoffs, deliveries: stops("delivery"), pickups: stops("pickup"), waiting: waiting.length };
+    return {
+      bakeDate,
+      bakers,
+      handoffs,
+      deliveries: stops("delivery"),
+      pickups: stops("pickup"),
+      waitingRows: waiting.map((r) => r.row),
+      unfinishedRows: unfinished.map((r) => r.row)
+    };
+  }
+  var count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  function planDates(results, upcoming, todayIso) {
+    const extra = results.filter((r) => (r.counted || r.pending) && r.bakeDate >= todayIso).map((r) => r.bakeDate);
+    return [.../* @__PURE__ */ new Set([...upcoming, ...extra])].sort();
   }
   function planRows(plan, settings) {
     var _a;
     const rows = [[`${formatDate(plan.bakeDate)} (${plan.bakeDate})`]];
-    if (plan.waiting) rows.push([`\u26A0 ${plan.waiting} order(s) for this day are waiting for a decision (not counted below)`]);
+    if (plan.waitingRows.length) {
+      rows.push([`\u26A0 Not counted below until fixed: row ${plan.waitingRows.join(", ")} (see Needs attention)`]);
+    }
+    if (plan.unfinishedRows.length) {
+      rows.push([`\u26A0 Counted, but still needs attention: row ${plan.unfinishedRows.join(", ")}`]);
+    }
     for (const name of BAKERS) {
       const b = plan.bakers[name];
-      rows.push([`${name}: ${b.white + b.spelt} loaves, ${b.batches} batches`]);
+      rows.push([`${name}: ${count(b.white + b.spelt, "loaf", "loaves")}, ${count(b.batches, "batch", "batches")}`]);
       for (const l of b.lines) {
         if (l.white) rows.push(["", l.label, l.white]);
         if (l.spelt) rows.push(["", `${l.label} (spelt)`, l.spelt]);
       }
       if (b.batches) {
-        rows.push(["", "White flour bags (1 kg)", b.whiteFlourBags]);
+        if (b.whiteFlourBags) rows.push(["", "White flour bags (1 kg)", b.whiteFlourBags]);
         if (b.speltFlourBags) rows.push(["", "Spelt flour bags (1 kg)", b.speltFlourBags]);
         rows.push(["", "Starter: white flour (g) + water (g)", `${b.starterFlour} + ${b.starterWater}`]);
       }
@@ -629,7 +692,7 @@ var BreadClub = (() => {
     }
     if (plan.handoffs.length) rows.push(["Handoffs"]);
     for (const h of plan.handoffs) {
-      rows.push(["", `Row ${h.row} ${h.name}`, h.to ? `${h.from} brings ${h.loaves} loaf/loaves to ${h.to}'s (${settings.addresses[h.to]})` : "\u26A0 Handoff place not chosen yet"]);
+      rows.push(["", `Row ${h.row} ${h.name}`, h.to ? `${h.from} brings ${count(h.loaves, "loaf", "loaves")} to ${h.to}'s (${settings.addresses[h.to]})` : "\u26A0 Handoff place not chosen yet"]);
     }
     if (plan.deliveries.length) rows.push(["Deliveries"]);
     for (const d of plan.deliveries) {
@@ -645,13 +708,19 @@ var BreadClub = (() => {
   // src/sheet.js
   var SETTINGS_SHEET = "Settings";
   var PLAN_SHEET = "Bake Plan";
-  var COMPUTED_HEADERS = ["Bake date", "Who bakes", "Total \u20AA", "Status", "Needs attention", "Ready msg", "Reminder msg"];
+  var COMPUTED_HEADERS = ["Status", "Needs attention", "Ready msg", "Reminder msg", "Bake date", "Who bakes", "Total \u20AA"];
   var CHECKBOX_HEADERS = [STAFF_HEADERS.paid, STAFF_HEADERS.cancelled, STAFF_HEADERS.notDuplicate];
   var LIST_HEADERS = {
     [STAFF_HEADERS.paidTo]: PAID_TO_OPTIONS,
     [STAFF_HEADERS.decision]: DECISION_OPTIONS,
-    [STAFF_HEADERS.handoff]: HANDOFF_OPTIONS
+    [STAFF_HEADERS.handoff]: HANDOFF_OPTIONS,
+    [STAFF_HEADERS.takenBy]: TAKEN_BY_OPTIONS
   };
+  var STATUS_COLOURS = [
+    ["Unpaid ", "#f4c7c3"],
+    ["Needs attention", "#fce8b2"],
+    ["Possible duplicate", "#fce8b2"]
+  ];
   function findOrdersSheet(ss) {
     const sheet = ss.getSheets().find((s) => s.getLastColumn() > 0 && String(s.getRange(1, 1).getValue()).trim() === FORM_HEADERS.timestamp);
     if (!sheet) throw new Error('No orders tab found (a tab whose first column is "Timestamp")');
@@ -669,35 +738,51 @@ var BreadClub = (() => {
   function createApp({ SpreadsheetApp: SpreadsheetApp2, LockService: LockService2, ScriptApp: ScriptApp2, clock = () => /* @__PURE__ */ new Date() }) {
     const withLock = (fn) => {
       const lock = LockService2.getDocumentLock();
-      lock.waitLock(3e4);
+      lock.waitLock(2e4);
       try {
         return fn();
       } finally {
         lock.releaseLock();
       }
     };
+    const dataRows = (sheet) => Math.max(sheet.getMaxRows() - 1, 1);
+    function applyValidations(orders, headers) {
+      for (const header of CHECKBOX_HEADERS) {
+        orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireCheckbox().build());
+      }
+      for (const [header, options] of Object.entries(LIST_HEADERS)) {
+        orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireValueInList(options, true).build());
+      }
+    }
+    function applyLook(orders, headers) {
+      const statusRange = orders.getRange(2, columnIndex(headers, "Status") + 1, dataRows(orders), 1);
+      const statusCol = statusRange.getColumn();
+      const others = orders.getConditionalFormatRules().filter((rule) => !rule.getRanges().every((r) => r.getColumn() === statusCol));
+      const ours = STATUS_COLOURS.map(([text, colour]) => SpreadsheetApp2.newConditionalFormatRule().whenTextStartsWith(text).setBackground(colour).setRanges([statusRange]).build());
+      orders.setConditionalFormatRules([...others, ...ours]);
+      for (const header of COMPUTED_HEADERS) {
+        orders.getRange(2, columnIndex(headers, header) + 1, dataRows(orders), 1).setNumberFormat("@");
+      }
+      orders.getRange(2, columnIndex(headers, "Needs attention") + 1, dataRows(orders), 1).setWrap(true);
+      orders.setFrozenRows(1);
+      orders.setFrozenColumns(columnIndex(headers, FORM_HEADERS.name) + 1);
+    }
     function setup() {
       const ss = SpreadsheetApp2.getActiveSpreadsheet();
       return withLock(() => {
         const orders = findOrdersSheet(ss);
-        const added = [];
-        for (const header of [...Object.values(STAFF_HEADERS), ...COMPUTED_HEADERS]) {
-          if (columnIndex(headersOf(orders), header) !== -1) continue;
-          const col = orders.getLastColumn() + 1;
-          orders.getRange(1, col).setValue(header);
-          added.push(header);
-        }
+        const existing = headersOf(orders);
+        const missing = [...Object.values(STAFF_HEADERS), ...COMPUTED_HEADERS].filter((h) => columnIndex(existing, h) === -1);
+        const room = orders.getMaxColumns() - orders.getLastColumn();
+        if (missing.length > room) orders.insertColumnsAfter(orders.getMaxColumns(), missing.length - room);
+        if (missing.length) orders.getRange(1, orders.getLastColumn() + 1, 1, missing.length).setValues([missing]);
         const headers = headersOf(orders);
-        const rows = Math.max(orders.getMaxRows() - 1, 1);
-        for (const header of CHECKBOX_HEADERS) {
-          orders.getRange(2, columnIndex(headers, header) + 1, rows, 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireCheckbox().build());
-        }
-        for (const [header, options] of Object.entries(LIST_HEADERS)) {
-          orders.getRange(2, columnIndex(headers, header) + 1, rows, 1).setDataValidation(SpreadsheetApp2.newDataValidation().requireValueInList(options, true).build());
-        }
+        applyValidations(orders, headers);
+        applyLook(orders, headers);
         if (!ss.getSheetByName(SETTINGS_SHEET)) {
           const sheet = ss.insertSheet(SETTINGS_SHEET);
-          const { rows: settingRows, flavorRows } = settingsToRows(DEFAULT_SETTINGS);
+          const today = localParts(clock(), DEFAULT_SETTINGS.timeZone).iso;
+          const { rows: settingRows, flavorRows } = settingsToRows({ ...DEFAULT_SETTINGS, trackFrom: today });
           sheet.getRange(1, 1, 1, 2).setValues([["Setting", "Value"]]);
           sheet.getRange(2, 1, settingRows.length, 2).setValues(settingRows);
           sheet.getRange(1, 4, flavorRows.length, 3).setValues(flavorRows);
@@ -708,34 +793,36 @@ var BreadClub = (() => {
         ScriptApp2.newTrigger("onFormSubmitTrigger").forSpreadsheet(ss).onFormSubmit().create();
         ScriptApp2.newTrigger("dailyRefresh").timeBased().atHour(8).everyDays(1).create();
         refreshLocked(ss);
-        return added;
+        return missing;
       });
     }
-    function refreshLocked(ss) {
+    function refreshLocked(ss, { withValidations = false } = {}) {
       const now = clock();
       const { settings, errors } = readSettings(ss);
       const sheet = findOrdersSheet(ss);
       const headers = headersOf(sheet);
       const missing = COMPUTED_HEADERS.filter((h) => columnIndex(headers, h) === -1);
       if (missing.length) throw new Error(`Run "Bread Club > Set up" first (missing columns: ${missing.join(", ")})`);
+      if (withValidations) applyValidations(sheet, headers);
       const lastRow = sheet.getLastRow();
       const data = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, headers.length).getValues() : [];
       const orders = [];
       data.forEach((row, i) => {
         if (!isBlankRow(headers, row)) orders.push(readOrder(headers, row, i + 2, settings));
       });
-      const byRow = new Map(processOrders(orders, settings, now).map((r) => [r.row, r]));
+      const results = processOrders(orders, settings, now);
+      const byRow = new Map(results.map((r) => [r.row, r]));
       const out = data.map((_, i) => {
         const r = byRow.get(i + 2);
         if (!r) return COMPUTED_HEADERS.map(() => "");
         return [
-          r.bakeDate ? `${r.bakeDate} ${formatDate(r.bakeDate).slice(0, 3)}` : "",
-          r.whoBakes,
-          r.price.total,
           r.status,
-          [...r.attention, ...r.notes].join("; "),
+          r.attention.join("; "),
           r.readyFormula,
-          r.reminderFormula
+          r.reminderFormula,
+          r.bakeDate ? formatDate(r.bakeDate) : "",
+          r.whoBakes,
+          r.price.total
         ];
       });
       if (out.length) {
@@ -743,7 +830,7 @@ var BreadClub = (() => {
           sheet.getRange(2, columnIndex(headers, h) + 1, out.length, 1).setValues(out.map((row) => [row[k]]));
         });
       }
-      writePlan(ss, [...byRow.values()], settings, errors, now);
+      writePlan(ss, results, settings, errors, now);
       return { orders: orders.length, settingsErrors: errors };
     }
     function writePlan(ss, results, settings, errors, now) {
@@ -751,7 +838,10 @@ var BreadClub = (() => {
       const sheet = (_a = ss.getSheetByName(PLAN_SHEET)) != null ? _a : ss.insertSheet(PLAN_SHEET);
       const rows = [["Bake Plan (updates automatically; don't type here)"]];
       for (const e of errors) rows.push([`\u26A0 ${e}`]);
-      for (const date of upcomingBakeDates(now, settings, 2)) {
+      const undated = results.filter((r) => r.pending && !r.bakeDate).map((r) => r.row);
+      if (undated.length) rows.push([`\u26A0 No bake date yet: row ${undated.join(", ")} (see Needs attention)`]);
+      const today = localParts(now, settings.timeZone).iso;
+      for (const date of planDates(results, upcomingBakeDates(now, settings, 2), today)) {
         rows.push([""]);
         rows.push(...planRows(planFor(date, results, settings), settings));
       }
@@ -761,9 +851,9 @@ var BreadClub = (() => {
         return (_a2 = r[i]) != null ? _a2 : "";
       })));
     }
-    const refresh = () => {
+    const refresh = (options) => {
       const ss = SpreadsheetApp2.getActiveSpreadsheet();
-      return withLock(() => refreshLocked(ss));
+      return withLock(() => refreshLocked(ss, options));
     };
     function onOpen() {
       SpreadsheetApp2.getUi().createMenu("Bread Club").addItem("Refresh now", "refreshNow").addItem("Set up (first time only)", "setupBreadClub").addToUi();
@@ -777,7 +867,8 @@ var BreadClub = (() => {
       }
       return refresh();
     }
-    return { setup, refresh, onOpen, onEdit };
+    const onFormSubmit = () => refresh({ withValidations: true });
+    return { setup, refresh, onFormSubmit, onOpen, onEdit };
   }
 
   // src/gas-entry.js
@@ -787,7 +878,7 @@ var BreadClub = (() => {
 
 function onOpen(e) { return BreadClub.app.onOpen(e); }
 function onEdit(e) { return BreadClub.app.onEdit(e); }
-function onFormSubmitTrigger() { return BreadClub.app.refresh(); }
+function onFormSubmitTrigger() { return BreadClub.app.onFormSubmit(); }
 function dailyRefresh() { return BreadClub.app.refresh(); }
 function refreshNow() { BreadClub.app.refresh(); SpreadsheetApp.getActive().toast('Bread Club: refreshed'); }
 function setupBreadClub() {

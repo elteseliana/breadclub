@@ -11,7 +11,8 @@ export function countLoaves(items) {
 }
 
 export function priceOrder(order, settings) {
-  const problems = [];
+  const problems = []; // stop the order from being baked or messaged until fixed
+  const warnings = []; // still baked, but needs a look
   let loavesSubtotal = 0;
   for (const flavor of settings.flavors) {
     const qty = order.items[flavor.key];
@@ -23,8 +24,8 @@ export function priceOrder(order, settings) {
   const speltExtra = Math.ceil(loaves.spelt / 2) * settings.speltExtraPerPair;
   const subtotal = loavesSubtotal + speltExtra;
   const deliveryFee = order.method === 'delivery' && subtotal < settings.freeDeliveryFrom ? settings.deliveryFee : 0;
-  if (order.method === 'delivery' && !order.address) problems.push('Delivery with no address');
+  if (order.method === 'delivery' && !order.address) warnings.push('Delivery with no address');
   const total = subtotal + deliveryFee + order.staff.adjustment;
   if (total < 0) problems.push('Total is below ₪0: check Adjustment ₪');
-  return { loavesSubtotal, speltExtra, subtotal, deliveryFee, total, loaves, problems };
+  return { loavesSubtotal, speltExtra, subtotal, deliveryFee, total, loaves, problems, warnings };
 }

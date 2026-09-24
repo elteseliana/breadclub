@@ -70,6 +70,25 @@ describe('Settings tab', () => {
     ]);
   });
 
+  it('reads dates that Sheets stored as real dates', () => {
+    const r = rows.map(([l, v]) => {
+      if (l.startsWith('No baking')) return [l, new Date(Date.UTC(2026, 9, 5, 21, 0))]; // 6 Oct 00:00 in Israel
+      if (l.startsWith('Track orders from')) return [l, new Date(Date.UTC(2026, 8, 23, 21, 0))];
+      return [l, v];
+    });
+    const { settings, errors } = parseSettings(r, flavorRows);
+    expect(errors).toEqual([]);
+    expect(settings.skipDates).toEqual(['2026-10-06']);
+    expect(settings.trackFrom).toBe('2026-09-24');
+  });
+
+  it('reports an unreadable tracking date', () => {
+    const r = rows.map(([l, v]) => (l.startsWith('Track orders from') ? [l, 'last week'] : [l, v]));
+    const { settings, errors } = parseSettings(r, flavorRows);
+    expect(settings.trackFrom).toBe('');
+    expect(errors).toEqual(['Settings: can\'t read "Track orders from (date)" (use 2026-10-06)']);
+  });
+
   it('allows no holiday dates', () => {
     const r = rows.map(([l, v]) => (l.startsWith('No baking') ? [l, ''] : [l, v]));
     expect(parseSettings(r, flavorRows).settings.skipDates).toEqual([]);

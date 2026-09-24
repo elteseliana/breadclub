@@ -5,7 +5,8 @@ import { formatDate } from './schedule.js';
 
 export function planFor(bakeDate, results, settings) {
   const orders = results.filter((r) => r.counted && r.bakeDate === bakeDate);
-  const waiting = results.filter((r) => r.bakeDate === bakeDate && !r.counted && !r.order.staff.cancelled);
+  const waiting = results.filter((r) => r.bakeDate === bakeDate && r.pending);
+  const unfinished = orders.filter((r) => r.warnings.length);
   const bakers = {};
   for (const name of BAKERS) {
     const lines = {};
@@ -44,21 +45,38 @@ export function planFor(bakeDate, results, settings) {
   });
   const stops = (method) => orders.filter((r) => r.order.method === method)
     .map((r) => ({ row: r.row, name: r.order.name, hub: r.hub, address: r.order.address }));
-  return { bakeDate, bakers, handoffs, deliveries: stops('delivery'), pickups: stops('pickup'), waiting: waiting.length };
+  return {
+    bakeDate, bakers, handoffs, deliveries: stops('delivery'), pickups: stops('pickup'),
+    waitingRows: waiting.map((r) => r.row), unfinishedRows: unfinished.map((r) => r.row),
+  };
+}
+
+const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+// Dates to show: the next two regular bake days, plus any later date that has orders
+// (an accepted holiday order or a hand-typed date must never fall off the plan).
+export function planDates(results, upcoming, todayIso) {
+  const extra = results.filter((r) => (r.counted || r.pending) && r.bakeDate >= todayIso).map((r) => r.bakeDate);
+  return [...new Set([...upcoming, ...extra])].sort();
 }
 
 export function planRows(plan, settings) {
   const rows = [[`${formatDate(plan.bakeDate)} (${plan.bakeDate})`]];
-  if (plan.waiting) rows.push([`⚠ ${plan.waiting} order(s) for this day are waiting for a decision (not counted below)`]);
+  if (plan.waitingRows.length) {
+    rows.push([`⚠ Not counted below until fixed: row ${plan.waitingRows.join(', ')} (see Needs attention)`]);
+  }
+  if (plan.unfinishedRows.length) {
+    rows.push([`⚠ Counted, but still needs attention: row ${plan.unfinishedRows.join(', ')}`]);
+  }
   for (const name of BAKERS) {
     const b = plan.bakers[name];
-    rows.push([`${name}: ${b.white + b.spelt} loaves, ${b.batches} batches`]);
+    rows.push([`${name}: ${count(b.white + b.spelt, 'loaf', 'loaves')}, ${count(b.batches, 'batch', 'batches')}`]);
     for (const l of b.lines) {
       if (l.white) rows.push(['', l.label, l.white]);
       if (l.spelt) rows.push(['', `${l.label} (spelt)`, l.spelt]);
     }
     if (b.batches) {
-      rows.push(['', 'White flour bags (1 kg)', b.whiteFlourBags]);
+      if (b.whiteFlourBags) rows.push(['', 'White flour bags (1 kg)', b.whiteFlourBags]);
       if (b.speltFlourBags) rows.push(['', 'Spelt flour bags (1 kg)', b.speltFlourBags]);
       rows.push(['', 'Starter: white flour (g) + water (g)', `${b.starterFlour} + ${b.starterWater}`]);
     }
@@ -67,7 +85,7 @@ export function planRows(plan, settings) {
   if (plan.handoffs.length) rows.push(['Handoffs']);
   for (const h of plan.handoffs) {
     rows.push(['', `Row ${h.row} ${h.name}`, h.to
-      ? `${h.from} brings ${h.loaves} loaf/loaves to ${h.to}'s (${settings.addresses[h.to]})`
+      ? `${h.from} brings ${count(h.loaves, 'loaf', 'loaves')} to ${h.to}'s (${settings.addresses[h.to]})`
       : '⚠ Handoff place not chosen yet']);
   }
   if (plan.deliveries.length) rows.push(['Deliveries']);

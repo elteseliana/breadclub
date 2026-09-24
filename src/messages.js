@@ -1,12 +1,11 @@
 // One-tap WhatsApp drafts. A link only opens WhatsApp with the text filled in;
 // nothing is sent until Eliana or Shayna presses send.
 
-// Israeli numbers: 05X-XXX-XXXX -> 9725XXXXXXXX. Anything else returns null (no link, flagged).
+// Israeli mobiles -> 9725XXXXXXXX. Accepts 05X-XXX-XXXX, +972 5X..., +972 05X..., and 5XXXXXXXX
+// (Sheets drops the leading 0 when a phone is stored as a number). Anything else returns null (flagged).
 export function whatsappNumber(phone) {
-  const digits = String(phone ?? '').replace(/\D/g, '');
-  if (/^9725\d{8}$/.test(digits)) return digits;
-  if (/^05\d{8}$/.test(digits)) return `972${digits.slice(1)}`;
-  return null;
+  const digits = String(phone ?? '').replace(/\D/g, '').replace(/^9720?(?=5)/, '').replace(/^0(?=5)/, '');
+  return /^5\d{8}$/.test(digits) ? `972${digits}` : null;
 }
 
 export function firstName(name) {
@@ -14,14 +13,16 @@ export function firstName(name) {
   return first ? first[0].toUpperCase() + first.slice(1) : 'there';
 }
 
+// Wording approved by Eliana (docs/first-slice.md).
 function payHow(settings) {
-  return `You can Bit ${settings.bitNumber} (please write your name in the note) or pay cash.`;
+  return `You can Bit ${settings.bitNumber} or pay cash.`;
 }
 
 export function readyMessage({ name, method, pickupAddress, total, paid }, settings) {
   const where = method === 'delivery'
     ? 'Your sourdough is on its way 🍞'
     : `Your sourdough is ready for pickup at ${pickupAddress} 🍞`;
+  if (total <= 0) return `Hi ${firstName(name)}! ${where}`;
   const money = paid ? `Total ₪${total}, paid. Thank you!` : `Total ₪${total}. ${payHow(settings)}`;
   return `Hi ${firstName(name)}! ${where} ${money}`;
 }

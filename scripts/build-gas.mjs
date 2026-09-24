@@ -4,7 +4,7 @@ import { build } from 'esbuild';
 const footer = `
 function onOpen(e) { return BreadClub.app.onOpen(e); }
 function onEdit(e) { return BreadClub.app.onEdit(e); }
-function onFormSubmitTrigger() { return BreadClub.app.refresh(); }
+function onFormSubmitTrigger() { return BreadClub.app.onFormSubmit(); }
 function dailyRefresh() { return BreadClub.app.refresh(); }
 function refreshNow() { BreadClub.app.refresh(); SpreadsheetApp.getActive().toast('Bread Club: refreshed'); }
 function setupBreadClub() {

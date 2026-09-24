@@ -55,10 +55,12 @@ function firstOnOrAfter(iso, weekdayOfIso, weekday) {
   return addDays(iso, (weekday - weekdayOfIso + 7) % 7);
 }
 
-// The earliest bake date, of any bake day, that is still open and not a skipped date.
-export function nextOpenBakeDate(local, settings) {
+// The first bake date after `afterIso` that is still open for an order placed at `local`
+// and isn't a no-baking day. "Next" never moves an order earlier than the day it asked for.
+export function nextOpenBakeDate(local, afterIso, settings) {
+  const afterWeekday = new Date(`${afterIso}T00:00:00Z`).getUTCDay();
   const options = settings.bakeDays.map((day) => {
-    let bake = firstOnOrAfter(local.iso, local.weekday, day.weekday);
+    let bake = firstOnOrAfter(addDays(afterIso, 1), (afterWeekday + 1) % 7, day.weekday);
     while (isAfterCutoff(local, cutoffFor(bake, day), settings) || settings.skipDates.includes(bake)) {
       bake = addDays(bake, 7);
     }
@@ -81,8 +83,13 @@ export function scheduleOrder(timestamp, choice, settings) {
     bakeDate,
     late: isAfterCutoff(local, cutoffFor(bakeDate, day), settings),
     skipped: settings.skipDates.includes(bakeDate),
-    nextOpen: nextOpenBakeDate(local, settings),
+    nextOpen: nextOpenBakeDate(local, bakeDate, settings),
   };
+}
+
+export function isBakeWeekday(iso, settings) {
+  const weekday = new Date(`${iso}T00:00:00Z`).getUTCDay();
+  return settings.bakeDays.some((d) => d.weekday === weekday);
 }
 
 // Upcoming bake dates (today included) for the Bake Plan tab.

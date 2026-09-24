@@ -16,12 +16,20 @@ describe('reading a form row', () => {
     const o = order({}, {
       'Paid?': 'TRUE', 'Money went to': 'Eliana cash', 'Handoff at': "Shayna's", 'Baked by (change)': 'Shayna',
       'Adjustment ₪': '-44', 'Late/holiday decision': 'Accept', 'Bake date (change)': '2026-10-02',
-      'Cancelled?': false, 'Not a duplicate': true,
+      'Cancelled?': false, 'Not a duplicate': true, 'Order taken by': 'Shayna',
     });
     expect(o.staff).toEqual({
       paid: true, paidTo: 'Eliana cash', handoff: "Shayna's", bakerChange: 'Shayna', adjustment: -44,
-      decision: 'Accept', bakeDateChange: '2026-10-02', cancelled: false, notDuplicate: true,
+      decision: 'Accept', bakeDateChange: '2026-10-02', cancelled: false, notDuplicate: true, takenBy: 'Shayna',
     });
+  });
+
+  it('only a ticked box (or the text TRUE) counts as paid', () => {
+    for (const value of ['no', 'FALSE', 'yes', 1, 'paid', '', false]) {
+      expect(order({}, { 'Paid?': value }).staff.paid).toBe(false);
+    }
+    expect(order({}, { 'Paid?': true }).staff.paid).toBe(true);
+    expect(order({}, { 'Paid?': ' true ' }).staff.paid).toBe(true);
   });
 
   it('works when staff columns are missing', () => {

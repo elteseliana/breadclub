@@ -51,11 +51,15 @@ describe('who bakes what', () => {
 });
 
 describe('WhatsApp drafts', () => {
-  it('turns Israeli numbers into WhatsApp numbers', () => {
-    expect(whatsappNumber('054-760-3094')).toBe('972547603094');
-    expect(whatsappNumber('+972 54 760 3094')).toBe('972547603094');
-    expect(whatsappNumber('05878553349')).toBeNull(); // one digit too many
-    expect(whatsappNumber('614 561-5765')).toBeNull(); // not an Israeli mobile
+  // All numbers here are made up (050-000-xxxx).
+  it('turns Israeli mobile numbers into WhatsApp numbers', () => {
+    expect(whatsappNumber('050-000-0007')).toBe('972500000007');
+    expect(whatsappNumber('+972 50 000 0007')).toBe('972500000007');
+    expect(whatsappNumber('+972 050-000-0007')).toBe('972500000007');
+    expect(whatsappNumber(500000007)).toBe('972500000007'); // Sheets dropped the leading 0
+    expect(whatsappNumber('05000000071')).toBeNull(); // one digit too many
+    expect(whatsappNumber('555 000-0000')).toBeNull(); // not an Israeli mobile
+    expect(whatsappNumber('02-000-0000')).toBeNull(); // landline
     expect(whatsappNumber(undefined)).toBeNull();
   });
 
@@ -68,19 +72,24 @@ describe('WhatsApp drafts', () => {
   it('writes the approved ready messages', () => {
     const base = { name: 'Dana Test', total: 77, pickupAddress: 'Achi Dakar 62' };
     expect(readyMessage({ ...base, method: 'pickup', paid: false }, S)).toBe(
-      'Hi Dana! Your sourdough is ready for pickup at Achi Dakar 62 🍞 Total ₪77. You can Bit 054-911-2175 (please write your name in the note) or pay cash.',
+      'Hi Dana! Your sourdough is ready for pickup at Achi Dakar 62 🍞 Total ₪77. You can Bit 054-911-2175 or pay cash.',
     );
     expect(readyMessage({ ...base, method: 'delivery', paid: true }, S)).toBe(
       'Hi Dana! Your sourdough is on its way 🍞 Total ₪77, paid. Thank you!',
     );
     expect(reminderMessage(base, S)).toBe(
-      'Hi Dana! Just a reminder that your total is ₪77. You can Bit 054-911-2175 (please write your name in the note) or pay cash. Thank you!',
+      'Hi Dana! Just a reminder that your total is ₪77. You can Bit 054-911-2175 or pay cash. Thank you!',
     );
   });
 
+  it('never asks for money on a free (₪0) order', () => {
+    expect(readyMessage({ name: 'Dana', method: 'delivery', total: 0, paid: false }, S))
+      .toBe('Hi Dana! Your sourdough is on its way 🍞');
+  });
+
   it('builds a link that only opens WhatsApp with the text', () => {
-    const url = whatsappLink('054-760-3094', 'Hi & "bye" ₪5');
-    expect(url).toBe('https://wa.me/972547603094?text=Hi%20%26%20%22bye%22%20%E2%82%AA5');
+    const url = whatsappLink('050-000-0007', 'Hi & "bye" ₪5');
+    expect(url).toBe('https://wa.me/972500000007?text=Hi%20%26%20%22bye%22%20%E2%82%AA5');
     expect(whatsappLink('123', 'x')).toBeNull();
     expect(linkFormula(url, 'Ready ▶')).toBe(`=HYPERLINK("${url}", "Ready ▶")`);
     expect(linkFormula(url, 'x')).not.toMatch(/text=[^"]*"[^,]/);

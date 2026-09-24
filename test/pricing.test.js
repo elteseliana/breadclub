@@ -56,7 +56,9 @@ describe('order totals (examples approved by Eliana)', () => {
   });
 
   it('flags delivery with no address', () => {
-    expect(total({ method: 'Delivery' }).problems).toContain('Delivery with no address');
+    const p = total({ method: 'Delivery' });
+    expect(p.warnings).toEqual(['Delivery with no address']);
+    expect(p.problems).toEqual([]);
   });
 
   it('flags a negative total', () => {

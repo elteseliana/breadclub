@@ -10,7 +10,6 @@ export const FORM_HEADERS = {
   day: 'Pickup / delivery day',
   notes: 'Notes or allergies',
   payment: 'Payment',
-  takenBy: 'Order taken by',
 };
 
 // Columns Eliana and Shayna fill in. Created by setup if missing.
@@ -24,9 +23,12 @@ export const STAFF_HEADERS = {
   bakeDateChange: 'Bake date (change)',
   cancelled: 'Cancelled?',
   notDuplicate: 'Not a duplicate',
+  takenBy: 'Order taken by',
 };
 
-export const PAID_TO_OPTIONS = ['Bit 054-911-2175', 'Eliana cash', 'Shayna cash', "Shayna's mom Bit", 'Other'];
+// "Bit" = the business Bit number in Settings.
+export const PAID_TO_OPTIONS = ['Bit', 'Eliana cash', 'Shayna cash', "Shayna's mom Bit", 'Other'];
+export const TAKEN_BY_OPTIONS = ['Eliana', 'Shayna'];
 export const DECISION_OPTIONS = ['Accept', 'Move to next bake day'];
 export const HANDOFF_OPTIONS = ["Eliana's", "Shayna's"];
 
@@ -116,6 +118,7 @@ export function readOrder(headers, row, rowNumber, settings) {
       bakeDateChange: cell(STAFF_HEADERS.bakeDateChange),
       cancelled: isTicked(cell(STAFF_HEADERS.cancelled)),
       notDuplicate: isTicked(cell(STAFF_HEADERS.notDuplicate)),
+      takenBy: text(STAFF_HEADERS.takenBy),
     },
   };
 }
