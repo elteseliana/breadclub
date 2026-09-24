@@ -10,7 +10,7 @@ Synthetic customers only. No real message, payment or Google account was touched
 | 1. Eliana approved the workflow and criteria | ✅ 2026-09-24 (`first-slice.md`) |
 | 2. Checks and coverage | ✅ lint clean · 125/125 tests · 100% statements/branches/functions/lines · build matches source |
 | 3. Business, UI/UX and code-quality reviewers each PASS on the same revision | ✅ all three PASS on `952c0dc` (after 3 rounds of fixes) |
-| 4. Synthetic order end to end in a real, isolated Google test copy; found after reload; duplicate and failure visible | ⏳ **Eliana's step**: follow `setup-guide.md` Step 1 on a TEST copy |
+| 4. Synthetic order end to end in a real, isolated Google test copy; found after reload; duplicate and failure visible | ✅ mostly, on a real Google Sheet (see below). ⏳ Still to do: a real **form** submission |
 | 5. Eliana approves going live (real Sheet/form) | ⏳ not yet |
 
 ## What reviewers found and what was fixed
@@ -62,3 +62,22 @@ Synthetic customers only. No real message, payment or Google account was touched
 1. Delivered free loaf: **no delivery fee**. Changed in `src/pricing.js` with two tests; lint, 127 tests and 100% coverage re-run clean.
 2. Order at exactly 2:00pm: **late** (already the behavior).
 3. Real phone numbers in the history of `dfdc097`: **leave as is**.
+
+## Real Google Sheet test (2026-09-24)
+Test Sheet "Bread Club TEST (fake orders only)" in the family Drive. It has 7 fake orders and **no linked form**.
+Eliana installed `apps-script/Code.js` and ran Set up. Claude read the Sheet back through Drive.
+
+| Check | Result |
+|---|---|
+| Setup adds the columns, Settings tab and Bake Plan on a full form-style tab | ✅ |
+| Totals: ₪89, ₪77, ₪99 (spelt), ₪100 (free delivery), ₪35, ₪49 | ✅ |
+| Unpaid 2 days → "send reminder" | ✅ |
+| Duplicate → "Possible duplicate of row 2", not counted | ✅ |
+| Mixed order → needs a handoff; after "Eliana's", handoff line on Bake Plan | ✅ |
+| Late order → held; "Move to next bake day" → Tue 29 Sep | ✅ |
+| Paid? + Money went to = Bit → "Paid", no Remind | ✅ |
+| Adjustment -44 on a delivery → ₪0 "Free", no Remind | ✅ |
+| Close and reopen → everything kept | ✅ |
+| Ready ▶ on a phone opens WhatsApp with the text typed (not sent) | ✅ (Eliana) |
+| Bake Plan (flour bags, starter, handoffs, deliveries, pickups) | ✅ |
+| A customer submitting the Google Form | ⏳ not tested yet (no form linked) |
