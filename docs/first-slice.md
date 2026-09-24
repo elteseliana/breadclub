@@ -1,6 +1,6 @@
 # First slice: one order list. Draft for Eliana's approval
 
-Status: **waiting for Eliana's approval.** Nothing is built yet.
+Status: **approved 2026-09-24.** Building.
 
 ## Decisions so far (2026-09-24)
 - First slice: one order list, plus one-tap "ready" and payment-reminder drafts.
@@ -11,8 +11,11 @@ Status: **waiting for Eliana's approval.** Nothing is built yet.
 - **Seasonal flavor removed** from the menu.
 - Eliana shared "The Bread Club — Orders" Sheet read-only.
 - WhatsApp Business account: **not doing it** (Eliana, 2026-09-24).
-- **Delivery fee is ₪10** (free when the order is ₪100 or more). The Sheet was right; the menu message and the
-  form's "+5₪" text are wrong and will be corrected (customer-facing wording, so Eliana approves it).
+- **Delivery fee is ₪5**, free when the order total is ₪100 or more (Eliana, final answer 2026-09-24).
+  The menu and form text are right; **the Sheet's total formula (₪10) is the bug**.
+- **Friday orders close Wednesday 2pm**; Tuesday orders close Sunday 2pm. The form's "Friday (order by Tuesday)"
+  text is wrong and will be corrected.
+- **Status: APPROVED by Eliana on 2026-09-24.** Build on a test copy with fake customers.
 - **Customers pay Bit to 054-911-2175** (Eliana's mom's Bit). The settle-up counts that money as held by Eliana's side.
 
 ## What it will be
@@ -31,10 +34,10 @@ Every check uses fake test customers in a separate test copy of the Sheet.
    shows up in the same list, marked with who took it.
 2. **Right totals.** Examples the tests must get right:
    - 1 plain, pickup → ₪35
-   - 2 garlic, delivery → ₪84 + ₪10 = ₪94
+   - 2 garlic, delivery → ₪84 + ₪5 = ₪89
    - pesto + pesto, delivery → ₪100, delivery free
-   - 2 plain, delivery → ₪70 + ₪10 = ₪80
-   - spelt pair (plain + garlic), delivery → 35 + 42 + 17 = ₪94 + ₪10 = ₪104
+   - 2 plain, delivery → ₪70 + ₪5 = ₪75 (the current Sheet wrongly shows 80)
+   - spelt pair (plain + garlic), delivery → 35 + 42 + 17 = ₪94 + ₪5 = ₪99
    - spelt pair (pesto + olive), delivery → 50 + 44 + 17 = ₪111, delivery free
    - a promised free loaf → ₪0, still on the bake list
    - spelt ordered as one loaf → rejected with a clear message ("spelt comes in pairs")
@@ -63,6 +66,4 @@ Every check uses fake test customers in a separate test copy of the Sheet.
 - Reminder: "Hi {name}! Just a reminder that your total is ₪{total}. You can Bit {number} or pay cash. Thank you!"
 
 ## Still needed from Eliana
-- Do Friday orders close Tuesday or Wednesday? (The form says Tuesday.)
 - Optional: the code of the current script (Sheet → Extensions → Apps Script → copy everything).
-- Approve or edit the criteria and wording above.

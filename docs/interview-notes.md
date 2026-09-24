@@ -51,7 +51,7 @@ Items marked **(unclear)** are waiting on her answer.
 - Money settled weekly; moms are paid back first, then profit split.
 
 ### Pickup and delivery
-- Delivery +₪10 (corrected in round 4), free when the order total is ₪100 or more. Customers can always choose pickup instead.
+- Delivery +₪5, free when the order total is ₪100 or more. Customers can always choose pickup instead.
   **(still unclear: does the spelt +₪17 count toward ₪100? Assumed yes, since it is part of the order total.)**
 - Pickup at the baker's house: Achi Dakar 62 (Eliana) or Hakdoshim 4 (Shayna).
 - The baker delivers. In a mixed order, the other partner drops her loaves at the delivering partner's house.
@@ -106,7 +106,9 @@ Items marked **(unclear)** are waiting on her answer.
 - A promised free loaf was almost forgotten.
 
 ## Round 4 (2026-09-24)
-- Delivery fee is **₪10**, not ₪5 (corrects round 1). Free when the order total is ₪100 or more.
+- Said ₪10 first, then corrected: **delivery is ₪5**. Free when the order total is ₪100 or more.
 - Customers pay Bit to 054-911-2175 (Eliana's mom's number).
 - No WhatsApp Business account.
-- Friday cutoff: answered "correct". **Unclear** whether that means Tuesday (what the form says) or Wednesday (what round 1 said).
+- Friday cutoff confirmed: **Wednesday 2pm**. The form's "order by Tuesday" text is wrong.
+- The form should say the right delivery fee (it already says +5₪, which is right).
+- First-slice plan approved.

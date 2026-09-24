@@ -29,7 +29,7 @@ Customer names are removed. **UNKNOWN** marks things still to confirm.
 
 ## Business rules confirmed so far
 - Prices as in `interview-notes.md`. Spelt is +₪17 per batch of 2, only if the customer asks.
-- Delivery ₪10 (menu and form wrongly say ₪5), free when the order total (everything, including spelt) is ≥ ₪100. Pickup is always free.
+- Delivery ₪5 (the Sheet's formula wrongly uses ₪10), free when the order total (everything, including spelt) is ≥ ₪100. Pickup is always free.
   (The menu message says "over 100"; the rule is "100 or more".)
 - Bake days can be cancelled for a week (holidays), so the schedule changes week to week.
 - A promised free loaf (e.g. "one rosemary garlic on us") is an order worth ₪0 and must not be forgotten. One nearly was last week.
