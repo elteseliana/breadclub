@@ -11,6 +11,9 @@ Status: **waiting for Eliana's approval.** Nothing is built yet.
 - **Seasonal flavor removed** from the menu.
 - Eliana shared "The Bread Club — Orders" Sheet read-only.
 - WhatsApp Business account: **not doing it** (Eliana, 2026-09-24).
+- **Delivery fee is ₪10** (free when the order is ₪100 or more). The Sheet was right; the menu message and the
+  form's "+5₪" text are wrong and will be corrected (customer-facing wording, so Eliana approves it).
+- **Customers pay Bit to 054-911-2175** (Eliana's mom's Bit). The settle-up counts that money as held by Eliana's side.
 
 ## What it will be
 **Update:** Eliana shared the real Sheet (see `current-sheet-review.md`). The plan is to **upgrade that Sheet and its form**,
@@ -28,9 +31,10 @@ Every check uses fake test customers in a separate test copy of the Sheet.
    shows up in the same list, marked with who took it.
 2. **Right totals.** Examples the tests must get right:
    - 1 plain, pickup → ₪35
-   - 2 garlic, delivery → ₪84 + ₪5 = ₪89
+   - 2 garlic, delivery → ₪84 + ₪10 = ₪94
    - pesto + pesto, delivery → ₪100, delivery free
-   - spelt pair (plain + garlic), delivery → 35 + 42 + 17 = ₪94 + ₪5 = ₪99
+   - 2 plain, delivery → ₪70 + ₪10 = ₪80
+   - spelt pair (plain + garlic), delivery → 35 + 42 + 17 = ₪94 + ₪10 = ₪104
    - spelt pair (pesto + olive), delivery → 50 + 44 + 17 = ₪111, delivery free
    - a promised free loaf → ₪0, still on the bake list
    - spelt ordered as one loaf → rejected with a clear message ("spelt comes in pairs")
@@ -42,8 +46,8 @@ Every check uses fake test customers in a separate test copy of the Sheet.
 5. **Cutoff.** An order after 2pm Sunday (for Tuesday) or 2pm Wednesday (for Friday) is marked **late**.
    It isn't accepted or refused on its own; you decide. A bake day switched off in Settings (e.g. a holiday week)
    can't be chosen.
-6. **Paid.** Only a person can mark an order paid, and they have to pick where the money went: Eliana Bit /
-   Eliana cash / Shayna's mom's Bit / other. An order still unpaid 2 days after it was placed turns red.
+6. **Paid.** Only a person can mark an order paid, and they have to pick where the money went: Bit 054-911-2175 (Eliana's mom) /
+   Eliana cash / Shayna cash / Shayna's mom's Bit / other. An order still unpaid 2 days after it was placed turns red.
 7. **Message drafts.** Every order has a "Ready" button and, when unpaid, a "Reminder" button. Each opens
    WhatsApp to that customer with the message already typed. Nothing sends until you press send.
 8. **Bake-day view.** For each bake day and each baker: the list of loaves, number of batches, flour bags and starter
@@ -59,8 +63,6 @@ Every check uses fake test customers in a separate test copy of the Sheet.
 - Reminder: "Hi {name}! Just a reminder that your total is ₪{total}. You can Bit {number} or pay cash. Thank you!"
 
 ## Still needed from Eliana
-- Is delivery ₪5 or ₪10? (The Sheet charges ₪10.)
 - Do Friday orders close Tuesday or Wednesday? (The form says Tuesday.)
-- Which Bit number should customers pay now: yours, or your mom's?
 - Optional: the code of the current script (Sheet → Extensions → Apps Script → copy everything).
 - Approve or edit the criteria and wording above.

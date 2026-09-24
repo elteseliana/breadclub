@@ -12,7 +12,7 @@ Read-only review of the real Sheet that Eliana shared. **No customer names, phon
 ## Problems found (these are what the first slice has to fix)
 | # | Finding | Evidence (anonymised) | Effect |
 |---|---|---|---|
-| 1 | **Delivery is charged ₪10, not ₪5.** | 1 plain + delivery shows 45; 2 plain + delivery shows 80; 1 garlic + delivery shows 52 | Some customers are overcharged ₪5, or the menu is wrong. Last week one such customer paid 75, another 45 |
+| 1 | **Menu and form say delivery is +₪5, but it's ₪10** (Eliana confirmed ₪10). | Sheet totals use ₪10; the form option and WhatsApp menu say "+5₪" | Customers see the wrong fee; last week one customer paid ₪5 less |
 | 2 | **Spelt surcharge is not added.** | 4 spelt plain + delivery shows 140; the customer actually paid 175 | Totals don't match what you really charge |
 | 3 | **Seasonal flavor counts as ₪0.** | Orders with a seasonal loaf are short by that loaf's price | Undercharging; being removed anyway |
 | 4 | **No week or bake date.** The summary adds up every Tuesday since the start. | Tuesday summary = 13 loaves across two different weeks | The bake list is wrong for any single week |
