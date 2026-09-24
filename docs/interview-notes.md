@@ -15,7 +15,7 @@ Items marked **(unclear)** are waiting on her answer.
 | Olive | ₪44 | Eliana |
 | Chocolate chip | ₪44 | Eliana |
 | Pesto | ₪50 | Eliana |
-| Flavor of the season | changes monthly | Eliana |
+| ~~Flavor of the season~~ | removed 2026-09-24 | — |
 
 - No minimum; one loaf is fine.
 - Spelt: not advertised, only for customers who ask. Ordered in pairs (one batch), +₪17 per batch.
