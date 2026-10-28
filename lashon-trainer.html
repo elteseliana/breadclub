@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lashon Trainer 11284</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --ink:#1d2433; --muted:#5d6678; --line:#dfe3ec;
+  --brand:#3a5bd9; --brand-ink:#ffffff; --brand-soft:#e8edff;
+  --good:#16884a; --good-soft:#e3f6ea; --bad:#c43838; --bad-soft:#fde8e8;
+  --warn:#a86500; --warn-soft:#fff3dc; --hl:#fff6c2;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151d; --card:#1b2030; --ink:#e9ecf3; --muted:#a3abbd; --line:#2e3547;
+    --brand:#7d97ff; --brand-ink:#0e1220; --brand-soft:#252f52;
+    --good:#4cd38a; --good-soft:#163526; --bad:#ff7b7b; --bad-soft:#3d1c1f;
+    --warn:#ffbf5c; --warn-soft:#3a2c12; --hl:#3d3a1a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151d; --card:#1b2030; --ink:#e9ecf3; --muted:#a3abbd; --line:#2e3547;
+  --brand:#7d97ff; --brand-ink:#0e1220; --brand-soft:#252f52;
+  --good:#4cd38a; --good-soft:#163526; --bad:#ff7b7b; --bad-soft:#3d1c1f;
+  --warn:#ffbf5c; --warn-soft:#3a2c12; --hl:#3d3a1a;
+}
+*{box-sizing:border-box}
+html{font-size:19px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Noto Sans Hebrew","Arial Hebrew",Arial,Helvetica,sans-serif;line-height:1.6}
+.en{direction:ltr;text-align:left;font-size:.95rem;unicode-bidi:isolate}
+.he{direction:rtl;font-size:1.15rem;unicode-bidi:isolate}
+button,.tag,.verdict{unicode-bidi:plaintext}
+bdi{unicode-bidi:isolate}
+header.top{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header.top .brand{font-weight:700;cursor:pointer;white-space:nowrap}
+header.top .grow{flex:1;min-width:120px}
+header.top .streak{font-weight:700;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--brand);border-radius:6px;transition:width .4s}
+.bar.good>i{background:var(--good)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+h1{font-size:1.5rem;margin:.2em 0}
+h2{font-size:1.25rem;margin:.3em 0}
+h3{font-size:1.08rem;margin:.6em 0 .3em}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;min-height:44px}
+button.pri{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.tag{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:20px;background:var(--brand-soft);color:var(--ink);margin-inline-end:6px}
+.tag.src{background:var(--warn-soft)}
+.topic{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.topic .num{width:44px;height:44px;border-radius:50%;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-weight:700;grid-row:span 3}
+.topic.next{outline:3px solid var(--brand)}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.instr{font-weight:700;margin:6px 0 10px;font-size:1.05rem}
+.qtext{font-size:1.25rem;margin:8px 0;line-height:2}
+.src-sent{font-size:1.2rem;background:var(--brand-soft);border-radius:10px;padding:10px 12px;margin:8px 0;white-space:pre-line}
+.opts{display:grid;gap:8px;margin-top:8px}
+.opt{text-align:right;font-size:1.15rem;padding:12px 14px}
+.opt.sel{outline:3px solid var(--brand)}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+input.blank{font:inherit;font-size:1.15rem;width:9.5em;max-width:100%;padding:4px 8px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);direction:rtl}
+input.blank.right{border-color:var(--good);background:var(--good-soft)}
+input.blank.wrong{border-color:var(--bad);background:var(--bad-soft)}
+textarea.rw{width:100%;font:inherit;font-size:1.15rem;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);direction:rtl;resize:vertical}
+.sortrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0;border-bottom:1px dashed var(--line)}
+.sortrow .w{font-size:1.2rem;min-width:7em;font-weight:600}
+.sortrow button{padding:6px 12px;min-height:40px}
+.sortrow button.sel{background:var(--brand);color:var(--brand-ink)}
+.sortrow.right .w{color:var(--good)} .sortrow.wrong .w{color:var(--bad)}
+.tok{display:inline-block;padding:2px 6px;margin:2px 1px;border-radius:6px;cursor:pointer;border:1px dashed transparent}
+.tok:hover{border-color:var(--brand)}
+.tok.sel{background:var(--brand-soft);outline:2px solid var(--brand)}
+.tok.right{background:var(--good-soft);outline:2px solid var(--good)}
+.tok.wrong{background:var(--bad-soft);outline:2px solid var(--bad)}
+.qact{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.hintbox{margin-top:10px;background:var(--warn-soft);border-radius:10px;padding:10px 12px}
+.fb{margin-top:12px}
+.fb .verdict{font-size:1.2rem;font-weight:700;margin-bottom:4px}
+.fb .ok{color:var(--good)} .fb .no{color:var(--bad)}
+.fbbox{border-radius:10px;padding:12px;margin-top:6px}
+.fbbox.ok{background:var(--good-soft)} .fbbox.no{background:var(--bad-soft)}
+.fbbox .why{margin-top:6px}
+.model{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;direction:rtl;text-align:right;font-size:1.12rem}
+.hidden{display:none!important}
+.lesson h3{color:var(--brand)}
+.tbl-wrap{overflow-x:auto;margin:8px 0}
+table.tbl{border-collapse:collapse;width:100%;font-size:1rem}
+table.tbl th,table.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:right;vertical-align:top}
+table.tbl th{background:var(--brand-soft)}
+.ex{background:var(--brand-soft);border-radius:10px;padding:10px 12px;margin:8px 0}
+.trap{background:var(--bad-soft);border-radius:10px;padding:10px 12px;margin:8px 0}
+.ok-ex{color:var(--good);font-weight:600} .bad-ex{color:var(--bad);text-decoration:line-through}
+ol.steps li,ul.rules li{margin:4px 0}
+.dots{display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--brand)}
+.dots i.chk{border-radius:2px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto}
+#modal .card{max-width:820px;width:100%;margin-top:20px}
+.celebrate{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)}
+.celebrate .card{text-align:center;max-width:420px;font-size:1.1rem;animation:pop .35s ease-out}
+.celebrate .big{font-size:3rem}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.conf{position:fixed;top:-40px;z-index:31;font-size:1.6rem;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:30px;z-index:40;font-weight:600;animation:pop .3s}
+.timer{font-weight:700;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:8px;background:var(--brand-soft)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.scoregrid{display:grid;grid-template-columns:1fr auto;gap:4px 12px}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700}
+.pill.g{background:var(--good-soft);color:var(--good)} .pill.b{background:var(--bad-soft);color:var(--bad)} .pill.n{background:var(--line)}
+.sec-title{margin-top:20px;padding:8px 12px;background:var(--brand-soft);border-radius:10px;font-weight:700}
+@media (max-width:560px){
+  html{font-size:17px}
+  main{padding:12px 16px}
+  .qtext{font-size:1.15rem}
+  .topic .num{width:36px;height:36px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand" id="homeBtn">📘 לשון 11284</span>
+  <div class="grow"><div class="bar" title="Overall progress"><i id="overallBar" style="width:0%"></i></div><div class="small muted en" id="overallTxt"></div></div>
+  <span class="streak" id="streak" title="Correct answers in a row">🔥 0</span>
+</header>
+<main id="app"></main>
+<div id="modal" class="hidden"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   SOURCES
+   ============================================================ */
+const S21='בגרות קיץ 2021', S26='בגרות 2026', S26b='בגרות 2026 (שאלון 11281)', W='written in bagrut style';
+
+/* Rules (used for "weakest rule") */
+const RULES={
+ 'pos':'Recognising parts of speech (verb / noun / שם פעולה)',
+ 'peula':'שם פעולה from שם הפועל or root (patterns per בניין)',
+ 'peula-ex':'שם פעולה exceptions (שימוש, הסבר, אכזבה…)',
+ 'verb':'Writing the verb from שם הפועל (person + tense)',
+ 'yahas':'נטיית מילות יחס (לו, ממנו, כלפיו, בלעדיו)',
+ 'sm-form':'סמיכות: changing the 1st word (־ה→־ת, ־ים→־י)',
+ 'sm-def':'סמיכות: ה׳ הידיעה only on the 2nd word',
+ 'sm-pl':'סמיכות: plural – change only the 1st word',
+ 'sm-adj':'סמיכות: adjective after the whole סמיכות, agrees with the 1st word',
+ 'sm-vs':'סמיכות vs. noun + adjective',
+ 'ag-basic':'Adjective agreement (gender, number, ה)',
+ 'ag-tricky':'Tricky nouns (פתרונות/רעיונות = ז׳, שנים/מילים/ערים/פעמים = נ׳)',
+ 'ag-fem':'Feminine nouns without ־ה (ארץ, עיר, דרך)',
+ 'md-agree':'צריך/חייב/יכול agree with the subject',
+ 'md-imp':'אפשר/כדאי/מומלץ/יש ל… never change',
+ 'md-conv':'Converting שם פעולה + אפשרי/מומלץ → אפשר/מומלץ + שם הפועל',
+ 'md-et':'את only before a definite object; keep the verb\'s preposition',
+ 'sh-future':'Future: אני אגיד (not יגיד)',
+ 'sh-inf':'שם הפועל: לרכוב (not לרכב)',
+ 'sh-noun-clause':'בגלל/למרות/בזכות + noun vs מפני ש/אף על פי ש + clause',
+ 'sh-conn':'Choosing the right connector (מילת קישור)',
+ 'sh-yesh':'No את after יש',
+ 'sh-agree':'Verb–subject agreement',
+ 'sh-prep':'Fixed prepositions (עקב אחר, ניצח ב, נלחם ב/על, ביקש מ…)',
+ 'sh-rewrite':'Rewriting with בזכות / לכן / מכיוון ש',
+ 'sh-join':'Joining 3 sentences into one',
+ 'sh-indirect':'Direct → indirect speech',
+ 'sh-meaning':'Same meaning (לא… אלא, בלי… = אם לא…)'
+};
+
+/* ============================================================
+   TOPIC 1 – חלקי דיבור
+   ============================================================ */
+const DECL_TABLE=`<div class="tbl-wrap"><table class="tbl he">
+<tr><th></th><th>ל</th><th>מִן</th><th>כלפי</th><th>בלעדי</th><th>עם</th><th>ב</th><th>על</th><th>את</th></tr>
+<tr><th>אני</th><td>לי</td><td>ממני</td><td>כלפיי</td><td>בלעדיי</td><td>איתי</td><td>בי</td><td>עליי</td><td>אותי</td></tr>
+<tr><th>אתה</th><td>לך</td><td>ממך</td><td>כלפיך</td><td>בלעדיך</td><td>איתך</td><td>בך</td><td>עליך</td><td>אותך</td></tr>
+<tr><th>את</th><td>לך</td><td>ממך</td><td>כלפייך</td><td>בלעדייך</td><td>איתך</td><td>בך</td><td>עלייך</td><td>אותך</td></tr>
+<tr><th>הוא</th><td>לו</td><td>ממנו</td><td>כלפיו</td><td>בלעדיו</td><td>איתו</td><td>בו</td><td>עליו</td><td>אותו</td></tr>
+<tr><th>היא</th><td>לה</td><td>ממנה</td><td>כלפיה</td><td>בלעדיה</td><td>איתה</td><td>בה</td><td>עליה</td><td>אותה</td></tr>
+<tr><th>אנחנו</th><td>לנו</td><td>ממנו</td><td>כלפינו</td><td>בלעדינו</td><td>איתנו</td><td>בנו</td><td>עלינו</td><td>אותנו</td></tr>
+<tr><th>אתם</th><td>לכם</td><td>מכם</td><td>כלפיכם</td><td>בלעדיכם</td><td>איתכם</td><td>בכם</td><td>עליכם</td><td>אתכם</td></tr>
+<tr><th>הם</th><td>להם</td><td>מהם</td><td>כלפיהם</td><td>בלעדיהם</td><td>איתם</td><td>בהם</td><td>עליהם</td><td>אותם</td></tr>
+<tr><th>הן</th><td>להן</td><td>מהן</td><td>כלפיהן</td><td>בלעדיהן</td><td>איתן</td><td>בהן</td><td>עליהן</td><td>אותן</td></tr>
+</table></div>`;
+
+const PEULA_TABLE=`<div class="tbl-wrap"><table class="tbl he">
+<tr><th>בניין</th><th>שם הפועל</th><th>תבנית שם הפעולה</th><th>דוגמאות</th></tr>
+<tr><td>פָּעַל (קל)</td><td>לכתוב, לבדוק, לשמור, לקנות</td><td>קְטִילָה</td><td>כתיבה, בדיקה, שמירה, קנייה, בנייה</td></tr>
+<tr><td>פִּעֵל</td><td>לדבר, לשנות, לגלות, לתרגל, לשתף</td><td>קִטּוּל</td><td>דיבור, שינוי, גילוי, תרגול, שיתוף, פרסום, ביקור</td></tr>
+<tr><td>הִפְעִיל</td><td>להכין, להמליץ, להשוות, להוריד, להודיע</td><td>הַקְטָלָה</td><td>הכנה, המלצה, השוואה, הורדה, הודעה</td></tr>
+<tr><td>הִתְפַּעֵל</td><td>להתמודד, להתכונן, להתפתח, להתאמץ</td><td>הִתְקַטְּלוּת</td><td>התמודדות, התכוננות, התפתחות, התאמצות</td></tr>
+</table></div>
+<div class="trap"><b class="en" style="display:block">Exceptions – memorise:</b> להשתמש → <b>שימוש</b> · להסביר → <b>הסבר</b> · להתאכזב → <b>אכזבה</b> · לחוש → <b>תחושה</b> · לקבל → <b>קבלה</b></div>`;
+
+const T1={id:'t1',he:'חלקי דיבור ונטיית מילות היחס',en:'Parts of speech, שם פעולה & prepositions',
+cards:[
+ {title:'What it is',html:`<div class="en">Every Hebrew word belongs to a <b>part of speech</b>. On the olim bagrut (פרק ג – מערכת הצורות, and the מילות היחס question) you mostly have to:
+ <ol><li>turn a <b>שם הפועל</b> (or a root) into the right <b>verb</b> in a sentence, or into a <b>שם פעולה</b> (the noun that names the action);</li>
+ <li>write a <b>preposition in the right person</b> (לו, ממנו, כלפיו, בלעדיו…).</li></ol></div>
+ <div class="tbl-wrap"><table class="tbl he"><tr><th>חלק דיבור</th><th>English</th><th>דוגמאות</th></tr>
+ <tr><td>שם עצם</td><td class="en">noun</td><td>ספר, מורה, מקרר</td></tr>
+ <tr><td>שם פעולה</td><td class="en">action noun (a kind of שם עצם)</td><td>כתיבה, שינוי, הכנה, התמודדות</td></tr>
+ <tr><td>שם תואר</td><td class="en">adjective</td><td>חיובי, גדולה, יצירתיים</td></tr>
+ <tr><td>פועל</td><td class="en">verb (has person + tense)</td><td>כתבנו, משתמשים, יצטמצמו</td></tr>
+ <tr><td>שם הפועל</td><td class="en">infinitive ("to …")</td><td>לכתוב, להשתמש, להכין</td></tr>
+ <tr><td>תואר הפועל</td><td class="en">adverb</td><td>מהר, היטב, באופן חיובי</td></tr>
+ <tr><td>מילת יחס</td><td class="en">preposition</td><td>ב, ל, מן, על, עם, כלפי, בלעדי</td></tr>
+ <tr><td>מילת קישור</td><td class="en">connector</td><td>אבל, לכן, כי, אם</td></tr></table></div>`},
+ {check:{t:'mc',r:'pos',i:'לאיזה חלק דיבור שייכת המילה המודגשת?',q:'<b>הכתיבה</b> ברשת דורשת זהירות.',o:['פועל','שם הפועל','שם פעולה','שם תואר'],a:2,
+   w:'הכתיבה names the action and is the subject of the sentence (it has ה, and the verb is דורשת). That makes it a <b>שם פעולה</b>. A verb would have a person and a tense (כתבתי); a שם הפועל starts with ל (לכתוב).'}},
+ {title:'The rules',html:`<ul class="rules en">
+ <li><b>Rule 1 – שם פעולה follows the בניין</b> of the שם הפועל:</li></ul>${PEULA_TABLE}
+ <ul class="rules en">
+ <li><b>Rule 2 – Noun or verb?</b> If the blank needs <i>who + when</i> (a subject and a tense) → write a <b>verb</b>. If it is a <i>thing</i> (it has ה, it is a subject of another verb, it has an adjective after it, it is the first word of a סמיכות, or it comes after a preposition) → write a <b>שם פעולה</b>.</li>
+ <li><b>Rule 3 – Preposition + person:</b> find who/what the preposition points back to and use the right ending (table on the next card).</li>
+ <li><b>Rule 4 – Same spelling, different part of speech:</b> מְקָרֵר can be a verb ("המזגן אינו מקרר" = doesn't cool) or a noun ("קנינו מקרר"). Decide by its job in the sentence.</li></ul>`},
+ {check:{t:'fill',r:'peula',i:'כתבו את שם הפעולה.',q:'להתכונן → ___',a:[['התכוננות']],h:'Which בניין starts with הת־? Its pattern is הִתְקַטְּלוּת.',
+   w:'להתכונן is התפעל → pattern הִתְקַטְּלוּת → <b>התכוננות</b>.'}},
+ {title:'How to do it step by step',html:`<div class="en"><h3>A. Verb or שם פעולה from (שם הפועל)</h3><ol class="steps">
+ <li>Read the whole sentence. Is there already a verb? Who is doing the action?</li>
+ <li>If the blank is the action of a person → <b>verb</b>: find the person (הסטודנטית = she) and the time (כבר, אתמול = past; מחר, אם… = future; בדרך כלל, עכשיו = present).</li>
+ <li>If the blank is a "thing" → <b>שם פעולה</b>: find the בניין → use the pattern (or the exception list).</li>
+ <li>Check agreement with what comes after: "הכנה <u>מוקדמת</u> <u>עוזרת</u>" – feminine noun, feminine adjective and verb ✓.</li></ol>
+ <h3>B. Preposition in the right person</h3><ol class="steps">
+ <li>Find the noun it refers to (usually earlier in the sentence).</li>
+ <li>Decide: he / she / they (m) / they (f) / you (pl)…</li>
+ <li>Take the form from the table.</li></ol></div>${DECL_TABLE}`},
+ {check:{t:'mc',r:'yahas',i:'הקיפו את הצורה הנכונה.',q:'דיברתי עם הבנות וסיפרתי ___ על הטיול.',o:['לו','להם','להן','לה'],a:2,
+   w:'It refers to הבנות = they (feminine plural) → <b>להן</b>.',x:{1:'להם is masculine plural, but הבנות are feminine.'}}},
+ {title:'Exactly how the bagrut asks it',html:`<div class="ex"><span class="tag src">${S26}, שאלה 16</span>
+ <div class="he"><b>בכל זוג כתבו במשפט (1) – פועל, ובמשפט (2) – שם, על פי שם הפועל שבסוגריים.</b><br>
+ (1) כבר בתחילת הסמסטר הסטודנטית ______ (לגלות) את מקור הבעיה.<br>
+ (2) ______ (לגלות) מוקדם של הבעיה חסך לה זמן רב.</div>
+ <div class="en"><b>(1)</b> Who? הסטודנטית (she). When? כבר בתחילת הסמסטר → past. → <b>גילתה</b>.<br>
+ <b>(2)</b> The blank is the subject of חסך and has an adjective (מוקדם) → a noun. לגלות is פיעל → קִטּוּל → <b>גילוי</b>. (No ה – it is the 1st word of "גילוי … של הבעיה".)</div></div>
+ <div class="ex"><span class="tag src">${S26}, שאלה 14ב</span>
+ <div class="he"><b>השלימו את המשפטים באמצעות מילת היחס שבסוגריים. בכל משפט כתבו את מילת היחס בנטייה הנכונה.</b><br>
+ העזרה של המשפחה היא חשובה. ______ (בלעדי) קשה להתגבר על האכזבות שבחיים שלנו.</div>
+ <div class="en">"Without <i>what</i>?" → העזרה (she, feminine singular) → <b>בלעדיה</b>.</div></div>
+ <div class="ex"><span class="tag src">${S21}, שאלה 15</span>
+ <div class="he"><b>בכל אחד מן המקומות הריקים השלם שם פעולה על פי השורש שבסוגריים.</b><br>
+ אפשר להיעזר ב______ (מ-ל-ץ) של מומחים.</div>
+ <div class="en">מ-ל-ץ → the verb is <i>להמליץ</i> (הפעיל) → הַקְטָלָה → <b>המלצה</b>.</div></div>`},
+ {check:{t:'mc',r:'peula',i:'כתבו את השם המתאים לפי שם הפועל שבסוגריים.',q:'חשיבה חיובית מאפשרת ___ (להוריד) של רמת המתח.',o:['הורדה','ירידה','הוריד','מוריד'],a:0,
+   w:'להוריד is הפעיל → הַקְטָלָה → <b>הורדה</b>. It is a noun because it comes right after the verb מאפשרת as its object and is followed by "של".',x:{1:'ירידה is the שם פעולה of לרדת (to go down, קל) – a different verb. The bagrut asks for the noun of להוריד.'}}},
+ {title:'Traps',html:`<div class="trap en"><ul>
+ <li><b>ממנו</b> = "from him" <u>and</u> "from us". <b>מכם</b> = from you (plural).</li>
+ <li>Exceptions: להשתמש → <b>שימוש</b> (not השתמשות), להסביר → <b>הסבר</b>, להתאכזב → <b>אכזבה</b>, לחוש → <b>תחושה</b>.</li>
+ <li>When the שם פעולה is the 1st word of a סמיכות or is followed by an adjective without ה, <b>don't add ה</b>: "<b>שינוי</b> הגישה", "<b>הכנה</b> מוקדמת".</li>
+ <li>כלפי and בלעדי take the "plural-looking" endings, like על: כלפי<b>ו</b>, כלפי<b>ה</b>, כלפי<b>הם</b>.</li>
+ <li>In הִתְפַּעֵל the ת swaps places after צ/ס/ש/ז: להצטמצם → <b>יצטמצמו</b>, להשתמש → <b>משתמשים</b>.</li>
+ <li>Present tense verbs can look like nouns (מקרר, מורה). Look at the job in the sentence.</li></ul></div>`},
+ {check:{t:'mc',r:'yahas',i:'הקיפו את הצורה הנכונה.',q:'ההורים אמרו לנו: "אנחנו מבקשים ___ לחזור מוקדם." (מן – "from you", plural)',o:['ממנו','מכם','מהם','ממני'],a:1,
+   w:'"from you" (plural, the parents talk to us) → <b>מכם</b>. ממנו = from him / from us; מהם = from them.'}}
+],
+cheat:`<h3>שם פעולה – by בניין</h3>${PEULA_TABLE}<h3>Verb or noun?</h3><div class="en">Needs a person + a time → <b>verb</b>. A "thing" (has ה / subject / followed by adjective / 1st word of סמיכות / after a preposition) → <b>שם פעולה</b>. Tense clues: אתמול, כבר → past · בדרך כלל, עכשיו → present · מחר, אם…, כדאי ש… → future.</div><h3>נטיית מילות יחס</h3>${DECL_TABLE}`,
+qs:[
+ {l:1,s:S26b,t:'mc',r:'pos',i:'לאיזה חלק דיבור שייכת המילה המודגשת?',q:'"אבא, המזגן אינו <b>מקרר</b>!"',o:['פועל','שם עצם','שם תואר','מילת יחס'],a:0,h:'Ask: is מקרר an action that the air conditioner does, or a thing?',
+  w:'Here מקרר tells what the air conditioner <i>does</i> (it cools). It has a subject (המזגן) and is in the present tense → <b>פועל</b>.',x:{1:'It would be a noun only if it named the appliance (a fridge), e.g. "קנינו מקרר". Here it is the action of המזגן.'},
+  re:{t:'mc',s:S26b,q:'"נכון, המזגן ו<b>המקרר</b> הם שני מכשירים שונים."',o:['פועל','שם עצם','שם תואר','שם הפועל'],a:1,w:'Here המקרר is a <i>thing</i> (one of two appliances, it has ה) → <b>שם עצם</b>.'}},
+ {l:1,s:W,t:'mc',r:'peula',i:'הקיפו את שם הפעולה של הפועל.',q:'להתמודד',o:['מתמודד','התמודדות','התמודדו','מתמודדות'],a:1,h:'הִתְפַּעֵל → הִתְקַטְּלוּת',
+  w:'להתמודד is התפעל → pattern הִתְקַטְּלוּת → <b>התמודדות</b>. The others are verbs/participles.',
+  re:{t:'mc',q:'להתאמץ',o:['מתאמצת','התאמצו','התאמצות','להתאמץ'],a:2,w:'התפעל → הִתְקַטְּלוּת → <b>התאמצות</b>.'}},
+ {l:1,s:W,t:'mc',r:'peula',i:'הקיפו את שם הפעולה של הפועל.',q:'לשנות',o:['שינה','שנייה','שינוי','משנה'],a:2,h:'לשנות is פיעל (שִׁנָּה) → קִטּוּל',
+  w:'לשנות is פיעל → קִטּוּל → <b>שינוי</b>.',x:{0:'שינה = sleep (from לישון) – a different word.',1:'שנייה = a second (time) – a different word.',3:'משנה is a present-tense verb (he changes).'},
+  re:{t:'mc',q:'לפרסם',o:['פרסום','מפורסם','פרסמה','התפרסמות'],a:0,w:'לפרסם is פיעל → קִטּוּל → <b>פרסום</b>.'}},
+ {l:1,s:W,t:'sort',r:'pos',i:'מיינו את המילים לפי חלק הדיבור.',g:['פועל','שם הפועל','שם פעולה'],it:[['כתבנו',0],['לכתוב',1],['כתיבה',2],['משתמשים',0],['להשתמש',1],['שימוש',2],['יצטמצמו',0],['הכנה',2]],
+  w:'A <b>verb</b> has a person and tense (כתבנו, משתמשים, יצטמצמו). <b>שם הפועל</b> starts with ל (לכתוב, להשתמש). <b>שם פעולה</b> is the noun of the action (כתיבה, שימוש, הכנה).',
+  re:{t:'sort',g:['פועל','שם פעולה'],it:[['גילתה',0],['גילוי',1],['מתאמצים',0],['התאמצות',1],['השווינו',0],['השוואה',1]],w:'Verbs: גילתה, מתאמצים, השווינו. שמות פעולה: גילוי, התאמצות, השוואה.'}},
+ {l:1,s:W,t:'mc',r:'yahas',i:'הקיפו את הצורה הנכונה של מילת היחס.',q:'דיברתי עם דנה וסיפרתי ___ על המבחן.',o:['לו','לה','לך','להן'],a:1,
+  w:'It refers to דנה (she, singular) → <b>לה</b>.',re:{t:'mc',q:'פגשתי את ההורים שלי ואמרתי ___ תודה.',o:['להם','לו','לנו','להן'],a:0,w:'ההורים = they (masculine plural / mixed group) → <b>להם</b>.'}},
+ {l:1,s:W,t:'mc',r:'peula-ex',i:'הקיפו את שם הפעולה של הפועל.',q:'להשתמש',o:['השתמשות','שימוש','משתמש','שמש'],a:1,h:'This is one of the exceptions!',
+  w:'Exception: the שם פעולה of להשתמש is <b>שימוש</b> (not השתמשות).',re:{t:'mc',q:'להסביר',o:['מסביר','הסביר','הסבר','סבירות'],a:2,w:'Exception: להסביר → <b>הסבר</b> (not הסברה in this meaning).'}},
+ {l:1,s:W,t:'mc',r:'yahas',i:'הקיפו את הצורה הנכונה של מילת היחס.',q:'הורים צריכים לדאוג לילדים. היחס של ההורים ___ חשוב מאוד.',o:['כלפיו','כלפיהם','כלפיה','כלפיכם'],a:1,
+  w:'"towards whom?" → הילדים (they, masculine plural) → <b>כלפיהם</b>.',
+  re:{t:'mc',q:'המורה עזרה לי מאוד, ואני מרגיש הכרת תודה ___.',o:['כלפיו','כלפיי','כלפיה','כלפיהן'],a:2,w:'Towards המורה – here feminine (עזרה) → <b>כלפיה</b>.'}},
+ {l:2,s:S21,t:'fill',r:'peula',i:'בכל אחד מן המקומות הריקים השלם שם פעולה על פי השורש שבסוגריים.',q:'יש לשמור על כללי ה___ (כ-ת-ב) המקובלים ברשת.',a:[['כתיבה']],h:'כ-ת-ב in בניין קל → קְטִילָה',
+  w:'כ-ת-ב → לכתוב (קל) → pattern קְטִילָה → <b>כתיבה</b> ("כללי הכתיבה" – the ה is already there).',
+  re:{t:'fill',s:W,q:'ה___ (ב-ד-ק) הרפואית נמשכה שעה.',a:[['בדיקה']],w:'ב-ד-ק → לבדוק (קל) → קְטִילָה → <b>בדיקה</b>.'}},
+ {l:2,s:S21,t:'fill',r:'peula',i:'בכל אחד מן המקומות הריקים השלם שם פעולה על פי השורש שבסוגריים.',q:'אפשר להיעזר ב___ (מ-ל-ץ) של מומחים.',a:[['המלצה','המלצות']],h:'The verb is להמליץ – which בניין?',
+  w:'מ-ל-ץ → להמליץ (הפעיל) → הַקְטָלָה → <b>המלצה</b> (or המלצות).',
+  re:{t:'fill',s:W,q:'ה___ (ש-ו-ו) בין שני המחקרים הראתה הבדלים גדולים.',a:[['השוואה']],w:'ש-ו-ו → להשוות (הפעיל) → הַקְטָלָה → <b>השוואה</b>.'}},
+ {l:2,s:S21,t:'fill',r:'peula',i:'בכל אחד מן המקומות הריקים השלם שם פעולה על פי השורש שבסוגריים.',q:'כתיבת "בלוג" (יומן רשת) מאפשרת ___ (פ-ת-ח) אישית.',a:[['התפתחות']],h:'"personal development" – the verb is להתפתח.',
+  w:'פ-ת-ח here = להתפתח (התפעל) → הִתְקַטְּלוּת → <b>התפתחות</b> ("התפתחות אישית" – feminine, so אישית fits).',
+  re:{t:'fill',s:W,q:'עובדים רבים שואפים ל___ (ק-ד-ם) בעבודה.',a:[['התקדמות','קידום']],w:'ק-ד-ם → להתקדם (התפעל) → <b>התקדמות</b> (קידום, from פיעל, is also accepted).'}},
+ {l:2,s:S21,t:'fill',r:'peula',i:'בכל אחד מן המקומות הריקים השלם שם פעולה על פי השורש שבסוגריים.',q:'ברשת החברתית יש מקום ל___ (ש-ת-ף) של כל הגולשים.',a:[['שיתוף','השתתפות']],
+  w:'ש-ת-ף → לשתף (פיעל) → קִטּוּל → <b>שיתוף</b>. (השתתפות, from התפעל, is also a correct שם פעולה here.)',
+  re:{t:'fill',s:W,q:'ה___ (ב-ק-ר) במוזיאון היה מעניין מאוד.',a:[['ביקור']],w:'ב-ק-ר → לבקר (פיעל) → קִטּוּל → <b>ביקור</b> (masculine → היה).'}},
+ {l:2,s:S26,t:'fill',r:'verb',i:'בכל זוג כתבו במשפט (1) – פועל, ובמשפט (2) – שם, על פי שם הפועל שבסוגריים.',q:'(1) כדאי ש___ (להכין) את עצמכם לקראת הקשיים בדרך להצלחה.\n(2) ___ (להכין) מוקדמת עוזרת להתמודד עם קשיים בצורה טובה יותר.',a:[['תכינו'],['הכנה']],h:'(1) עצמכם = you (plural); after כדאי ש comes the future. (2) a noun followed by an adjective without ה.',
+  w:'(1) "את עצמכם" → אתם; after כדאי ש → future → <b>תכינו</b>. (2) a thing with an adjective (מוקדמת) → שם פעולה; להכין = הפעיל → <b>הכנה</b> (no ה, because מוקדמת has no ה).',
+  re:{t:'fill',s:W,q:'(1) אתמול הסטודנטים ___ (להציג) את העבודה שלהם.\n(2) ___ (להציג) העבודה הייתה מרשימה.',a:[['הציגו'],['הצגת']],w:'(1) they, past → <b>הציגו</b>. (2) noun, 1st word of a סמיכות (הצגת העבודה) → הַקְטָלָה → הצגה → in סמיכות <b>הצגת</b>.'}},
+ {l:2,s:S26,t:'fill',r:'verb',i:'בכל זוג כתבו במשפט (1) – פועל, ובמשפט (2) – שם, על פי שם הפועל שבסוגריים.',q:'(1) כבר בתחילת הסמסטר הסטודנטית ___ (לגלות) את מקור הבעיה.\n(2) ___ (לגלות) מוקדם של הבעיה חסך לה זמן רב.',a:[['גילתה','גלתה'],['גילוי','גלוי']],
+  w:'(1) she, past → <b>גילתה</b>. (2) subject of חסך + adjective מוקדם → noun; פיעל → קִטּוּל → <b>גילוי</b>.',
+  re:{t:'fill',s:W,q:'(1) בשבוע שעבר המורה דנה ___ (לתקן) את המבחנים.\n(2) ה___ (לתקן) של המבחנים לקח שבוע.',a:[['תיקנה','תקנה'],['תיקון','תקון']],w:'(1) she, past → <b>תיקנה</b>. (2) פיעל → קִטּוּל → <b>תיקון</b>.'}},
+ {l:2,s:S26,t:'fill',r:'peula',i:'בקטע שלפניכם כתבו בכל מקום ריק את השם המתאים לפי שם הפועל שבסוגריים.',q:'חשיבה חיובית עוזרת לנו לשנות את הגישה לחיים. ___ (לשנות) הגישה הוא הצעד הראשון בדרך להצלחה אישית.',a:[['שינוי']],h:'"___ הגישה" is a סמיכות – no ה on the 1st word.',
+  w:'לשנות = פיעל → <b>שינוי</b>. It is the 1st word of the סמיכות "שינוי הגישה", so no ה. (הוא = masculine, matches שינוי.)',
+  re:{t:'fill',s:W,q:'___ (לפרסם) המאמר בעיתון גרם לוויכוח גדול.',a:[['פרסום']],w:'פיעל → קִטּוּל → <b>פרסום</b> (1st word of סמיכות → no ה).'}},
+ {l:2,s:S26,t:'fill',r:'peula',i:'בקטע שלפניכם כתבו בכל מקום ריק את השם המתאים לפי שם הפועל שבסוגריים.',q:'(1) חשיבה חיובית מאפשרת ___ (להתמודד) טובה ויעילה יותר עם קשיים.\n(2) חשיבה חיובית מאפשרת ___ (להוריד) של רמת המתח והלחץ בחיי היום־יום.',a:[['התמודדות'],['הורדה']],
+  w:'(1) התפעל → <b>התמודדות</b> (feminine → טובה ויעילה). (2) הפעיל → <b>הורדה</b>.',
+  re:{t:'fill',s:W,q:'(1) ה___ (להתכונן) למבחן נמשכה שבוע.\n(2) ה___ (להסביר) של המורה היה ברור.',a:[['התכוננות'],['הסבר']],w:'(1) התפעל → <b>התכוננות</b>. (2) exception → <b>הסבר</b> (masculine → היה ברור).'}},
+ {l:2,s:S26,t:'fill',r:'yahas',i:'השלימו את המשפטים באמצעות מילת היחס שבסוגריים. בכל משפט כתבו את מילת היחס בנטייה הנכונה.',q:'המורים מתייחסים לתלמידים בהבנה. היחס הטוב ___ (כלפי) מעודד את התלמידים להשקיע בלימודים.',a:[['כלפיהם']],h:'Towards whom? The students → they.',
+  w:'Towards התלמידים (they, masculine plural) → <b>כלפיהם</b>.',
+  re:{t:'fill',s:W,q:'השכנה עזרה לנו מאוד, ואנחנו מרגישים הכרת תודה ___ (כלפי).',a:[['כלפיה']],w:'Towards השכנה (she) → <b>כלפיה</b>.'}},
+ {l:2,s:S26,t:'fill',r:'yahas',i:'השלימו את המשפטים באמצעות מילת היחס שבסוגריים. בכל משפט כתבו את מילת היחס בנטייה הנכונה.',q:'המנהל פנה להורים ואמר: "אני מבקש ___ (מן) לשתף פעולה עם המורים וההנהלה".',a:[['מכם']],h:'The principal is speaking TO the parents.',
+  w:'The principal speaks directly to the parents → "from you (plural)" → <b>מכם</b>.',x:{},
+  re:{t:'fill',s:W,q:'המורה אמרה לדני: "אני מבקשת ___ (מן) להגיע בזמן".',a:[['ממך']],w:'Speaking to דני → "from you" (singular) → <b>ממך</b>.'}},
+ {l:2,s:S26,t:'fill',r:'yahas',i:'השלימו את המשפטים באמצעות מילת היחס שבסוגריים. בכל משפט כתבו את מילת היחס בנטייה הנכונה.',q:'העזרה של המשפחה היא חשובה. ___ (בלעדי) קשה להתגבר על האכזבות שבחיים שלנו.',a:[['בלעדיה']],h:'Without what? העזרה – masculine or feminine?',
+  w:'Without העזרה (feminine singular) → <b>בלעדיה</b>.',
+  re:{t:'fill',s:W,q:'החברים שלי חשובים לי מאוד. ___ (בלעדי) הייתי מרגיש בודד.',a:[['בלעדיהם']],w:'Without החברים (they) → <b>בלעדיהם</b>.'}},
+ {l:3,s:S21,t:'fill',r:'peula-ex',i:'השלם את המשפט שלפניך באמצעות שם מאותו השורש.',q:'אנשים רבים מִשְׁתַּמְּשִׁים באינטרנט לצורכי עבודה.\nהגלישה באינטרנט דורשת ___ רב בשפה האנגלית.',a:[['שימוש']],h:'Root ש-מ-ש. Exception!',
+  w:'Root ש-מ-ש; the noun of להשתמש is the exception <b>שימוש</b> (masculine → רב).',
+  re:{t:'fill',s:S21,q:'רוב הילדים מְבַלִּים מול מסכים שונים.\nההורים היו מעדיפים שה___ של הילדים יהיה גם פעילויות ספורט.',a:[['בילוי']],w:'לבלות is פיעל → קִטּוּל → <b>בילוי</b>.'}},
+ {l:3,s:S21,t:'fill',r:'peula-ex',i:'השלם את המשפט שלפניך באמצעות שם מאותו השורש.',q:'תלמידים רבים שמצפים לציון גבוה מִתְאַכְזְבִים כאשר הציון נמוך.\n___ היא הרגשה של צער כאשר יש הבדל בין הציפיות לבין מה שקורה במציאות.',a:[['אכזבה','האכזבה','התאכזבות','ההתאכזבות']],
+  w:'Root כ-ז-ב → <b>אכזבה</b> (the common noun; התאכזבות is also accepted).',
+  re:{t:'fill',s:W,q:'אנשים רבים מִתְרַגְּשִׁים לפני טיסה.\nה___ לפני טיסה היא דבר טבעי.',a:[['התרגשות']],w:'להתרגש (התפעל) → <b>התרגשות</b>.'}},
+ {l:3,s:S26,t:'fill',r:'verb',i:'במשפטים שלפניכם כתבו בכל מקום ריק את הפועל המתאים לפי שם הפועל שבסוגריים.',q:'(1) סטודנטים מצטיינים בדרך כלל ___ (להתאמץ) מאוד לקבל ציונים גבוהים.\n(2) מפני ש___ (להתכונן) היטב לקשיים, לא הופתענו כשהם הגיעו.\n(3) אם תחשבו באופן חיובי, החששות מפני כישלון ___ (להצטמצם) בהדרגה.',a:[['מתאמצים'],['התכוננו'],['יצטמצמו']],h:'Find the subject and the time word in each sentence.',
+  w:'(1) they (m), בדרך כלל = present → <b>מתאמצים</b>. (2) "לא הופתענו" = we, past → <b>התכוננו</b>. (3) subject החששות (m.pl), "אם תחשבו" = future → <b>יצטמצמו</b> (ת and צ swap).',
+  re:{t:'fill',s:S26,q:'(1) עכשיו הספורטאית ___ (להבין) שהיא צריכה לצבור כוחות.\n(2) בסוף המופע עמדנו ו___ (למחוא) כפיים בהתלהבות.\n(3) האם בדרך כלל אתה ___ (לשים) לב לפרטים הקטנים?',a:[['מבינה'],['מחאנו'],['שם']],w:'(1) she, עכשיו = present → <b>מבינה</b>. (2) we, past (עמדנו) → <b>מחאנו</b>. (3) you (m), present → <b>שם</b>.'}},
+ {l:3,s:W,t:'err',r:'yahas',i:'מצאו את המילה השגויה במשפט ולחצו עליה.',q:'ההורים אוהבים את הילדים, והיחס שלהם כלפיו חם ותומך.',b:'כלפיו',fix:'כלפיהם',
+  w:'The preposition refers to הילדים (they) → <b>כלפיהם</b>, not כלפיו (him).',
+  re:{t:'err',q:'פגשתי את רינה וביקשתי ממנו עזרה.',b:'ממנו',fix:'ממנה',w:'רינה is "she" → <b>ממנה</b>.'}},
+ {l:3,s:W,t:'fill',r:'peula',i:'בכל אחד מן המקומות הריקים השלימו שם פעולה על פי השורש שבסוגריים.',q:'(1) ה___ (ש-מ-ר) על הסביבה חשובה לכולנו.\n(2) המורה נתן ___ (ס-ב-ר) ברור לתרגיל.\n(3) ה___ (ת-ר-ג-ל) היום־יומי עוזר ללמוד שפה.',a:[['שמירה'],['הסבר'],['תרגול']],
+  w:'(1) לשמור (קל) → <b>שמירה</b>. (2) להסביר → exception <b>הסבר</b>. (3) לתרגל (פיעל) → <b>תרגול</b>.',
+  re:{t:'fill',s:W,q:'(1) ה___ (ק-נ-ה) באינטרנט נוחה מאוד.\n(2) ה___ (ב-נ-ה) של הבניין נמשכה שנתיים.',a:[['קנייה','קניה'],['בנייה','בניה']],w:'Both are קל → קְטִילָה: <b>קנייה</b>, <b>בנייה</b>.'}}
+]};
+
+/* ============================================================
+   TOPIC 2 – סמיכות
+   ============================================================ */
+const T2={id:'t2',he:'סמיכות',en:'Construct state (סמיכות)',
+cards:[
+ {title:'What it is',html:`<div class="en">A <b>סמיכות</b> is two nouns glued into one idea: "X of Y".
+ <ul><li>1st word = <b>נסמך</b> – the main noun; it may <i>change form</i>.</li>
+ <li>2nd word = <b>סומך</b> – it <i>never</i> changes.</li></ul></div>
+ <div class="ex he">בית + ספר = <b>בית ספר</b><br>עבודה + סיום = <b>עבודת סיום</b><br>תהליכים + לימוד = <b>תהליכי לימוד</b><br>העבודה של הסיום = <b>עבודת הסיום</b></div>`},
+ {check:{t:'mc',r:'sm-form',i:'מהו הנסמך בצירוף?',q:'שעות עבודה',o:['שעות','עבודה'],a:0,w:'The נסמך is always the <b>1st</b> word: שעות.'}},
+ {title:'The rules',html:`<ul class="rules en">
+ <li><b>R1 ־ה → ־ת:</b> <span class="he">עבודה → עבודת, העברה → העברת, שנה → שנת</span></li>
+ <li><b>R2 ־ים → ־י:</b> <span class="he">תהליכים → תהליכי, תלמידים → תלמידי, בתים → בתי</span></li>
+ <li><b>R3 ־ות and most other words stay:</b> <span class="he">שעות עבודה, התפתחות הטכנולוגיה, ספר לימוד</span></li>
+ <li><b>R4 ה׳ הידיעה only on the 2nd word:</b> <span class="he ok-ex">בית הספר</span>, <span class="he ok-ex">עבודת הסיום</span> – never <span class="he bad-ex">הבית ספר</span>.</li>
+ <li><b>R5 Plural:</b> change only the 1st word: <span class="he">בית ספר → בתי ספר, שעת עבודה → שעות עבודה</span>. An <b>adjective</b> comes after the whole סמיכות and agrees with the <b>1st</b> word: <span class="he">עבודת הסיום <b>החשובה</b></span> (עבודה = f; definite because הסיום has ה).</li></ul>`},
+ {check:{t:'fill',r:'sm-def',i:'השלימו את צירוף הסמיכות על פי המילים שבסוגריים.',q:'(התהליכים+הלימוד) → ___',a:[['תהליכי הלימוד']],w:'־ים → ־י and the ה moves to the 2nd word: <b>תהליכי הלימוד</b>.'}},
+ {title:'How to do it step by step',html:`<div class="en"><b>Task:</b> "השלם את צירוף הסמיכות על פי המילים שבסוגריים"<ol class="steps">
+ <li>Look at the 1st word in the brackets: does it have ה? Then the whole סמיכות is definite.</li>
+ <li>Change the 1st word: remove its ה; ־ה → ־ת, ־ים → ־י.</li>
+ <li>Keep the 2nd word as is. If the סמיכות is definite → the ה goes on the 2nd word.</li>
+ <li>Keep any preposition that is already in the sentence (מ־, ב־, ל־) – it sticks to the 1st word.</li></ol></div>
+ <div class="ex he">(העברה+ידע) → <b>העברת ידע</b><br>(ההתפתחות+הטכנולוגיה) → <b>התפתחות הטכנולוגיה</b><br>מ + (התהליכים+הלימוד) → <b>מתהליכי הלימוד</b></div>`},
+ {title:'Exactly how the bagrut asks it',html:`<div class="ex"><span class="tag src">${S21}, שאלה 12א</span>
+ <div class="he"><b>השלם במקומות הריקים את צירופי הסמיכות החסרים על פי המילים שבסוגריים.</b><br>
+ עם ______ (ההתפתחות+הטכנולוגיה) השתנה תפקיד המורים.</div>
+ <div class="en">1st word ההתפתחות has ה → definite. Remove the ה from the 1st word, ־ות stays, put ה on the 2nd: <b>התפתחות הטכנולוגיה</b>.</div></div>
+ <div class="ex"><span class="tag src">${S26}, שאלה 11ב(2)</span>
+ <div class="he"><b>הוסיפו את ה״א הידיעה לכל אחד מן הצירופים המודגשים בכל מקום שאפשר להוסיף אותה.</b><br>מבחן קבלה · משמעת עצמית גבוהה</div>
+ <div class="en"><b>מבחן קבלה</b> = סמיכות (2 nouns) → ה only on the 2nd: <b>מבחן הקבלה</b>.<br>
+ <b>משמעת עצמית גבוהה</b> = noun + 2 adjectives (NOT a סמיכות!) → ה on every word: <b>המשמעת העצמית הגבוהה</b>.</div></div>
+ <div class="ex"><span class="tag src">${S21}, שאלה 11ב(1)</span>
+ <div class="he">אנשים רבים צריכים לדבר בשעות עבודת / <b>העבודה</b> / עבודות שלהם מול קהל.</div>
+ <div class="en">שעות is already the נסמך. "שלהם" makes it definite → the ה goes on the 2nd word: שעות <b>העבודה</b> שלהם.</div></div>`},
+ {check:{t:'mc',r:'sm-def',i:'הוסיפו ה״א הידיעה בכל מקום שאפשר.',q:'מבחן קבלה',o:['המבחן קבלה','מבחן הקבלה','המבחן הקבלה'],a:1,w:'In a סמיכות the ה goes only on the 2nd word: <b>מבחן הקבלה</b>.'}},
+ {title:'Traps',html:`<div class="trap en"><ul>
+ <li><b>סמיכות or noun + adjective?</b> If the 2nd word is an adjective (עצמית, גבוהה, מרוצה) it is NOT סמיכות → ה on both: <span class="he">המשמעת העצמית</span>. In a סמיכות the 2nd word is a noun (קבלה, ספר, עבודה).</li>
+ <li>The adjective agrees with the <b>1st</b> word: <span class="he">בית ספר <b>גדול</b></span> (בית = m), <span class="he">עוגת שוקולד <b>טעימה</b></span> (עוגה = f).</li>
+ <li>Never ה on the 1st word: <span class="he bad-ex">ההתפתחות הטכנולוגיה</span> → <span class="he ok-ex">התפתחות הטכנולוגיה</span>.</li>
+ <li>Some words change more: <span class="he">בתים → בתי, ימים → ימי, אישה → אשת</span>.</li></ul></div>`},
+ {check:{t:'err',r:'sm-def',i:'מצאו את המילה השגויה ולחצו עליה.',q:'ההתפתחות הטכנולוגיה שינתה את העולם.',b:'ההתפתחות',fix:'התפתחות',w:'The 1st word of a סמיכות never takes ה: <b>התפתחות הטכנולוגיה</b>.'}}
+],
+cheat:`<div class="tbl-wrap"><table class="tbl"><tr><th class="en">Rule</th><th>דוגמה</th></tr>
+<tr><td class="en">1st word: ־ה → ־ת</td><td>עבודה → עבודת סיום</td></tr>
+<tr><td class="en">1st word: ־ים → ־י</td><td>תהליכים → תהליכי לימוד</td></tr>
+<tr><td class="en">־ות / other endings stay</td><td>שעות עבודה, התפתחות הטכנולוגיה</td></tr>
+<tr><td class="en">ה only on 2nd word</td><td>בית הספר, מבחן הקבלה</td></tr>
+<tr><td class="en">Plural: change 1st word only</td><td>בית ספר → בתי ספר, יום הולדת → ימי הולדת</td></tr>
+<tr><td class="en">Adjective after both, agrees with 1st word</td><td>עבודת הסיום החשובה, בית ספר גדול</td></tr>
+<tr><td class="en">Noun + adjective ≠ סמיכות → ה on all</td><td>המשמעת העצמית הגבוהה</td></tr>
+<tr><td class="en">Preposition sticks to 1st word</td><td>בבית הספר, מתהליכי הלימוד</td></tr></table></div>`,
+qs:[
+ {l:1,s:W,t:'mc',r:'sm-def',i:'הקיפו את הצירוף הנכון.',q:'"the school"',o:['הבית ספר','בית הספר','הבית הספר','בית ספרה'],a:1,
+  w:'ה only on the 2nd word: <b>בית הספר</b>.',re:{t:'mc',q:'"the final project"',o:['העבודת סיום','עבודת הסיום','העבודה סיום','עבודה הסיום'],a:1,w:'־ה → ־ת on the 1st word, ה on the 2nd: <b>עבודת הסיום</b>.'}},
+ {l:1,s:S21,t:'mc',r:'sm-def',i:'בכל משפט הקף את המילה המתאימה מבין המילים המודגשות.',q:'כדי למנוע פחד וחרדה כדאי להכין לקראת ההרצאה את ___ בכתב.',o:['עיקרי הדברים','העיקרי דברים'],a:0,
+  w:'עיקרים → עיקרי (־ים → ־י), and the ה goes on the 2nd word: <b>עיקרי הדברים</b>.',
+  re:{t:'mc',s:W,q:'הם הגיעו ל___ בזמן.',o:['תחנת האוטובוס','התחנת אוטובוס','התחנה האוטובוס'],a:0,w:'<b>תחנת האוטובוס</b> – ־ה → ־ת, ה on the 2nd word.'}},
+ {l:1,s:S21,t:'mc',r:'sm-def',i:'בכל משפט הקף את המילה המתאימה מבין המילים המודגשות.',q:'אנשים רבים צריכים לדבר בשעות ___ שלהם מול קהל.',o:['עבודת','העבודה','עבודות'],a:1,h:'שעות is already the 1st word of the סמיכות.',
+  w:'שעות is the נסמך; "שלהם" makes it definite → ה goes on the 2nd word: שעות <b>העבודה</b> שלהם.',x:{0:'עבודת is a נסמך form, but עבודה here is the 2nd word (סומך), which never changes.',2:'The 2nd word doesn\'t become plural – only the 1st word does.'},
+  re:{t:'mc',s:W,q:'התלמידים הכינו את שיעורי ___ שלהם.',o:['בית','הבית','בתי'],a:1,w:'"שלהם" → definite → <b>שיעורי הבית</b> שלהם.'}},
+ {l:1,s:W,t:'sort',r:'sm-def',i:'מיינו את הצירופים: נכון או שגוי?',g:['נכון','שגוי'],it:[['בית הספר',0],['הבית ספר',1],['עבודת הסיום',0],['העבודת סיום',1],['תהליכי הלימוד',0],['התהליכי לימוד',1],['חדר המורים',0],['החדר מורים',1]],
+  w:'In a definite סמיכות the ה is <b>only on the 2nd word</b>.',
+  re:{t:'sort',g:['נכון','שגוי'],it:[['ארוחת הערב',0],['הארוחת ערב',1],['יום ההולדת',0],['היום הולדת',1]],w:'ה only on the 2nd word: ארוחת הערב, יום ההולדת.'}},
+ {l:1,s:W,t:'mc',r:'sm-form',i:'הקיפו את צירוף הסמיכות הנכון.',q:'(שנה + לימודים)',o:['שנת לימודים','שנה לימודים','השנה לימודים'],a:0,
+  w:'־ה → ־ת on the 1st word: <b>שנת לימודים</b>.',re:{t:'mc',q:'(ממשלה + ישראל)',o:['ממשלה ישראל','ממשלת ישראל','הממשלת ישראל'],a:1,w:'־ה → ־ת: <b>ממשלת ישראל</b> (ישראל is a name → already definite).'}},
+ {l:1,s:W,t:'mc',r:'sm-adj',i:'הקיפו את שם התואר המתאים.',q:'בית ספר ___',o:['גדול','גדולה','הגדול'],a:0,h:'Which word does the adjective describe – בית or ספר?',
+  w:'The adjective agrees with the 1st word בית (masculine, indefinite) → <b>גדול</b>.',
+  re:{t:'mc',q:'עבודת הסיום ___',o:['החשובה','חשובה','החשוב'],a:0,w:'Agrees with עבודה (f); the סמיכות is definite (הסיום) → <b>החשובה</b>.'}},
+ {l:2,s:S21,t:'fill',r:'sm-form',i:'השלם במקומות הריקים את צירופי הסמיכות החסרים על פי המילים שבסוגריים.',q:'בעבר היה תפקיד המורים מבוסס בעיקר על ___ (העברה+ידע) לתלמידים.',a:[['העברת ידע']],
+  w:'־ה → ־ת: <b>העברת ידע</b> (indefinite – no ה anywhere).',re:{t:'fill',s:W,q:'הרופא ביקש ממני לעשות ___ (בדיקה+דם).',a:[['בדיקת דם']],w:'־ה → ־ת: <b>בדיקת דם</b>.'}},
+ {l:2,s:S21,t:'fill',r:'sm-def',i:'השלם במקומות הריקים את צירופי הסמיכות החסרים על פי המילים שבסוגריים.',q:'עם ___ (ההתפתחות+הטכנולוגיה) השתנה תפקיד המורים, וכעת גם התלמידים שותפים פעילים בתהליך הלמידה.',a:[['התפתחות הטכנולוגיה']],h:'Where does the ה go?',
+  w:'Remove ה from the 1st word, keep it on the 2nd: <b>התפתחות הטכנולוגיה</b>.',
+  re:{t:'fill',s:W,q:'___ (ההחלטה+הממשלה) התקבלה אתמול.',a:[['החלטת הממשלה']],w:'Remove ה from the 1st word, ־ה → ־ת: <b>החלטת הממשלה</b>.'}},
+ {l:2,s:S21,t:'fill',r:'sm-form',i:'השלם במקומות הריקים את צירופי הסמיכות החסרים על פי המילים שבסוגריים.',q:'השימוש במחשב, בלוח השיתופי ובטלפון הנייד נהפך לחלק בלתי נפרד מ___ (התהליכים+הלימוד).',a:[['תהליכי הלימוד']],
+  w:'־ים → ־י and ה on the 2nd word: (מ)<b>תהליכי הלימוד</b>.',
+  re:{t:'fill',s:W,q:'כל ___ (התלמידים+הכיתה) יצאו לטיול.',a:[['תלמידי הכיתה']],w:'־ים → ־י, ה on the 2nd word: <b>תלמידי הכיתה</b>.'}},
+ {l:2,s:W,t:'fill',r:'sm-pl',i:'הפכו את צירוף הסמיכות לצורת רבים.',q:'שעת עבודה → ___',a:[['שעות עבודה']],
+  w:'Only the 1st word becomes plural: <b>שעות עבודה</b>.',re:{t:'fill',q:'בית ספר → ___',a:[['בתי ספר']],w:'בית → בתים → in סמיכות <b>בתי</b>: <b>בתי ספר</b>.'}},
+ {l:2,s:W,t:'fill',r:'sm-pl',i:'הפכו כל צירוף לצורת רבים.',q:'(1) עוגת שוקולד → ___\n(2) עורך דין → ___\n(3) יום הולדת → ___',a:[['עוגות שוקולד'],['עורכי דין'],['ימי הולדת']],
+  w:'Only the 1st word changes: <b>עוגות</b> שוקולד, <b>עורכי</b> דין (־ים → ־י), <b>ימי</b> הולדת.',
+  re:{t:'fill',q:'(1) ארוחת ערב → ___\n(2) ספר לימוד → ___',a:[['ארוחות ערב'],['ספרי לימוד']],w:'<b>ארוחות ערב</b>, <b>ספרי לימוד</b>.'}},
+ {l:2,s:S26,t:'fill',r:'sm-def',i:'הוסיפו את ה״א הידיעה לצירוף בכל מקום שאפשר להוסיף אותה.',q:'מבחן קבלה → ___',a:[['מבחן הקבלה']],
+  w:'סמיכות → ה only on the 2nd word: <b>מבחן הקבלה</b>.',re:{t:'fill',s:W,q:'חדר אוכל → ___',a:[['חדר האוכל']],w:'<b>חדר האוכל</b>.'}},
+ {l:2,s:W,t:'fill',r:'sm-adj',i:'הוסיפו את ה״א הידיעה לצירוף בכל מקום שאפשר להוסיף אותה.',q:'תחנת אוטובוס מרכזית → ___',a:[['תחנת האוטובוס המרכזית']],h:'סמיכות + adjective: ה on the 2nd noun AND on the adjective.',
+  w:'ה on the סומך and on the adjective: <b>תחנת האוטובוס המרכזית</b>.',
+  re:{t:'fill',q:'שיעור בית קשה → ___',a:[['שיעור הבית הקשה']],w:'<b>שיעור הבית הקשה</b>.'}},
+ {l:3,s:S26,t:'fill',r:'sm-vs',i:'הוסיפו את ה״א הידיעה לצירוף בכל מקום שאפשר להוסיף אותה.',q:'משמעת עצמית גבוהה → ___',a:[['המשמעת העצמית הגבוהה']],h:'Is עצמית a noun or an adjective?',
+  w:'Trap! This is NOT a סמיכות – it is a noun + 2 adjectives → ה on every word: <b>המשמעת העצמית הגבוהה</b>.',
+  re:{t:'fill',s:W,q:'רעיון מקורי חדש → ___',a:[['הרעיון המקורי החדש']],w:'Noun + adjectives → ה on all: <b>הרעיון המקורי החדש</b>.'}},
+ {l:3,s:W,t:'err',r:'sm-adj',i:'מצאו את המילה השגויה ולחצו עליה.',q:'התלמידים מבית הספר הגדולה יצאו לטיול.',b:'הגדולה',fix:'הגדול',
+  w:'The adjective agrees with the 1st word בית (masculine) → <b>הגדול</b>.',
+  re:{t:'err',q:'עוגות השוקולד הטעימים נגמרו מהר.',b:'הטעימים',fix:'הטעימות',w:'Agrees with עוגות (f.pl) → <b>הטעימות</b>.'}},
+ {l:3,s:W,t:'err',r:'sm-def',i:'מצאו את המילה השגויה ולחצו עליה.',q:'הבית ספר שלנו נמצא ליד הפארק.',b:'הבית',fix:'בית (→ בית הספר שלנו)',
+  w:'The ה goes on the 2nd word: <b>בית הספר</b> שלנו.',
+  re:{t:'err',q:'ההחלטת הממשלה פורסמה בעיתון.',b:'ההחלטת',fix:'החלטת',w:'No ה on the 1st word: <b>החלטת הממשלה</b>.'}},
+ {l:3,s:W,t:'rw',r:'sm-form',i:'כתבו את המשפט מחדש: הפכו את הצירוף "העבודות של התלמידים" לצירוף סמיכות.',q:'המורה בדקה את העבודות של התלמידים.',p:'המורה בדקה את ',a:['המורה בדקה את עבודות התלמידים'],
+  w:'העבודות של התלמידים → <b>עבודות התלמידים</b> (ה moves to the 2nd word, של disappears).',
+  re:{t:'rw',i:'כתבו את המשפט מחדש: הפכו את הצירוף "הספרים של הספרייה" לצירוף סמיכות.',q:'הספרים של הספרייה חדשים.',p:'',a:['ספרי הספרייה חדשים'],w:'הספרים → ספרי, ה on the 2nd word: <b>ספרי הספרייה</b> חדשים.'}},
+ {l:3,s:W,t:'fill',r:'sm-def',i:'השלימו את צירופי הסמיכות החסרים על פי המילים שבסוגריים.',q:'(1) ___ (התוצאות+הבדיקה) הוקלדו במחשב.\n(2) ההורים הגיעו ל___ (האסיפה+ההורים) בזמן.\n(3) ___ (הדירות+המגורים) בעיר יקרות מאוד.',a:[['תוצאות הבדיקה'],['אסיפת ההורים'],['דירות המגורים']],
+  w:'(1) <b>תוצאות הבדיקה</b> (־ות stays). (2) ־ה → ־ת: <b>אסיפת ההורים</b>. (3) <b>דירות המגורים</b>. Always: no ה on the 1st word.',
+  re:{t:'fill',q:'(1) ___ (השמלה+הכלה) הייתה לבנה.\n(2) ___ (הבתים+הכנסת) בעיר העתיקה ישנים מאוד.',a:[['שמלת הכלה'],['בתי הכנסת']],w:'<b>שמלת הכלה</b>, <b>בתי הכנסת</b>.'}},
+ {l:3,s:W,t:'mc',r:'sm-adj',i:'הוסיפו ה״א הידיעה בכל מקום שאפשר. הקיפו את הצורה הנכונה.',q:'שמלת כלה לבנה',o:['השמלת כלה הלבנה','שמלת הכלה הלבנה','שמלת הכלה לבנה','השמלת הכלה הלבנה'],a:1,
+  w:'ה on the 2nd noun and on the adjective: <b>שמלת הכלה הלבנה</b>.',x:{2:'If the סמיכות is definite, the adjective must be definite too (הלבנה).'},
+  re:{t:'mc',q:'ספר לימוד חדש',o:['ספר הלימוד החדש','הספר הלימוד החדש','ספר הלימוד חדש'],a:0,w:'<b>ספר הלימוד החדש</b>.'}},
+ {l:3,s:W,t:'sort',r:'sm-vs',i:'מיינו: סמיכות או שם + שם תואר?',g:['סמיכות','שם + שם תואר'],it:[['מבחן קבלה',0],['משמעת עצמית',1],['בית ספר',0],['לקוח מרוצה',1],['עבודת סיום',0],['חשיבה חיובית',1]],
+  w:'In a סמיכות the 2nd word is a <b>noun</b> (קבלה, ספר, סיום). If it is an <b>adjective</b> (עצמית, מרוצה, חיובית) it is noun + adjective.',
+  re:{t:'sort',g:['סמיכות','שם + שם תואר'],it:[['ארוחת ערב',0],['ארוחה טעימה',1],['שעון יד',0],['שעון חדש',1]],w:'ערב, יד = nouns → סמיכות. טעימה, חדש = adjectives.'}}
+]};
+
+/* ============================================================
+   TOPIC 3 – שם עצם ושם תואר
+   ============================================================ */
+const T3={id:'t3',he:'שם עצם ושם תואר',en:'Noun–adjective agreement',
+cards:[
+ {title:'What it is',html:`<div class="en">An adjective (<b>שם תואר</b>) comes <b>after</b> the noun and copies it in <b>3 things</b>: gender (זכר/נקבה), number (יחיד/רבים) and definiteness (ה).</div>
+ <div class="ex he">ילד חכם · ילדה חכמה · ילדים חכמים · ילדות חכמות · <b>ה</b>ילדה <b>ה</b>חכמה</div>
+ <div class="en">The bagrut asks: <span class="he">"הקיפו את השם המתאים לתיאור המילה…"</span>, <span class="he">"הפכו לצורת רבים"</span>, <span class="he">"הוסיפו ה״א הידיעה"</span>.</div>`},
+ {check:{t:'mc',r:'ag-basic',i:'הקיפו את הצורה הנכונה.',q:'הילדות ___',o:['החכמות','חכמות','החכמים'],a:0,h:'Look at the ה on הילדות.',w:'הילדות = feminine, plural, definite → <b>החכמות</b>.'}},
+ {title:'The rules',html:`<ul class="rules en">
+ <li><b>R1</b> Gender and number come from the noun.</li>
+ <li><b>R2</b> ה on the noun → ה on every adjective. (A name, or a noun with שלי/שלו, also counts as definite.)</li>
+ <li><b>R3 The gender of a plural comes from its SINGULAR, not from its ending!</b><br>
+ Masculine with ־ות: <span class="he">פתרון → פתרונות <b>שונים</b>, רעיון → רעיונות <b>יצירתיים</b>, חלום → חלומות <b>גדולים</b></span> (also מקומות, לילות, קולות, שולחנות).<br>
+ Feminine with ־ים: <span class="he">שנה → שנים <b>רבות</b>, מילה → מילים <b>קשות</b>, עיר → ערים <b>גדולות</b>, פעם → פעמים <b>רבות</b></span>.</li>
+ <li><b>R4</b> Feminine without ־ה: <span class="he">ארץ, עיר, דרך</span> (also רגל, עין) → <span class="he">ארץ גדולה, דרך ארוכה, עיר עתיקה</span>.</li>
+ <li><b>R5</b> Verbs agree too: <span class="he">הדרך <b>הייתה</b> ארוכה, השנים <b>עברו</b> מהר</span>.</li></ul>`},
+ {check:{t:'mc',r:'ag-tricky',i:'הקיפו את הצורה הנכונה.',q:'פתרונות ___',o:['שונים','שונות'],a:0,w:'פתרון is masculine → <b>שונים</b>, even though פתרונות ends in ־ות.'}},
+ {title:'How to do it step by step',html:`<div class="en"><ol class="steps">
+ <li>Find the noun the adjective describes (it can be a few words away!).</li>
+ <li>Say it in the singular in your head: רעיונות → רעיון → <b>masculine</b>.</li>
+ <li>One or many?</li>
+ <li>Does the noun have ה (or is it otherwise definite)? → add ה.</li>
+ <li>Write the form.</li></ol></div>
+ <div class="ex he">מועצת התלמידים הציעה <u>רעיונות</u> ___ → רעיון (ז׳), רבים, בלי ה → <b>יצירתיים</b><br>
+ הפכו לרבים: לקוח מרוצה → <b>לקוחות מרוצים</b> (both words change)</div>`},
+ {title:'Exactly how the bagrut asks it',html:`<div class="ex"><span class="tag src">${S26}, שאלה 11א</span>
+ <div class="he"><b>הקיפו את השם המתאים לתיאור המילה "רעיונות" במשפט.</b><br>מועצת התלמידים הציעה רעיונות ______ להתמודדות עם בעיות המשמעת בבית הספר.<br>• יצירתיות • היצירתיות • היצירתיים • <b>יצירתיים</b></div>
+ <div class="en">רעיון = masculine; plural; רעיונות has no ה → <b>יצירתיים</b>. The ־ות ending of רעיונות is the trap.</div></div>
+ <div class="ex"><span class="tag src">${S21}, שאלה 12ב</span>
+ <div class="he">(1) אנשים רבים קוראים למצוא פתרונות <b>שונים</b> / שונות לבעיית המגדר בשפה.<br>(2) הוויכוח… נמשך שנים <b>אחדות</b> / אחדים.</div>
+ <div class="en">פתרון = m → שונים. שנה = f → אחדות.</div></div>
+ <div class="ex"><span class="tag src">${S26}, שאלה 11ב(1)</span><div class="he"><b>הפכו לצורת רבים את הצירוף שלפניכם.</b> לקוח מרוצה → <b>לקוחות מרוצים</b></div></div>`},
+ {check:{t:'fill',r:'ag-tricky',i:'הפכו לצורת רבים.',q:'עיר עתיקה → ___',a:[['ערים עתיקות']],w:'עיר is feminine → plural <b>ערים עתיקות</b> (ערים ends in ־ים but stays feminine).'}},
+ {title:'Traps',html:`<div class="tbl-wrap"><table class="tbl"><tr><th>זכר למרות ־ות</th><th>נקבה למרות ־ים</th><th>נקבה בלי ־ה</th></tr>
+ <tr><td>פתרונות שונים</td><td>שנים רבות / אחדות</td><td>ארץ גדולה</td></tr>
+ <tr><td>רעיונות יצירתיים</td><td>מילים קשות</td><td>עיר עתיקה</td></tr>
+ <tr><td>חלומות גדולים</td><td>ערים גדולות</td><td>דרך ארוכה</td></tr>
+ <tr><td>מקומות, לילות, קולות, שולחנות</td><td>פעמים רבות</td><td>רגל, עין</td></tr></table></div>
+ <div class="trap en">Also: the adjective after a סמיכות agrees with the <b>1st</b> word (בית ספר גדול). A city name is feminine: <span class="he">ירושלים העתיקה</span>.</div>`},
+ {check:{t:'err',r:'ag-fem',i:'מצאו את המילה השגויה ולחצו עליה.',q:'בעיר הגדול יש הרבה פארקים.',b:'הגדול',fix:'הגדולה',w:'עיר is feminine → <b>הגדולה</b>.'}}
+],
+cheat:`<div class="en"><b>Adjective = after the noun, copies gender + number + ה.</b> Find the noun → say it in the singular → decide gender → count → ה?</div>
+<div class="tbl-wrap"><table class="tbl"><tr><th>זכר למרות ־ות</th><th>נקבה למרות ־ים</th><th>נקבה בלי ־ה</th></tr>
+<tr><td>פתרונות שונים</td><td>שנים רבות / אחדות</td><td>ארץ גדולה</td></tr>
+<tr><td>רעיונות יצירתיים</td><td>מילים קשות</td><td>עיר עתיקה</td></tr>
+<tr><td>חלומות גדולים</td><td>ערים גדולות</td><td>דרך ארוכה</td></tr>
+<tr><td>מקומות, לילות, קולות, שולחנות</td><td>פעמים רבות</td><td>רגל, עין</td></tr></table></div>
+<div class="he">לקוח מרוצה → לקוחות מרוצים · פתרון יצירתי → הפתרון היצירתי · ירושלים העתיקה</div>`,
+qs:[
+ {l:1,s:S26,t:'mc',r:'ag-tricky',i:'הקיפו את השם המתאים לתיאור המילה "רעיונות" במשפט.',q:'מועצת התלמידים הציעה רעיונות ___ להתמודדות עם בעיות המשמעת בבית הספר.',o:['יצירתיות','היצירתיות','היצירתיים','יצירתיים'],a:3,h:'רעיונות → רעיון. Masculine or feminine? Does רעיונות have ה?',
+  w:'רעיון is <b>masculine</b>, plural, no ה → <b>יצירתיים</b>.',x:{0:'יצירתיות is feminine. The ־ות of רעיונות is a trap: רעיון is masculine.',1:'Feminine AND definite – but רעיונות is masculine and has no ה.',2:'Right gender, but רעיונות has no ה, so the adjective can\'t have ה.'},
+  re:{t:'mc',s:W,q:'המורה הציעה פתרונות ___ לבעיה.',o:['מעניינות','מעניינים','המעניינים'],a:1,w:'פתרון = masculine, no ה → <b>מעניינים</b>.'}},
+ {l:1,s:S21,t:'mc',r:'ag-tricky',i:'בכל משפט הקף את המילה המודגשת המתאימה.',q:'אנשים רבים קוראים למצוא פתרונות ___ לבעיית המגדר בשפה.',o:['שונים','שונות'],a:0,
+  w:'פתרון = masculine → <b>שונים</b>.',x:{1:'פתרונות ends in ־ות but פתרון is masculine.'},re:{t:'mc',s:W,q:'יש לי חלומות ___ לעתיד.',o:['גדולים','גדולות'],a:0,w:'חלום = masculine → <b>גדולים</b>.'}},
+ {l:1,s:S21,t:'mc',r:'ag-tricky',i:'בכל משפט הקף את המילה המודגשת המתאימה.',q:'הוויכוח על לשון הפנייה המתאימה לנשים ולגברים נמשך שנים ___.',o:['אחדות','אחדים'],a:0,
+  w:'שנה = feminine → <b>אחדות</b> (שנים ends in ־ים but is feminine).',re:{t:'mc',s:W,q:'ביקרתי בירושלים פעמים ___.',o:['רבות','רבים'],a:0,w:'פעם = feminine → <b>רבות</b>.'}},
+ {l:1,s:W,t:'sort',r:'ag-tricky',i:'מיינו את השמות לפי המין הדקדוקי.',g:['זכר','נקבה'],it:[['פתרונות',0],['רעיונות',0],['שנים',1],['חלומות',0],['מילים',1],['ערים',1],['פעמים',1],['ארץ',1],['דרך',1],['מקומות',0]],
+  w:'Decide by the <b>singular</b>: פתרון, רעיון, חלום, מקום = m. שנה, מילה, עיר, פעם = f. ארץ, דרך = f without ־ה.',
+  re:{t:'sort',g:['זכר','נקבה'],it:[['לילות',0],['קולות',0],['עיר',1],['רגל',1],['שולחנות',0],['מילים',1]],w:'לילה, קול, שולחן = m. עיר, רגל, מילה = f.'}},
+ {l:1,s:W,t:'mc',r:'ag-fem',i:'הקיפו את הצירוף הנכון.',q:'"the long road"',o:['הדרך הארוך','הדרך הארוכה','דרך הארוכה'],a:1,
+  w:'דרך is feminine; both words need ה → <b>הדרך הארוכה</b>.',re:{t:'mc',q:'ארץ ___',o:['גדול','גדולה','גדולים'],a:1,w:'ארץ is feminine → <b>גדולה</b>.'}},
+ {l:1,s:W,t:'mc',r:'ag-tricky',i:'הקיפו את הצורה הנכונה.',q:'ביקרנו בערים ___ בצפון.',o:['עתיקים','עתיקות','העתיקות'],a:1,
+  w:'עיר = feminine; ערים has no ה → <b>עתיקות</b>.',re:{t:'mc',q:'למדנו מילים ___ בשיעור.',o:['חדשות','חדשים','החדשות'],a:0,w:'מילה = feminine, no ה → <b>חדשות</b>.'}},
+ {l:2,s:S26,t:'fill',r:'ag-basic',i:'הפכו לצורת רבים את הצירוף שלפניכם.',q:'לקוח מרוצה → ___',a:[['לקוחות מרוצים']],h:'Both words change.',
+  w:'לקוח (m) → לקוחות; the adjective → <b>מרוצים</b>: <b>לקוחות מרוצים</b>.',re:{t:'fill',s:W,q:'מורה מקצועית → ___',a:[['מורות מקצועיות']],w:'<b>מורות מקצועיות</b>.'}},
+ {l:2,s:W,t:'fill',r:'ag-tricky',i:'הפכו לצורת רבים את הצירוף שלפניכם.',q:'רעיון מקורי → ___',a:[['רעיונות מקוריים']],
+  w:'רעיון is masculine → <b>רעיונות מקוריים</b>.',re:{t:'fill',q:'חלום גדול → ___',a:[['חלומות גדולים']],w:'<b>חלומות גדולים</b>.'}},
+ {l:2,s:W,t:'fill',r:'ag-tricky',i:'הפכו לצורת רבים את הצירוף שלפניכם.',q:'שנה קשה → ___',a:[['שנים קשות']],
+  w:'שנה is feminine → <b>שנים קשות</b>.',re:{t:'fill',q:'מילה חדשה → ___',a:[['מילים חדשות']],w:'<b>מילים חדשות</b>.'}},
+ {l:2,s:W,t:'fill',r:'ag-fem',i:'הפכו לצורת רבים את הצירוף שלפניכם.',q:'עיר עתיקה → ___',a:[['ערים עתיקות']],
+  w:'עיר → ערים (feminine!) → <b>ערים עתיקות</b>.',re:{t:'fill',q:'דרך חדשה → ___',a:[['דרכים חדשות']],w:'דרך is feminine → <b>דרכים חדשות</b>.'}},
+ {l:2,s:W,t:'fill',r:'ag-basic',i:'הוסיפו את ה״א הידיעה בכל מקום שאפשר.',q:'פתרון יצירתי → ___',a:[['הפתרון היצירתי']],
+  w:'Noun + adjective → ה on both: <b>הפתרון היצירתי</b>.',re:{t:'fill',q:'ארץ גדולה → ___',a:[['הארץ הגדולה']],w:'<b>הארץ הגדולה</b>.'}},
+ {l:2,s:W,t:'fill',r:'ag-tricky',i:'השלימו את שם התואר בצורה הנכונה לפי המילה שבסוגריים.',q:'(1) בספר יש פתרונות ___ (יעיל) לבעיות לחץ.\n(2) הם גרו בארץ שנים ___ (רב).\n(3) הדרך לבית הספר ___ (ארוך) מאוד.',a:[['יעילים'],['רבות'],['ארוכה']],
+  w:'(1) פתרון = m → <b>יעילים</b>. (2) שנה = f → <b>רבות</b>. (3) דרך = f → <b>ארוכה</b>.',
+  re:{t:'fill',q:'(1) יש לה רעיונות ___ (טוב).\n(2) בעיר ___ (קטן) הזאת אין קולנוע.',a:[['טובים'],['הקטנה']],w:'(1) רעיון = m → <b>טובים</b>. (2) עיר = f, definite (בעיר = בָּעִיר) → <b>הקטנה</b>.'}},
+ {l:2,s:W,t:'mc',r:'ag-tricky',i:'הקיפו את המשפט התקין.',q:'',o:['השנים האחרונות היו קשים.','השנים האחרונות היו קשות.','השנים האחרונים היו קשות.'],a:1,
+  w:'שנה = feminine → האחרונות, קשות.',re:{t:'mc',q:'',o:['החלומות שלי גדולות.','החלומות שלי גדולים.','החלומות שלי הגדולות.'],a:1,w:'חלום = masculine → <b>גדולים</b>.'}},
+ {l:3,s:W,t:'err',r:'ag-tricky',i:'מצאו את המילה השגויה ולחצו עליה.',q:'הוא מצא פתרונות טובות לכל הבעיות.',b:'טובות',fix:'טובים',
+  w:'פתרון is masculine → <b>טובים</b>.',re:{t:'err',q:'הם סיפרו לנו על החלומות הגדולות שלהם.',b:'הגדולות',fix:'הגדולים',w:'חלום is masculine → <b>הגדולים</b>.'}},
+ {l:3,s:W,t:'err',r:'ag-fem',i:'מצאו את המילה השגויה ולחצו עליה.',q:'ירושלים היא עיר יפה ועתיק.',b:'ועתיק',fix:'ועתיקה',
+  w:'עיר is feminine → <b>עתיקה</b>.',re:{t:'err',q:'ביקרנו בארץ רחוק מאוד.',b:'רחוק',fix:'רחוקה',w:'ארץ is feminine → <b>רחוקה</b>.'}},
+ {l:3,s:W,t:'err',r:'ag-tricky',i:'מצאו את המילה השגויה ולחצו עליה.',q:'המילים החדשים בשיעור היו קשות.',b:'החדשים',fix:'החדשות',
+  w:'מילה is feminine → <b>החדשות</b>.',re:{t:'err',q:'פעמים רבים שכחתי את המפתח בבית.',b:'רבים',fix:'רבות',w:'פעם is feminine → <b>רבות</b>.'}},
+ {l:3,s:W,t:'fill',r:'ag-tricky',i:'הפכו לצורת רבים והוסיפו ה״א הידיעה בכל מקום שאפשר.',q:'(1) רעיון חדשני → ___\n(2) עיר גדולה → ___',a:[['הרעיונות החדשניים'],['הערים הגדולות']],
+  w:'(1) m → <b>הרעיונות החדשניים</b>. (2) f → <b>הערים הגדולות</b>.',
+  re:{t:'fill',q:'(1) פתרון פשוט → ___\n(2) שנה טובה → ___',a:[['הפתרונות הפשוטים'],['השנים הטובות']],w:'<b>הפתרונות הפשוטים</b>, <b>השנים הטובות</b>.'}},
+ {l:3,s:W,t:'rw',r:'ag-tricky',i:'כתבו את המשפט בצורת רבים.',q:'הרעיון החדש של התלמיד היה מקורי.',p:'',a:['הרעיונות החדשים של התלמידים היו מקוריים','הרעיונות החדשים של התלמיד היו מקוריים'],
+  w:'רעיון is masculine → <b>הרעיונות החדשים</b>; the verb and adjective: <b>היו מקוריים</b>.',
+  re:{t:'rw',q:'המילה הקשה בטקסט הייתה חדשה לי.',p:'',a:['המילים הקשות בטקסט היו חדשות לי'],w:'מילה is feminine → <b>המילים הקשות… היו חדשות</b>.'}},
+ {l:3,s:W,t:'mc',r:'ag-tricky',i:'הקיפו את הצירוף שבו שם התואר מתאים לשם העצם.',q:'',o:['חלומות רבות','מילים רבים','פעמים רבות','ערים גדולים'],a:2,
+  w:'פעם = f → <b>פעמים רבות</b>. (חלומות = m → רבים; מילים, ערים = f → רבות, גדולות.)',
+  re:{t:'mc',q:'',o:['רעיונות טובות','שנים טובות','דרכים טובים','פתרונות טובות'],a:1,w:'שנה = f → <b>שנים טובות</b>.'}},
+ {l:3,s:W,t:'fill',r:'ag-basic',i:'השלימו את שם התואר בצורה הנכונה לפי המילה שבסוגריים.',q:'(1) מועצת התלמידים הציעה רעיונות ___ (יצירתי).\n(2) הלקוחות היו ___ (מרוצה) מהשירות.',a:[['יצירתיים'],['מרוצים']],
+  w:'(1) רעיון = m → <b>יצירתיים</b>. (2) לקוחות = m.pl → <b>מרוצים</b>.',
+  re:{t:'fill',q:'(1) הם חלמו חלומות ___ (גדול).\n(2) הערים ___ (חדש) בנגב גדלות מהר.',a:[['גדולים'],['החדשות']],w:'(1) <b>גדולים</b>. (2) ערים = f, definite → <b>החדשות</b>.'}}
+]};
+
+/* ============================================================
+   TOPIC 4 – מבנים מודאליים
+   ============================================================ */
+const T4={id:'t4',he:'מבנים מודאליים',en:'Modal structures (צריך, אפשר, מומלץ…)',
+cards:[
+ {title:'What it is',html:`<div class="en">Modal words say <i>must / can / should / possible / forbidden</i>. There are <b>two families</b>:</div>
+ <div class="tbl-wrap"><table class="tbl"><tr><th class="en">A – personal: AGREE with the subject</th><th class="en">B – impersonal: NEVER change</th></tr>
+ <tr><td>צריך / צריכה / צריכים / צריכות<br>חייב / חייבת / חייבים / חייבות<br>יכול / יכולה / יכולים / יכולות</td>
+ <td>אפשר, ניתן, כדאי, מומלץ, יש ל־, אסור, מותר, מקובל, רצוי, חשוב</td></tr></table></div>
+ <div class="en">Both are followed by <b>שם הפועל</b>: <span class="he">התלמידות צריכות <b>ללמוד</b> · מומלץ <b>לשתות</b> מים</span>.</div>`},
+ {check:{t:'mc',r:'md-agree',i:'הקיפו את הצורה הנכונה.',q:'התלמידות ___ להגיש את העבודה מחר.',o:['צריך','צריכה','צריכות'],a:2,w:'Subject התלמידות = f.pl → <b>צריכות</b>.'}},
+ {title:'The rules',html:`<ul class="rules en">
+ <li><b>R1</b> Family A agrees: <span class="he">הפנייה לקהל <b>חייבת</b> להיות ברורה</span> (פנייה = f).</li>
+ <li><b>R2</b> Family B never changes: <span class="he ok-ex">מומלץ לקרוא</span> (not <span class="bad-ex he">מומלצת</span>), <span class="he ok-ex">כדאי ללכת</span>.</li>
+ <li><b>R3</b> <span class="he">יש ל + שם הפועל</span> = צריך: <span class="he">יש להתחשב = צריך להתחשב</span>.</li>
+ <li><b>R4 Conversion</b> ("הפכו למשפט המלצה"):<br><span class="he">[שם פעולה + object] + הוא/היא אפשרי/מומלץ/מקובל</span> → <span class="he">[אפשר/מומלץ/מקובל] + שם הפועל + (את) + object</span></li>
+ <li><b>R5</b> <b>את</b> only before a <b>definite</b> object (ה, a name, a definite סמיכות). If the verb has its own preposition, keep it: <span class="he">שימוש ב → להשתמש ב; שמירה על → לשמור על</span>.</li></ul>`},
+ {check:{t:'fill',r:'md-conv',i:'השלימו את שם הפועל.',q:'שינוי ההוראות הוא אפשרי. → אפשר ___ את ההוראות.',a:[['לשנות']],w:'שינוי → שם הפועל <b>לשנות</b>.'}},
+ {title:'How to do it step by step',html:`<div class="ex he">שינוי לשון ההוראות בבחינות הוא אפשרי.</div>
+ <div class="en"><ol class="steps">
+ <li>Find the שם פעולה: <b class="he">שינוי</b>.</li>
+ <li>Turn it into שם הפועל: שינוי → <b class="he">לשנות</b>.</li>
+ <li>Turn the adjective at the end into the opening word: אפשרי → <b class="he">אפשר</b>. Delete "הוא/היא" and the adjective.</li>
+ <li>The object: <span class="he">לשון ההוראות</span> is definite → add <b>את</b>. Indefinite → no את. Verb with a preposition → use that preposition.</li>
+ <li>Write: <b class="he">אפשר לשנות את לשון ההוראות בבחינות.</b></li></ol></div>
+ <div class="tbl-wrap"><table class="tbl"><tr><th>במשפט המקורי</th><th>מילת הפתיחה</th></tr>
+ <tr><td>אפשרי / אפשרית</td><td>אפשר</td></tr><tr><td>מומלץ / מומלצת</td><td>מומלץ</td></tr><tr><td>מקובל / מקובלת</td><td>מקובל</td></tr>
+ <tr><td>חשוב / חשובה</td><td>חשוב</td></tr><tr><td>אסור / אסורה</td><td>אסור</td></tr><tr><td>רצוי / רצויה</td><td>רצוי</td></tr><tr><td>חובה</td><td>יש ל… / חובה ל…</td></tr></table></div>`},
+ {title:'Exactly how the bagrut asks it',html:`<div class="ex"><span class="tag src">${S21}, שאלה 11א</span>
+ <div class="he"><b>הפוך את המשפטים שלפניך למשפטי המלצה. השתמש במילות הפתיחה הנתונות ובשם הפועל.</b><br>
+ (1) לדעת החוקרים, שינוי לשון ההוראות בבחינות הוא אפשרי.<br>→ לדעת החוקרים, אפשר <b>לשנות את לשון ההוראות בבחינות</b>.<br>
+ (2) שילוב של מילים מן הסלנג בשפת הדיבור מקובל על דעת אנשי הלשון.<br>→ לדעת אנשי הלשון, מקובל <b>לשלב מילים מן הסלנג בשפת הדיבור</b>.</div>
+ <div class="en">In (2) "של" disappears and there is <b>no את</b>, because "מילים מן הסלנג" is indefinite.</div></div>
+ <div class="ex"><span class="tag src">${S21}, שאלה 11ב(3)</span><div class="he">הפנייה לקהל חייב / <b>חייבת</b> להיות בלשון ברורה ומכבדת.</div><div class="en">חייב is family A → agrees with הפנייה (f).</div></div>
+ <div class="ex"><span class="tag src">${S26b}</span><div class="he">לשם הגנה על המטופלים <u>יש</u> להתחשב בנושאי פרטיות. → <b>צריך</b> להתחשב</div><div class="en">יש ל + שם הפועל = צריך.</div></div>`},
+ {check:{t:'mc',r:'md-conv',i:'הקיפו את ההשלמה הנכונה.',q:'לדעת אנשי הלשון, מקובל ___ מילים מן הסלנג בשפת הדיבור.',o:['לשלב','שילוב','משלבים','לשלב את'],a:0,w:'After מקובל comes שם הפועל: <b>לשלב</b>. No את – "מילים מן הסלנג" is indefinite.',x:{3:'את is used only before a definite object. "מילים" has no ה.'}}},
+ {title:'Traps',html:`<div class="trap en"><ul>
+ <li>"של" disappears: <span class="he">שילוב <u>של</u> מילים → לשלב מילים</span>.</li>
+ <li>No את before an indefinite object: <span class="he bad-ex">מומלץ לקרוא את ספרים</span> → <span class="he ok-ex">מומלץ לקרוא ספרים</span>.</li>
+ <li>Keep the verb's own preposition: <span class="he">השימוש בטלפון אסור → אסור להשתמש <b>ב</b>טלפון</span>; <span class="he">שמירה על הטבע חשובה → חשוב לשמור <b>על</b> הטבע</span>.</li>
+ <li>The opening word never agrees: <span class="he bad-ex">מומלצת לשתות</span>, <span class="he bad-ex">אפשרית לשנות</span>.</li>
+ <li>יש meaning "there is" (<span class="he">יש שלושה סוגים</span>) is not modal – it means קיימים.</li></ul></div>`},
+ {check:{t:'err',r:'md-et',i:'מצאו את המילה השגויה ולחצו עליה.',q:'מומלץ לקרוא את ספרים בעברית.',b:'את',fix:'(delete: מומלץ לקרוא ספרים בעברית)',w:'ספרים is indefinite → <b>no את</b>.'}}
+],
+cheat:`<div class="tbl-wrap"><table class="tbl"><tr><th class="en">Agree with subject</th><th class="en">Never change (+ שם הפועל)</th></tr>
+<tr><td>צריך/ה/ים/ות · חייב/ת/ים/ות · יכול/ה/ים/ות</td><td>אפשר, ניתן, כדאי, מומלץ, יש ל־, אסור, מותר, מקובל, רצוי, חשוב</td></tr></table></div>
+<div class="en"><b>Conversion:</b> שם פעולה + … + אפשרי/מומלץ → <b>אפשר/מומלץ + שם הפועל + (את) + object</b>. את only if the object is definite; keep the verb's preposition (להשתמש ב, לשמור על). Remove של and הוא/היא.</div>
+<div class="ex he">שינוי לשון ההוראות הוא אפשרי → אפשר לשנות את לשון ההוראות<br>שילוב של מילים מן הסלנג מקובל → מקובל לשלב מילים מן הסלנג<br>השימוש בטלפון אסור → אסור להשתמש בטלפון<br>יש להתחשב = צריך להתחשב</div>`,
+qs:[
+ {l:1,s:S21,t:'mc',r:'md-agree',i:'בכל משפט הקף את המילה המתאימה מבין המילים המודגשות.',q:'הפנייה לקהל ___ להיות בלשון ברורה ומכבדת.',o:['חייב','חייבת'],a:1,h:'Who/what must be clear? Is it masculine or feminine?',
+  w:'חייב agrees with the subject הפנייה (feminine) → <b>חייבת</b>.',re:{t:'mc',s:W,q:'ההחלטה ___ להתקבל עד מחר.',o:['צריך','צריכה'],a:1,w:'Subject ההחלטה = f → <b>צריכה</b>.'}},
+ {l:1,s:W,t:'mc',r:'md-imp',i:'הקיפו את הצורה הנכונה.',q:'___ לשתות הרבה מים בקיץ.',o:['מומלץ','מומלצת','מומלצים'],a:0,
+  w:'מומלץ + שם הפועל has no subject → it never changes: <b>מומלץ</b>.',re:{t:'mc',q:'___ לבקר במוזיאון החדש.',o:['כדאי','כדאית','כדאיים'],a:0,w:'כדאי never changes.'}},
+ {l:1,s:W,t:'mc',r:'md-agree',i:'הקיפו את הצורה הנכונה.',q:'הסטודנטיות ___ להגיש את העבודה עד יום ראשון.',o:['צריך','צריכה','צריכים','צריכות'],a:3,
+  w:'Subject הסטודנטיות = f.pl → <b>צריכות</b>.',re:{t:'mc',q:'הילדים ___ לשחק בחוץ אחרי השיעורים.',o:['יכול','יכולה','יכולים','יכולות'],a:2,w:'הילדים = m.pl → <b>יכולים</b>.'}},
+ {l:1,s:W,t:'sort',r:'md-imp',i:'מיינו את המילים.',g:['משתנה לפי הנושא','לא משתנה אף פעם'],it:[['צריך',0],['אפשר',1],['חייב',0],['ניתן',1],['כדאי',1],['יכול',0],['מומלץ',1],['אסור',1],['מקובל',1],['יש ל',1]],
+  w:'Only צריך, חייב, יכול agree with a subject. אפשר, ניתן, כדאי, מומלץ, אסור, מקובל, יש ל never change.',
+  re:{t:'sort',g:['משתנה לפי הנושא','לא משתנה אף פעם'],it:[['צריכה',0],['מותר',1],['יכולים',0],['רצוי',1],['חייבות',0],['ניתן',1]],w:'Forms like צריכה/יכולים/חייבות show agreement; מותר, רצוי, ניתן never change.'}},
+ {l:1,s:S26b,t:'mc',r:'md-imp',i:'הקיפו מילה שיכולה להחליף את המילה "יש" בלי לשנות את משמעות המשפט.',q:'לשם הגנה על המטופלים <u>יש</u> להתחשב בנושאי פרטיות וסודיות.',o:['צריך','קיים','אין','נמצא'],a:0,
+  w:'יש ל + שם הפועל = obligation → <b>צריך</b> (להתחשב).',x:{1:'קיים = "there exists" – that is a different יש (יש שלושה סוגים…).'},
+  re:{t:'mc',s:S26b,q:'<u>יש</u> שלושה סוגים של אמפתיה: קוגניטיבית, רגשית ומוטיבציונית.',o:['קיימים','צריך','מומלץ'],a:0,w:'Here יש means "there are" → <b>קיימים</b>. It is not modal (no שם הפועל after it).'}},
+ {l:1,s:W,t:'mc',r:'md-imp',i:'הקיפו את ההשלמה הנכונה.',q:'אסור ___ בכיתה.',o:['לאכול','אכילה','אוכלים'],a:0,
+  w:'After אסור comes <b>שם הפועל</b>: לאכול.',re:{t:'mc',q:'ניתן ___ את הטופס באינטרנט.',o:['למלא','מילוי','ממלאים'],a:0,w:'ניתן + שם הפועל: <b>למלא</b>.'}},
+ {l:2,s:S21,t:'rw',r:'md-conv',i:'הפוך את המשפט למשפט המלצה. השתמש במילות הפתיחה הנתונות ובשם הפועל.',q:'לדעת החוקרים, שינוי לשון ההוראות בבחינות הוא אפשרי.',p:'לדעת החוקרים, אפשר ',a:['לדעת החוקרים, אפשר לשנות את לשון ההוראות בבחינות'],h:'שינוי → ל…? Is "לשון ההוראות" definite?',
+  w:'שינוי → <b>לשנות</b>; "לשון ההוראות" is a definite סמיכות → <b>את</b>. Delete "הוא אפשרי".',
+  re:{t:'rw',s:W,i:'הפכו את המשפט למשפט המלצה. התחילו במילה הנתונה והשתמשו בשם הפועל.',q:'השוואת התוצאות של שני המחקרים היא אפשרית.',p:'אפשר ',a:['אפשר להשוות את התוצאות של שני המחקרים','אפשר להשוות בין התוצאות של שני המחקרים'],w:'השוואה → <b>להשוות</b>; התוצאות is definite → <b>את</b>.'}},
+ {l:2,s:S21,t:'rw',r:'md-conv',i:'הפוך את המשפט למשפט המלצה. השתמש במילות הפתיחה הנתונות ובשם הפועל.',q:'שילוב של מילים מן הסלנג בשפת הדיבור מקובל על דעת אנשי הלשון.',p:'לדעת אנשי הלשון, מקובל ',a:['לדעת אנשי הלשון, מקובל לשלב מילים מן הסלנג בשפת הדיבור','לדעת אנשי הלשון, מקובל לשלב מילים מהסלנג בשפת הדיבור'],h:'Is "מילים" definite? What happens to "של"?',
+  w:'שילוב → <b>לשלב</b>; "של" disappears; "מילים מן הסלנג" is indefinite → <b>no את</b>.',
+  re:{t:'rw',s:W,i:'הפכו את המשפט למשפט המלצה. התחילו במילה הנתונה והשתמשו בשם הפועל.',q:'קריאה של ספרים בעברית מומלצת לכל עולה חדש.',p:'מומלץ ',a:['מומלץ לכל עולה חדש לקרוא ספרים בעברית','מומלץ לקרוא ספרים בעברית לכל עולה חדש'],w:'קריאה → <b>לקרוא</b>; ספרים is indefinite → no את; מומלץ doesn\'t agree.'}},
+ {l:2,s:W,t:'fill',r:'md-et',i:'השלימו את שם הפועל המתאים.',q:'שמירה על הסביבה היא חשובה. → חשוב ___ על הסביבה.',a:[['לשמור']],
+  w:'שמירה → <b>לשמור</b> (and the preposition על stays).',re:{t:'fill',q:'השתתפות בשיעור היא חובה. → יש ___ בשיעור.',a:[['להשתתף']],w:'השתתפות → <b>להשתתף</b> (ב stays).'}},
+ {l:2,s:W,t:'mc',r:'md-et',i:'הקיפו את משפט ההמלצה הנכון.',q:'השימוש בטלפון בזמן נהיגה אסור.',o:['אסור להשתמש את הטלפון בזמן נהיגה.','אסור להשתמש בטלפון בזמן נהיגה.','אסורה להשתמש בטלפון בזמן נהיגה.','אסור שימוש להשתמש בטלפון בזמן נהיגה.'],a:1,
+  w:'להשתמש takes <b>ב</b> (not את); אסור never changes → <b>אסור להשתמש בטלפון</b>.',x:{0:'השתמש ב… – the verb\'s preposition is ב, so no את.',2:'אסור never agrees – no אסורה.'},
+  re:{t:'mc',q:'עישון בבית הספר אסור.',o:['אסור לעשן בבית הספר.','אסורה לעשן בבית הספר.','אסור עישון בבית הספר לעשן.'],a:0,w:'<b>אסור לעשן בבית הספר.</b>'}},
+ {l:2,s:W,t:'fill',r:'md-agree',i:'השלימו את הצורה הנכונה של המילה שבסוגריים.',q:'(1) המורה דנה ___ (יכול) לעזור לך.\n(2) ___ (מומלץ) לישון שמונה שעות בלילה.\n(3) כל העובדים ___ (חייב) להגיע לישיבה.',a:[['יכולה'],['מומלץ'],['חייבים']],
+  w:'(1) דנה = f → <b>יכולה</b>. (2) no subject → <b>מומלץ</b>. (3) העובדים = m.pl → <b>חייבים</b>.',
+  re:{t:'fill',q:'(1) הבנות ___ (צריך) להתכונן למבחן.\n(2) ___ (ניתן) להירשם עד מחר.',a:[['צריכות'],['ניתן']],w:'(1) <b>צריכות</b>. (2) <b>ניתן</b> never changes.'}},
+ {l:2,s:W,t:'rw',r:'md-conv',i:'הפכו את המשפט למשפט המלצה. התחילו במילה הנתונה והשתמשו בשם הפועל.',q:'תרגול השפה כל יום מומלץ.',p:'מומלץ ',a:['מומלץ לתרגל את השפה כל יום'],
+  w:'תרגול → <b>לתרגל</b>; השפה is definite → <b>את</b>.',re:{t:'rw',q:'פרסום התמונות ברשת מקובל.',p:'מקובל ',a:['מקובל לפרסם את התמונות ברשת'],w:'פרסום → <b>לפרסם</b>; התמונות definite → <b>את</b>.'}},
+ {l:2,s:W,t:'err',r:'md-agree',i:'מצאו את המילה השגויה ולחצו עליה.',q:'התלמידות צריך להגיע לבית הספר בשמונה.',b:'צריך',fix:'צריכות',
+  w:'צריך agrees with התלמידות (f.pl) → <b>צריכות</b>.',re:{t:'err',q:'האחות חייב לעבוד הלילה.',b:'חייב',fix:'חייבת',w:'האחות = f → <b>חייבת</b>.'}},
+ {l:3,s:W,t:'err',r:'md-et',i:'מצאו את המילה השגויה ולחצו עליה.',q:'מומלץ לקרוא את ספרים בעברית כל יום.',b:'את',fix:'(delete: מומלץ לקרוא ספרים בעברית כל יום)',
+  w:'ספרים is indefinite → <b>no את</b>.',re:{t:'err',q:'מקובל לשלב את מילים מן הסלנג בדיבור.',b:'את',fix:'(delete: מקובל לשלב מילים מן הסלנג)',w:'מילים is indefinite → no את.'}},
+ {l:3,s:W,t:'err',r:'md-et',i:'מצאו את המילה השגויה ולחצו עליה.',q:'חשוב לשמור את הסביבה.',b:'את',fix:'על (חשוב לשמור על הסביבה)',
+  w:'The verb is שמר <b>על</b> → <b>חשוב לשמור על הסביבה</b>.',re:{t:'err',q:'אסור להשתמש את הטלפון בכיתה.',b:'את',fix:'ב (אסור להשתמש בטלפון)',w:'השתמש <b>ב</b> → <b>בטלפון</b>.'}},
+ {l:3,s:W,t:'rw',r:'md-et',i:'הפכו את המשפט למשפט המלצה. התחילו במילה הנתונה והשתמשו בשם הפועל.',q:'שמירה על הטבע חשובה מאוד.',p:'חשוב ',a:['חשוב מאוד לשמור על הטבע','חשוב לשמור על הטבע'],
+  w:'שמירה → <b>לשמור</b>; keep <b>על</b>: <b>חשוב (מאוד) לשמור על הטבע</b>.',re:{t:'rw',q:'השימוש במילון בזמן המבחן מותר.',p:'מותר ',a:['מותר להשתמש במילון בזמן המבחן'],w:'שימוש → <b>להשתמש</b>; keep <b>ב</b>.'}},
+ {l:3,s:W,t:'rw',r:'md-conv',i:'הפכו את המשפט למשפט המלצה. התחילו במילה הנתונה והשתמשו בשם הפועל.',q:'הכנת שיעורי הבית בזמן היא חובה.',p:'יש ',a:['יש להכין את שיעורי הבית בזמן'],
+  w:'הכנה → <b>להכין</b>; "שיעורי הבית" is definite → <b>את</b>; יש + ל: <b>יש להכין את שיעורי הבית בזמן</b>.',
+  re:{t:'rw',q:'בדיקת העבודה לפני ההגשה רצויה.',p:'רצוי ',a:['רצוי לבדוק את העבודה לפני ההגשה'],w:'בדיקה → <b>לבדוק</b>; העבודה definite → <b>את</b>.'}},
+ {l:3,s:W,t:'mc',r:'md-imp',i:'הקיפו את המשפט התקין.',q:'',o:['ההחלטה הזאת חייב להתקבל היום.','ניתנת לשנות את המועד.','מומלצים לקרוא ספרים בעברית.','מומלץ לנסוע לים בשבת.'],a:3,
+  w:'Only <b>מומלץ לנסוע לים בשבת</b> is correct. (1) ההחלטה → חייבת. (2) ניתן never changes. (3) מומלץ never changes.',
+  re:{t:'mc',q:'',o:['התלמידים יכול ללמוד בספרייה.','אפשרי לשנות את המועד.','יש להתחשב בדעות של אחרים.','מומלצת לשתות מים.'],a:2,w:'<b>יש להתחשב בדעות של אחרים</b> ✓. (יכולים; אפשר; מומלץ.)'}},
+ {l:3,s:W,t:'rw',r:'md-conv',i:'הפכו את המשפט למשפט המלצה. השתמשו במילות הפתיחה הנתונות ובשם הפועל.',q:'לדעת המומחים, צפייה בסרטים בעברית מומלצת לעולים חדשים.',p:'לדעת המומחים, מומלץ ',a:['לדעת המומחים, מומלץ לעולים חדשים לצפות בסרטים בעברית','לדעת המומחים, מומלץ לצפות בסרטים בעברית לעולים חדשים'],
+  w:'צפייה → <b>לצפות</b> (צפה <b>ב</b>) → <b>לצפות בסרטים בעברית</b>.',
+  re:{t:'rw',q:'לדעת המורים, ביטול המבחן אינו אפשרי.',p:'לדעת המורים, אי אפשר ',a:['לדעת המורים, אי אפשר לבטל את המבחן'],w:'ביטול → <b>לבטל</b>; המבחן definite → <b>את</b>.'}},
+ {l:3,s:W,t:'fill',r:'md-agree',i:'השלימו את הצורה הנכונה של המילה שבסוגריים.',q:'(1) הנהגים ___ (חייב) לעצור ברמזור אדום.\n(2) ___ (אסור) לחצות את הכביש באור אדום.\n(3) הילדה ___ (יכול) לחצות רק עם מבוגר.',a:[['חייבים'],['אסור'],['יכולה']],
+  w:'(1) הנהגים = m.pl → <b>חייבים</b>. (2) <b>אסור</b> never changes. (3) הילדה = f → <b>יכולה</b>.',
+  re:{t:'fill',q:'(1) כל אחת מהבנות ___ (צריך) להביא ספר.\n(2) ___ (רצוי) להגיע מוקדם.',a:[['צריכה'],['רצוי']],w:'(1) "כל אחת" = she → <b>צריכה</b>. (2) <b>רצוי</b>.'}}
+]};
+
+/* ============================================================
+   TOPIC 5 – שיבושי לשון ותקינות תחבירית
+   ============================================================ */
+const PREP_TABLE=`<div class="tbl-wrap"><table class="tbl"><tr><th>פועל + מילת יחס</th><th>דוגמה</th></tr>
+<tr><td>עקב <b>אחר</b></td><td>חוקרים עוקבים אחר ההישגים</td></tr>
+<tr><td>ניצח <b>ב</b> (משחק / תחרות)<br>ניצח <b>את</b> (יריב)</td><td>לנצח בתחרות ריצה · ניצחנו את הקבוצה השנייה</td></tr>
+<tr><td>נלחם <b>ב</b> (נגד) · נלחם <b>על</b> (בעד)</td><td>להילחם בתופעה · להילחם על הזכות</td></tr>
+<tr><td>ביקש <b>מ</b></td><td>ביקשו מן האקדמיה</td></tr>
+<tr><td>השתמש <b>ב</b></td><td>משתמשים באינטרנט</td></tr>
+<tr><td>תלוי <b>על</b> (hangs) · תלוי <b>ב</b> (depends)</td><td>תלויה על הקיר · תלויה במזג האוויר</td></tr>
+<tr><td>רב <b>על</b> (about) · רב <b>עם</b> (with)</td><td>רבו על המקום · רבים עם חברים</td></tr>
+<tr><td>הסכים <b>ל</b> · התחשב <b>ב</b> · השתתף <b>ב</b> · פחד <b>מ</b></td><td>הסכימה לעזור · להתחשב בפרטיות</td></tr></table></div>`;
+const CONN_TABLE=`<div class="tbl-wrap"><table class="tbl"><tr><th class="en">Meaning</th><th>+ שם (noun)</th><th>+ משפט (clause)</th></tr>
+<tr><td class="en">because</td><td>בגלל, בשל</td><td>מפני ש, כי, מכיוון ש, משום ש</td></tr>
+<tr><td class="en">thanks to</td><td>בזכות</td><td>—</td></tr>
+<tr><td class="en">although / despite</td><td>למרות</td><td>אף על פי ש</td></tr>
+<tr><td class="en">so that / in order to</td><td>—</td><td>כדי ש + עתיד · כדי + שם הפועל</td></tr>
+<tr><td class="en">therefore (before the result)</td><td colspan="2">לכן</td></tr>
+<tr><td class="en">but / whereas</td><td colspan="2">אבל, אולם · ואילו</td></tr>
+<tr><td class="en">if / when / which</td><td colspan="2">אם · כאשר, כש · אשר, ש</td></tr>
+<tr><td class="en">just as… so…</td><td colspan="2">כשם ש… כך…</td></tr></table></div>`;
+const T5={id:'t5',he:'שיבושי לשון ותקינות תחבירית',en:'Common errors & sentence building',
+cards:[
+ {title:'What it is',html:`<div class="en">The bagrut checks <b>standard</b> Hebrew (not street Hebrew) and asks you to rebuild sentences: choose connectors, rewrite with בזכות / לכן / מכיוון ש, join 3 sentences, turn direct speech into indirect, and choose the right preposition.</div>
+ <div class="tbl-wrap"><table class="tbl"><tr><th>✗ שגוי</th><th>✓ תקין</th></tr>
+ <tr><td class="bad-ex">אני יגיד</td><td class="ok-ex">אני אגיד</td></tr>
+ <tr><td class="bad-ex">לרכב על אופניים</td><td class="ok-ex">לרכוב על אופניים</td></tr>
+ <tr><td class="bad-ex">בגלל שירד גשם</td><td class="ok-ex">מפני שירד גשם / בגלל הגשם</td></tr>
+ <tr><td class="bad-ex">יש לי את הספר</td><td class="ok-ex">יש לי ספר / הספר אצלי</td></tr>
+ <tr><td class="bad-ex">התוצאות הפתיע</td><td class="ok-ex">התוצאות הפתיעו</td></tr></table></div>`},
+ {check:{t:'mc',r:'sh-future',i:'הקיפו את הצורה התקינה.',q:'מחר ___ לך מה קרה.',o:['אני יגיד','אני אגיד','אני תגיד'],a:1,w:'With אני the future starts with א: <b>אני אגיד</b>. (יגיד = he will say.)'}},
+ {title:'The rules: connectors',html:`${CONN_TABLE}<ul class="rules en">
+ <li><b>R1</b> בגלל / למרות / בזכות / בעקבות + <b>noun</b>: <span class="he">בגלל <b>הגשם</b>, למרות <b>הקושי</b></span>.</li>
+ <li><b>R2</b> מפני ש / כי / מכיוון ש / אף על פי ש + <b>clause</b> (subject + verb): <span class="he">מפני ש<b>ירד</b> גשם, אף על פי ש<b>היה</b> קשה</span>.</li>
+ <li><b>R3</b> לכן comes before the <b>result</b>: <span class="he">התאמנו הרבה, <b>לכן</b> ניצחנו</span>.</li>
+ <li><b>R4</b> No את after יש / אין. <b>R5</b> The verb agrees with its real subject: <span class="he">רוב התלמידים <b>הגיעו</b>; תוצאות המחקר <b>הפתיעו</b></span>.</li></ul>`},
+ {check:{t:'mc',r:'sh-noun-clause',i:'הקיפו את מילת הקישור המתאימה.',q:'___ הגשם לא יצאנו לטיול.',o:['בגלל','מפני ש','כי'],a:0,w:'"הגשם" is a noun → <b>בגלל</b>. מפני ש / כי need a clause with a verb.'}},
+ {title:'The rules: prepositions',html:`<div class="en">These verbs come with a fixed preposition – memorise them:</div>${PREP_TABLE}`},
+ {check:{t:'mc',r:'sh-prep',i:'הקיפו את מילת היחס המתאימה.',q:'היציאה לטיול תלויה ___ מזג האוויר.',o:['על','ב'],a:1,w:'"depends on" = תלוי <b>ב</b>. (תלוי על = hangs on, like a picture.)'}},
+ {title:'How to do it step by step',html:`<div class="en"><h3>A. Rewrite with בזכות (needs a NOUN)</h3></div>
+ <div class="ex he">תלמידים שחושבים באופן חיובי מתמודדים טוב יותר עם הקשיים.</div>
+ <div class="en"><ol class="steps"><li>Find the cause: "חושבים באופן חיובי".</li><li>Turn it into a noun phrase: <b class="he">החשיבה החיובית</b>.</li><li>בזכות + noun, then the result.</li></ol></div>
+ <div class="ex he">→ <b>בזכות החשיבה החיובית תלמידים מתמודדים טוב יותר עם הקשיים.</b></div>
+ <div class="en"><h3>B. Rewrite with לכן (cause, לכן result)</h3></div>
+ <div class="ex he">→ <b>תלמידים חושבים באופן חיובי, לכן הם מתמודדים טוב יותר עם הקשיים.</b></div>
+ <div class="en"><h3>C. Start with מכיוון ש (cause first, then result)</h3></div>
+ <div class="ex he">אנשים מסוימים מדברים בלשון נקבה כי הם רוצים לקדם את מעמד האישה.<br>→ <b>מכיוון שאנשים מסוימים רוצים לקדם את מעמד האישה, הם מדברים בלשון נקבה.</b></div>
+ <div class="en"><h3>D. Join 3 sentences</h3><ol class="steps"><li>Find the relationship between each pair: contrast (אבל, אף על פי ש), cause (מפני ש), result (לכן)?</li><li>Don't repeat the subject – use <b>הם / היא</b>.</li><li>"אין להשתמש בקשר של הוספה" = don't just use ו / וגם.</li></ol>
+ <h3>E. Direct → indirect speech</h3><ol class="steps"><li>Remove the quotes and the colon, add <b>ש</b>.</li><li>Change the person: אני → הוא/היא, לי → לו/לה, הגעתי → הגיע.</li><li><b>Keep the tense!</b> (Hebrew doesn't shift tense.)</li><li>Each new sentence: ש… ושגם…</li></ol></div>`},
+ {check:{t:'mc',r:'sh-indirect',i:'הקיפו את הדיבור העקיף הנכון.',q:'דנה אמרה: "אני עייפה."',o:['דנה אמרה שהיא עייפה.','דנה אמרה שאני עייפה.','דנה אמרה שהיא הייתה עייפה.'],a:0,w:'Change the person (אני → היא) and <b>keep the tense</b> (present): <b>דנה אמרה שהיא עייפה</b>.'}},
+ {title:'Exactly how the bagrut asks it',html:`<div class="ex"><span class="tag src">${S26}, שאלה 10ב</span>
+ <div class="he"><b>כתבו את המשפט מחדש. התחילו את המשפט במילה "בזכות".</b> / <b>כתבו את המשפט מחדש באמצעות מילת הקישור "לכן".</b><br>תלמידים שחושבים באופן חיובי מתמודדים טוב יותר עם הקשיים.<br>
+ → בזכות <b>החשיבה החיובית תלמידים מתמודדים טוב יותר עם הקשיים</b>.<br>→ <b>תלמידים חושבים באופן חיובי, לכן הם מתמודדים טוב יותר עם הקשיים</b>.</div></div>
+ <div class="ex"><span class="tag src">${S26}, שאלה 12א</span>
+ <div class="he"><b>חברו אותם למשפט אחד. הקפידו על סדר הגיוני ועל שימוש במילות קישור מתאימות. אין להשתמש בקשר של הוספה.</b><br>
+ • צעירים רבים רוצים להגיע להישגים. • צעירים רבים לא רוצים להשקיע זמן ומאמץ בלימודים. • צעירים רבים מחפשים דרכים קלות ומהירות להצליח.<br>
+ → <b>אף על פי שצעירים רבים רוצים להגיע להישגים, הם לא רוצים להשקיע זמן ומאמץ בלימודים, לכן הם מחפשים דרכים קלות ומהירות להצליח.</b></div>
+ <div class="en">Sentence 1 vs 2 = contrast (אף על פי ש). 2 → 3 = result (לכן). Subject is not repeated (הם).</div></div>
+ <div class="ex"><span class="tag src">${S21}, שאלה 10ב</span>
+ <div class="he"><b>כתוב את דברי העולה החדש בדיבור עקיף.</b><br>עולה חדש אמר לחברו: "השפה העברית קשה לי. כשהגעתי לארץ חוקי השפה לא היו ברורים לי. גם היום אני מתבלבל לפעמים בין זכר לנקבה".<br>
+ → העולה החדש אמר לחברו <b>שהשפה העברית קשה לו, שכשהגיע לארץ חוקי השפה לא היו ברורים לו, ושגם היום הוא מתבלבל לפעמים בין זכר לנקבה.</b></div></div>`},
+ {title:'Traps',html:`<div class="trap en"><ul>
+ <li><span class="he bad-ex">בגלל ש…</span> / <span class="he bad-ex">למרות ש…</span> → in the bagrut write <span class="he ok-ex">מפני ש…</span> / <span class="he ok-ex">אף על פי ש…</span>.</li>
+ <li><span class="he">כדי + שם הפועל</span> (כדי להצליח) but <span class="he">כדי ש + עתיד</span> (כדי שבעתיד הם ידעו).</li>
+ <li>Verb before subject still agrees: <span class="he">נפתחו בעיר שתי חנויות</span>.</li>
+ <li><span class="he ok-ex">ניצח את הקבוצה</span> (opponent) · <span class="he ok-ex">ניצח במשחק</span> (game) · <span class="he bad-ex">ניצח את המשחק</span>.</li>
+ <li>נלחם <b>ב</b> = fight against · נלחם <b>על</b> = fight for.</li>
+ <li>"לא X אלא Y" means Y is true. "בלי X … לא" = "אם לא X … לא".</li></ul></div>`},
+ {check:{t:'err',r:'sh-inf',i:'מצאו את המילה השגויה ולחצו עליה.',q:'אני אוהב לרכב על אופניים.',b:'לרכב',fix:'לרכוב',w:'The שם הפועל is <b>לרכוב</b>.'}}
+],
+cheat:`<h3>Connectors</h3>${CONN_TABLE}<h3>Prepositions</h3>${PREP_TABLE}
+<h3>Common errors</h3><div class="he">אני <b>אגיד</b> (לא יגיד) · <b>לרכוב</b> (לא לרכב) · יש לי ספר (לא "יש לי את") · רוב התלמידים <b>הגיעו</b> · תוצאות המחקר <b>הפתיעו</b></div>
+<h3>Rewriting</h3><div class="en"><b>בזכות</b> + noun phrase · cause, <b>לכן</b> result · <b>מכיוון ש</b> cause, result · Join 3: contrast + result, don't repeat the subject, no ו · Indirect: ש + change person + keep tense.</div>`,
+qs:[
+ {l:1,s:S21,t:'mc',r:'sh-conn',i:'הקף את מילת הקישור המתאימה.',q:'___ להצליח בלימוד עברית חשוב לשוחח עם אנשים ששפת האם שלהם היא עברית.',o:['כדי','מכיוון ש','למרות'],a:0,
+  w:'Purpose + שם הפועל (להצליח) → <b>כדי</b>.',x:{1:'מכיוון ש needs a clause with a verb, not שם הפועל.',2:'למרות + noun means "despite" – wrong meaning.'},
+  re:{t:'mc',s:W,q:'___ לקבל ציון טוב, צריך ללמוד כל יום.',o:['כדי','בגלל','אף על פי ש'],a:0,w:'Purpose + שם הפועל → <b>כדי</b>.'}},
+ {l:1,s:S21,t:'mc',r:'sh-noun-clause',i:'הקף את מילת הקישור המתאימה.',q:'דוברי אנגלית שלומדים עברית נתקלים בקושי ___ כיווּן הכתיבה השונה: מימין לשמאל.',o:['גם אם','בגלל','כי'],a:1,h:'Is "כיוון הכתיבה" a noun or a full clause?',
+  w:'"כיוון הכתיבה" is a <b>noun</b> → <b>בגלל</b>.',x:{2:'כי must be followed by a clause with a verb; כיוון הכתיבה is just a noun phrase.',0:'גם אם = "even if" – needs a clause and doesn\'t fit the meaning.'},
+  re:{t:'mc',s:W,q:'הטיסה התעכבה ___ מזג האוויר הסוער.',o:['בגלל','מפני ש','כי'],a:0,w:'Noun → <b>בגלל</b>.'}},
+ {l:1,s:W,t:'mc',r:'sh-future',i:'הקיפו את הצורה התקינה.',q:'מחר אני ___ לך את התשובה.',o:['יגיד','אגיד','תגיד'],a:1,
+  w:'אני + future → starts with א: <b>אגיד</b>.',re:{t:'mc',q:'בשבוע הבא אני ___ לטיול בצפון.',o:['ילך','אלך','נלך'],a:1,w:'אני → <b>אלך</b>.'}},
+ {l:1,s:S21,t:'mc',r:'sh-prep',i:'הקף את מילת היחס המתאימה למשפט מבין האפשרויות שבסוגריים.',q:'התמונה היפה שצילמתי תלויה ___ הקיר בחדרי.',o:['על','ב'],a:0,
+  w:'Hanging physically on something → תלוי <b>על</b>.',re:{t:'mc',s:S21,q:'היציאה לטיול השנתי תלויה ___ מזג האוויר.',o:['על','ב'],a:1,w:'"depends on" → תלוי <b>ב</b>.'}},
+ {l:1,s:S21,t:'mc',r:'sh-prep',i:'הקף את מילת היחס המתאימה למשפט מבין האפשרויות שבסוגריים.',q:'הקונים בחנות רבו ___ המקום שלהם בתור.',o:['על','עם'],a:0,
+  w:'Argue <i>about</i> something → רב <b>על</b>.',re:{t:'mc',s:S21,q:'ילדים קטנים רבים לפעמים ___ חברים, אבל אחר כך הם חוזרים לשחק איתם.',o:['על','עם'],a:1,w:'Argue <i>with</i> someone → רב <b>עם</b>.'}},
+ {l:1,s:S26,t:'mc',r:'sh-prep',i:'הקיפו את מילת היחס או אות היחס המתאימה למשפט.',q:'כדי לנצח ___ תחרות ריצה יש להשקיע זמן רב ומאמצים באימונים.',o:['ב','את','על'],a:0,
+  w:'Win a competition → ניצח <b>ב</b>.',x:{1:'ניצח את + an opponent (a person/team), not a competition.'},re:{t:'mc',s:W,q:'הקבוצה שלנו ניצחה ___ המשחק האחרון.',o:['ב','את','על'],a:0,w:'A game → ניצח <b>ב</b> (במשחק).'}},
+ {l:1,s:S26,t:'mc',r:'sh-prep',i:'הקיפו את מילת היחס או אות היחס המתאימה למשפט.',q:'חוקרים רבים עוקבים ___ ההישגים של סטודנטים שמציבים לעצמם מטרות גבוהות.',o:['אל','על','אחר'],a:2,
+  w:'עקב <b>אחר</b>.',re:{t:'mc',s:W,q:'ההורים עקבו ___ ההתקדמות של הילד בלימודים.',o:['אחר','על','את'],a:0,w:'עקב <b>אחר</b>.'}},
+ {l:1,s:S26,t:'mc',r:'sh-prep',i:'הקיפו את מילת היחס או אות היחס המתאימה למשפט.',q:'יש להילחם ___ תופעה שהתלמידים בוחרים מגמת לימודים על פי שיקולים של יוקרה.',o:['על','מ','ב'],a:2,
+  w:'Fight <i>against</i> a phenomenon → נלחם <b>ב</b>.',x:{0:'נלחם על = fight FOR something (e.g. a right). Here we fight against the phenomenon.'},
+  re:{t:'mc',s:S26,q:'בני אדם צריכים להילחם ___ הזכות שלהם להיות חופשיים.',o:['ב','על','עם'],a:1,w:'Fight <i>for</i> a right → נלחם <b>על</b>.'}},
+ {l:1,s:S21,t:'mc',r:'sh-prep',i:'בכל משפט הקף את הפועל המתאים מבין הפעלים המודגשים.',q:'משרדי הממשלה ___ מן האקדמיה ללשון העברית שתעזור להם בניסוח טפסים רשמיים בלשון שוויונית.',o:['חשבו','ביקשו','תמכו'],a:1,h:'Which verb goes with מן?',
+  w:'ביקש <b>מ</b>… → <b>ביקשו</b> מן האקדמיה.',re:{t:'mc',s:S21,q:'האקדמיה ___ לעזור, וכיום ברוב הטפסים הרשמיים הלשון היא שוויונית.',o:['סוכמה','הסתכמה','הסכימה'],a:2,w:'הסכים ל + שם הפועל → <b>הסכימה</b> לעזור.'}},
+ {l:1,s:W,t:'err',r:'sh-inf',i:'מצאו את המילה השגויה ולחצו עליה.',q:'אני אוהב לרכב על אופניים בשבת.',b:'לרכב',fix:'לרכוב',
+  w:'שם הפועל = <b>לרכוב</b>.',re:{t:'err',r:'sh-future',q:'מחר אני יסביר לך את התרגיל.',b:'יסביר',fix:'אסביר',w:'אני → <b>אסביר</b>.'}},
+ {l:2,s:S26,t:'fill',r:'sh-conn',i:'השלימו את המשפטים באמצעות המילים מן הרשימה.\nרשימת המילים: לכן, בעקבות, כשם ש, אבל, אף על פי ש, אם',q:'(1) חשיבה חיובית יכולה לשפר לנו את מצב הרוח, ___ לפעמים היא עלולה לפגוע בהישגים שלנו.\n(2) המחשבות הטובות גורמות לנו להרגיש כאילו כבר הצלחנו, ___ אנו מפסיקים להתאמץ.\n(3) ___ חשוב לחלום על הצלחה, כך חשוב להכיר את הקשיים שבדרך.\n(4) ___ תחשבו מחשבות חיוביות וגם תפעלו, תוכלו להגשים חלומות.\n(5) ___ נכשלתי במבחן הקבלה ללימודי רפואה, לא ויתרתי על החלום שלי להיות רופא.',a:[['אבל'],['לכן'],['כשם ש','כשם'],['אם'],['אף על פי ש','אף על פי','אעפ ש','אעפ']],h:'One word is extra. (3) look for "כך" later in the sentence.',
+  w:'(1) contrast → <b>אבל</b>. (2) result → <b>לכן</b>. (3) "…כך" → <b>כשם ש</b>. (4) condition → <b>אם</b>. (5) although + clause → <b>אף על פי ש</b>. (בעקבות is extra – it needs a noun.)',
+  re:{t:'fill',s:W,i:'השלימו את המשפטים באמצעות המילים מן הרשימה.\nרשימת המילים: לכן, אף על פי ש, אם, בגלל',q:'(1) ___ ירד גשם, יצאנו לטיול.\n(2) ___ הגשם הטיול בוטל.\n(3) ___ תלמדו, תצליחו.\n(4) הייתי עייף, ___ הלכתי לישון מוקדם.',a:[['אף על פי ש','אף על פי'],['בגלל'],['אם'],['לכן']],w:'(1) although + clause → <b>אף על פי ש</b>. (2) noun → <b>בגלל</b>. (3) <b>אם</b>. (4) result → <b>לכן</b>.'}},
+ {l:2,s:S21,t:'fill',r:'sh-conn',i:'השלם במקומות הריקים בקטע את המילים המתאימות.\nבחר מן המילים האלה: אם, אבל, משום.',q:'בשפה העברית יש הבחנה בין זכר לנקבה, ___ יש דוברים שלא מקפידים להבחין בין זכר לנקבה. ___ דובר עברית טועה, יכול להיות שהוא לא ירגיש בנוח ___ שאולי יעירו לו.',a:[['אבל'],['אם'],['משום']],
+  w:'Contrast → <b>אבל</b>; condition → <b>אם</b>; reason ("משום ש…") → <b>משום</b>.',
+  re:{t:'fill',s:W,i:'השלימו את המקומות הריקים. בחרו מן המילים: כאשר, ואילו, כדי ש.',q:'(1) אחי אוהב ספורט, ___ אני אוהבת מוזיקה.\n(2) ___ אני עייפה, אני שותה קפה.\n(3) המורה הסבירה שוב ___ כולם יבינו.',a:[['ואילו'],['כאשר'],['כדי ש','כדי']],w:'(1) contrast between two people → <b>ואילו</b>. (2) <b>כאשר</b>. (3) purpose + future → <b>כדי ש</b>.'}},
+ {l:2,s:S26,t:'mc',r:'sh-conn',i:'הקיפו את ההשלמה המתאימה מבין האפשרויות המודגשות.',q:'הורים צריכים לתת לילדיהם עצות טובות ___ בעתיד הם ידעו להתמודד עם קשיים ומכשולים.',o:['מפני ש','כדי ש','כי'],a:1,
+  w:'Purpose + future (ידעו) → <b>כדי ש</b>.',x:{0:'מפני ש gives a reason, but "in the future they will know" is the goal.',2:'כי gives a reason, not a purpose.'},
+  re:{t:'mc',s:S26,q:'צעירים רבים מרגישים אכזבה ___ הם מגלים שהמציאות שונה ממה שהם חשבו.',o:['אף על פי ש','כאשר','כדי ש'],a:1,w:'Time ("when they discover") → <b>כאשר</b>.'}},
+ {l:2,s:S26,t:'mc',r:'sh-conn',i:'הקיפו את ההשלמה המתאימה מבין האפשרויות המודגשות.',q:'מחשבות חיוביות משפרות את מצב הרוח, ___ מחשבות שליליות פוגעות במצב הרוח שלנו.',o:['ואילו','לאחר ש','אם'],a:0,
+  w:'Contrast between two things (positive vs negative) → <b>ואילו</b>.',re:{t:'mc',s:S26,q:'חשיבה חיובית נותנת לנו תקווה, ___ היא לא מונעת את הקשיים.',o:['אבל','לכן','בגלל'],a:0,w:'Contrast → <b>אבל</b>.'}},
+ {l:2,s:W,t:'err',r:'sh-noun-clause',i:'מצאו את המילה השגויה ולחצו עליה.',q:'בגלל שהיה חם, נשארנו בבית.',b:'בגלל',fix:'מפני ש / מכיוון ש (מפני שהיה חם)',
+  w:'Before a clause use <b>מפני ש / מכיוון ש / כי</b>; בגלל goes before a noun (בגלל החום).',
+  re:{t:'err',r:'sh-yesh',q:'יש לי את כל הספרים שצריך.',b:'את',fix:'(delete: יש לי כל הספרים שצריך)',w:'No <b>את</b> after יש.'}},
+ {l:2,s:W,t:'err',r:'sh-agree',i:'מצאו את המילה השגויה ולחצו עליה.',q:'התוצאות של המחקר הפתיע את כולם.',b:'הפתיע',fix:'הפתיעו',
+  w:'The subject is <b>התוצאות</b> (plural), not המחקר → <b>הפתיעו</b>.',re:{t:'err',q:'רוב התלמידים הגיע לטקס.',b:'הגיע',fix:'הגיעו',w:'רוב התלמידים = plural → <b>הגיעו</b>.'}},
+ {l:2,s:W,t:'err',r:'sh-prep',i:'מצאו את המילה השגויה ולחצו עליה.',q:'השתמשתי את המחשב של אחי.',b:'את',fix:'ב (השתמשתי במחשב)',
+  w:'השתמש <b>ב</b> → השתמשתי <b>במחשב</b>.',re:{t:'err',q:'ביקשתי לו לעזור לי.',b:'לו',fix:'ממנו',w:'ביקש <b>מ</b> → <b>ממנו</b>.'}},
+ {l:2,s:S21,t:'mc',r:'sh-meaning',i:'הקף את המשפט המביע את הרעיון שבמשפט המודגש.',q:'<b>ארגוני נשים טוענים כי בדרך כלל נשים לא מוּצָגוֹת בפרסומות באופן חיובי אלא באופן שלילי.</b>',o:['בדרך כלל נשים לא מוצגות בפרסומות.','בדרך כלל נשים מוצגות בפרסומות באופן שלילי.','בדרך כלל נשים מוצגות בפרסומות באופן חיובי.','בדרך כלל נשים מוצגות בפרסומות באופן חיובי ושלילי.'],a:1,
+  w:'"לא X אלא Y" = Y is true → women are shown <b>negatively</b>.',
+  re:{t:'mc',s:S26b,q:'<b>כלי הבינה המלאכותית מסייעים לנו לא רק בהפחתת תחושת הבדידות, אלא גם בהענקת תחושת ביטחון.</b>',o:['הכלים מסייעים רק בהפחתת הבדידות.','הכלים מסייעים גם בהפחתת הבדידות וגם בהענקת ביטחון.','הכלים לא מסייעים בהפחתת הבדידות.','הכלים מסייעים רק בהענקת ביטחון.'],a:1,w:'"לא רק X אלא גם Y" = both X and Y.'}},
+ {l:3,s:S26,t:'rw',r:'sh-rewrite',i:'כתבו את המשפט מחדש. התחילו את המשפט במילה "בזכות".',q:'תלמידים שחושבים באופן חיובי מתמודדים טוב יותר עם הקשיים.',p:'בזכות ה',a:['בזכות החשיבה החיובית תלמידים מתמודדים טוב יותר עם הקשיים','בזכות החשיבה החיובית שלהם תלמידים מתמודדים טוב יותר עם הקשיים','בזכות החשיבה החיובית התלמידים מתמודדים טוב יותר עם הקשיים'],h:'בזכות needs a noun: "חושבים באופן חיובי" → ה____ ה____',
+  w:'בזכות + noun: "חושבים באופן חיובי" → <b>החשיבה החיובית</b>; then the result.',
+  re:{t:'rw',s:W,q:'ספורטאים שמתאמנים כל יום מצליחים בתחרויות.',p:'בזכות ה',a:['בזכות האימונים היומיומיים ספורטאים מצליחים בתחרויות','בזכות האימון היומיומי ספורטאים מצליחים בתחרויות','בזכות האימונים היום יומיים ספורטאים מצליחים בתחרויות'],w:'"מתאמנים כל יום" → noun: <b>האימונים היום־יומיים</b>.'}},
+ {l:3,s:S26,t:'rw',r:'sh-rewrite',i:'כתבו את המשפט מחדש באמצעות מילת הקישור "לכן".',q:'תלמידים שחושבים באופן חיובי מתמודדים טוב יותר עם הקשיים.',p:'',a:['תלמידים חושבים באופן חיובי, לכן הם מתמודדים טוב יותר עם הקשיים','תלמידים חושבים באופן חיובי, לכן הם מתמודדים טוב יותר עם קשיים','יש תלמידים שחושבים באופן חיובי, לכן הם מתמודדים טוב יותר עם הקשיים'],h:'Cause first, then לכן + result.',
+  w:'Cause, <b>לכן</b> result: <b>תלמידים חושבים באופן חיובי, לכן הם מתמודדים טוב יותר עם הקשיים.</b>',
+  re:{t:'rw',s:W,q:'בזכות העזרה של המורה הצלחתי במבחן.',p:'',a:['המורה עזרה לי, לכן הצלחתי במבחן','המורה עזר לי, לכן הצלחתי במבחן'],w:'Cause → clause: <b>המורה עזרה לי, לכן הצלחתי במבחן.</b>'}},
+ {l:3,s:S21,t:'rw',r:'sh-rewrite',i:'נסח מחדש את המשפט ושמור על משמעותו. פתח את המשפט כך: מכיוון ש',q:'אנשים מסוימים מדברים בלשון נקבה כי הם רוצים לקדם את מעמד האישה.',p:'מכיוון ש',a:['מכיוון שאנשים מסוימים רוצים לקדם את מעמד האישה, הם מדברים בלשון נקבה','מכיוון שאנשים מסוימים רוצים לקדם את מעמד האישה, אנשים אלה מדברים בלשון נקבה'],h:'What is the reason? Put it right after מכיוון ש.',
+  w:'מכיוון ש + <b>the reason</b>, then the result: <b>מכיוון שאנשים מסוימים רוצים לקדם את מעמד האישה, הם מדברים בלשון נקבה.</b>',
+  re:{t:'rw',s:W,q:'דני לא הגיע לשיעור כי הוא היה חולה.',p:'מכיוון ש',a:['מכיוון שדני היה חולה, הוא לא הגיע לשיעור'],w:'<b>מכיוון שדני היה חולה, הוא לא הגיע לשיעור.</b>'}},
+ {l:3,s:S21,t:'rw',r:'sh-indirect',i:'כתוב את דברי העולה החדש בדיבור עקיף.',q:'עולה חדש אמר לחברו: "השפה העברית קשה לי. כשהגעתי לארץ חוקי השפה לא היו ברורים לי. גם היום אני מתבלבל לפעמים בין זכר לנקבה".',p:'העולה החדש אמר לחברו ש',a:['העולה החדש אמר לחברו שהשפה העברית קשה לו, שכשהגיע לארץ חוקי השפה לא היו ברורים לו ושגם היום הוא מתבלבל לפעמים בין זכר לנקבה','העולה החדש אמר לחברו שהשפה העברית קשה לו, שכאשר הגיע לארץ חוקי השפה לא היו ברורים לו ושגם היום הוא מתבלבל לפעמים בין זכר לנקבה'],h:'לי → לו, הגעתי → הגיע, אני → הוא. Keep the tenses.',
+  w:'Change the person (לי → <b>לו</b>, הגעתי → <b>הגיע</b>, אני → <b>הוא</b>), keep every tense, start each part with ש.',
+  re:{t:'rw',s:W,i:'כתבו את דברי מיכל בדיבור עקיף.',q:'מיכל אמרה לאמה: "אני רוצה ללמוד באוניברסיטה. אני אוהבת לקרוא ספרים".',p:'מיכל אמרה לאמה ש',a:['מיכל אמרה לאמה שהיא רוצה ללמוד באוניברסיטה ושהיא אוהבת לקרוא ספרים'],w:'אני → <b>היא</b>, tenses stay: <b>שהיא רוצה… ושהיא אוהבת…</b>'}},
+ {l:3,s:S26,t:'rw',r:'sh-join',i:'לפניכם שלושה משפטים. חברו אותם למשפט אחד. הקפידו על סדר הגיוני ועל שימוש במילות קישור מתאימות. אין להשתמש בקשר של הוספה.',q:'• צעירים רבים רוצים להגיע להישגים.\n• צעירים רבים לא רוצים להשקיע זמן ומאמץ בלימודים.\n• צעירים רבים מחפשים דרכים קלות ומהירות להצליח.',p:'',a:['אף על פי שצעירים רבים רוצים להגיע להישגים, הם לא רוצים להשקיע זמן ומאמץ בלימודים, לכן הם מחפשים דרכים קלות ומהירות להצליח','צעירים רבים רוצים להגיע להישגים, אבל הם לא רוצים להשקיע זמן ומאמץ בלימודים, לכן הם מחפשים דרכים קלות ומהירות להצליח'],h:'1 vs 2 = contrast. 2 → 3 = result.',
+  w:'1↔2 is a <b>contrast</b> (אף על פי ש / אבל); 2→3 is a <b>result</b> (לכן). Use הם instead of repeating the subject.',
+  re:{t:'rw',s:W,q:'• רון רוצה לטייל בחו״ל.\n• לרון אין מספיק כסף.\n• רון עובד בקיץ במסעדה.',p:'',a:['רון רוצה לטייל בחול, אבל אין לו מספיק כסף, לכן הוא עובד בקיץ במסעדה','אף על פי שרון רוצה לטייל בחול, אין לו מספיק כסף, לכן הוא עובד בקיץ במסעדה'],w:'Contrast + result: <b>רון רוצה לטייל בחו״ל, אבל אין לו מספיק כסף, לכן הוא עובד בקיץ במסעדה.</b>'}},
+ {l:3,s:S26,t:'mc',r:'sh-meaning',i:'מבין ארבעת המשפטים הקיפו את המשפט שמשמעותו דומה למשמעות המשפט המודגש.',q:'<b>בלי משמעת עצמית צעירים לא יוכלו להצליח.</b>',o:['צעירים יוכלו להצליח אף על פי שלא תהיה להם משמעת עצמית.','צעירים יצליחו אם לא תהיה להם משמעת עצמית.','צעירים לא יוכלו להצליח אם לא תהיה להם משמעת עצמית.','צעירים לא יצליחו מפני שיש להם משמעת עצמית.'],a:2,
+  w:'"בלי X … לא" = "<b>אם לא</b> X … לא".',re:{t:'mc',s:W,q:'<b>בלי מים הצמחים לא יכולים לגדול.</b>',o:['הצמחים גדלים אף על פי שאין להם מים.','הצמחים לא יכולים לגדול אם אין להם מים.','הצמחים גדלים כי אין להם מים.'],a:1,w:'בלי… לא = <b>אם אין… לא</b>.'}},
+ {l:3,s:S26,t:'mc',r:'sh-conn',i:'הקיפו את ההשלמה המתאימה מבין האפשרויות המודגשות.',q:'אדם ___ מאמין בעצמו, יכול למצוא את הדרך להצליח.',o:['אם','אשר','למרות'],a:1,
+  w:'The clause describes אדם ("a person <i>who</i> believes…") → <b>אשר</b>.',
+  re:{t:'mc',s:S26,q:'אנשים יפעלו נכון ___ הם יתכוננו לקשיים.',o:['אם','בגלל','אף על פי ש'],a:0,w:'Condition + clause → <b>אם</b>.'}}
+]};
+
+const TOPICS=[T1,T2,T3,T4,T5];
+const TT={}; const QMAP={};
+
+/* ============================================================
+   NORMALISATION & PREP
+   ============================================================ */
+function norm(s){
+  return String(s==null?'':s)
+    .replace(/[־\-–—]/g,' ')
+    .replace(/[֑-ֽֿ-ׇ]/g,'')
+    .replace(/[.,!?;:"'״׳()\[\]…•«»“”„]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function stripTags(s){return String(s).replace(/<[^>]*>/g,'')}
+function tokens(s){return stripTags(s).split(/\s+/).filter(Boolean)}
+
+function prep(q,topic,id){
+  q.id=id; q.topic=topic.id;
+  if(q.t==='fill'){
+    const parts=q.q.split('___');
+    q._acc=q.a.map((vars,i)=>{
+      const before=stripTags(parts[i]||'');
+      const m=before.match(/(^|[\s(])([א-ת]{1,2})$/);
+      const set=new Set();
+      vars.forEach(v=>{set.add(norm(v)); if(m) set.add(norm(m[2]+v));});
+      return set;
+    });
+  }
+  if(q.t==='err'){
+    const tk=tokens(q.q); q._tok=tk; q._bad=tk.findIndex(t=>norm(t)===norm(q.b));
+  }
+  if(q.t==='rw'){ q._acc=new Set(q.a.map(norm)); }
+  QMAP[id]=q;
+}
+TOPICS.forEach(t=>{
+  TT[t.id]=t; let c=0;
+  t.cards.forEach(cd=>{ if(cd.check){ c++; cd.check.check=true; prep(cd.check,t,t.id+'c'+c);} });
+  t.qs.forEach((q,i)=>{
+    prep(q,t,t.id+'q'+(i+1));
+    if(q.re){ const r=q.re; r.l=q.l; r.r=r.r||q.r; if(!r.i) r.i=q.i; if(!r.s) r.s=W; r.isRetry=true; r.parent=q.id; prep(r,t,q.id+'r'); }
+  });
+});
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY='lashon11284-v1';
+let S;
+function blank(){return {t:{},mistakes:{},rules:{},streak:0,best:0,mini:[]}}
+function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.t) return s; }catch(e){} return blank(); }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+S=load();
+function ts(tid){ return S.t[tid]||(S.t[tid]={card:0,lessonDone:false,q:0,res:{},hints:0,done:false}); }
+
+function record(q,ok,mode){
+  const st=ts(q.topic);
+  if(!(q.id in st.res)) st.res[q.id]=ok?1:0;
+  if(mode!=='check'){
+    const r=S.rules[q.r]||(S.rules[q.r]={ok:0,bad:0}); ok?r.ok++:r.bad++;
+  }
+  if(ok){ S.streak++; if(S.streak>S.best) S.best=S.streak; if(S.streak%5===0) toast('🔥 '+S.streak+' in a row!'); }
+  else S.streak=0;
+  if(!ok){ const m=S.mistakes[q.id]||{n:0}; m.n++; m.fixed=false; S.mistakes[q.id]=m; }
+  else if(S.mistakes[q.id] && mode==='mistakes') S.mistakes[q.id].fixed=true;
+  save(); updateTop();
+}
+
+function levelScore(tid,l){
+  const st=ts(tid); let n=0,c=0,tot=0;
+  TT[tid].qs.forEach(q=>{ if(q.l!==l) return; tot++; if(q.id in st.res){n++; c+=st.res[q.id];} });
+  return {n,c,tot};
+}
+function topicScore(tid){ let n=0,c=0,tot=0; [1,2,3].forEach(l=>{const s=levelScore(tid,l); n+=s.n;c+=s.c;tot+=s.tot;}); return {n,c,tot}; }
+function topicProgress(tid){
+  const st=ts(tid),T=TT[tid];
+  const lp=st.lessonDone?1:Math.min(1,st.card/T.cards.length);
+  const pp=st.done?1:Math.min(1,st.q/T.qs.length);
+  return 0.25*lp+0.75*pp;
+}
+function openMistakes(tid){ return Object.keys(S.mistakes).filter(id=>QMAP[id]&&(!tid||QMAP[id].topic===tid)&&!S.mistakes[id].fixed); }
+function allMistakes(){ return Object.keys(S.mistakes).filter(id=>QMAP[id]); }
+
+/* ============================================================
+   UI HELPERS
+   ============================================================ */
+const app=document.getElementById('app');
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nl=s=>String(s).replace(/\n/g,'<br>');
+function updateTop(){
+  const p=TOPICS.reduce((a,t)=>a+topicProgress(t.id),0)/TOPICS.length;
+  document.getElementById('overallBar').style.width=Math.round(p*100)+'%';
+  document.getElementById('overallTxt').textContent='Overall '+Math.round(p*100)+'%';
+  document.getElementById('streak').textContent='🔥 '+S.streak+'  (best '+S.best+')';
+}
+function toast(msg){ const d=document.createElement('div'); d.className='toast'; d.textContent=msg; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
+function celebrate(title,sub,cb){
+  const ems=['🎉','⭐','✨','🎊','💪','🏆'];
+  for(let i=0;i<30;i++){ const c=document.createElement('div'); c.className='conf'; c.textContent=ems[i%ems.length];
+    c.style.left=Math.random()*100+'vw'; c.style.animationDuration=(1.6+Math.random()*1.6)+'s'; c.style.animationDelay=(Math.random()*.4)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),3600); }
+  const d=document.createElement('div'); d.className='celebrate';
+  d.innerHTML=`<div class="card"><div class="big">🎉</div><h2 class="en">${title}</h2><div class="en">${sub||''}</div><div class="row" style="justify-content:center;margin-top:12px"><button class="pri" id="celOk">Continue →</button></div></div>`;
+  document.body.appendChild(d);
+  const close=()=>{d.remove(); cb&&cb();};
+  d.querySelector('#celOk').onclick=close;
+}
+function showModal(html){
+  const m=document.getElementById('modal'); m.innerHTML=`<div class="card">${html}<div class="row end" style="margin-top:12px"><button class="pri" id="mClose">Close</button></div></div>`;
+  m.classList.remove('hidden'); m.querySelector('#mClose').onclick=()=>m.classList.add('hidden');
+  m.onclick=e=>{ if(e.target===m) m.classList.add('hidden'); };
+}
+function cheat(tid){ const T=TT[tid]; showModal(`<h2>📋 Cheat sheet – ${T.he}</h2><div class="small muted en">${T.en}</div><div class="lesson">${T.cheat}</div>`); }
+function scrollTop(){ window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'}); }
+
+/* ============================================================
+   QUESTION ENGINE
+   ============================================================ */
+function grade(q,resp){
+  switch(q.t){
+    case 'mc': return {ok:resp===q.a};
+    case 'err': return {ok:resp===q._bad};
+    case 'fill': { const per=q._acc.map((set,i)=>set.has(norm(resp&&resp[i]))); return {ok:per.every(Boolean),per}; }
+    case 'sort': { const per=q.it.map((it,i)=>resp&&resp[i]===it[1]); return {ok:per.every(Boolean),per}; }
+    case 'rw': { const r=norm(resp); if(q._acc.has(r)) return {ok:true,exact:true}; if(!r||r===norm(q.p||'')||r.length<4) return {ok:false}; return {ok:null}; }
+  }
+}
+
+function feedbackHTML(q,resp,ok,g){
+  let d='';
+  const he=s=>`<bdi class="he">«${s}»</bdi>`;
+  if(q.t==='mc'){
+    if(!ok){ d+= resp==null? 'You didn\'t answer. ' : `You chose ${he(q.o[resp])}. ${(q.x&&q.x[resp])||''} `; d+=`<br>✓ The right answer is ${he(q.o[q.a])}.`; }
+  }else if(q.t==='err'){
+    if(!ok){ d+= resp==null? 'You didn\'t pick a word. ' : `You picked ${he(q._tok[resp])}, but that word is fine. `; }
+    d+=`<br>The mistake is ${he(q._tok[q._bad])} → correct: ${he(q.fix)}.`;
+  }else if(q.t==='fill'){
+    if(!ok){ d+='<ul>'; q.a.forEach((v,i)=>{ const mine=(resp&&resp[i])||''; d+=`<li>Blank ${i+1}: ${g.per[i]?'✓':'✗'} you wrote ${he(esc(mine)||'—')}${g.per[i]?'':' → correct: '+he(v[0])}</li>`; }); d+='</ul>'; }
+  }else if(q.t==='sort'){
+    if(!ok){ d+='<ul>'; q.it.forEach((it,i)=>{ if(!g.per[i]) d+=`<li>${he(it[0])} belongs in ${he(q.g[it[1]])}</li>`; }); d+='</ul>'; }
+  }else if(q.t==='rw'){
+    d+=`Model answer:<div class="model">${q.a[0]}.</div>`;
+  }
+  d+=`<div class="why"><b>Why:</b> ${q.w}</div>`;
+  return `<div class="fbbox ${ok?'ok':'no'}"><div class="verdict ${ok?'ok':'no'}">${ok?'✓ Correct!':'✗ Not quite'}</div><div class="en">${d}</div></div>`;
+}
+
+/* renderQ(q, host, o)  o: {mode:'practice'|'mistakes'|'check'|'exam'|'review', prefill, onResult(ok,resp), onChange(resp), onHint} */
+function renderQ(q,host,o){
+  o=o||{};
+  const exam=o.mode==='exam', review=o.mode==='review';
+  let resp=o.prefill!==undefined&&o.prefill!==null?JSON.parse(JSON.stringify(o.prefill)):null;
+  let done=false;
+  const lvl=q.check?'Quick check':(q.isRetry?'Similar question':'Level '+q.l);
+  host.innerHTML=`<div class="qcard">
+    <div class="qmeta"><span class="tag">${lvl}</span>${q.s?`<span class="tag src">${q.s}</span>`:''}</div>
+    ${q.i?`<div class="instr he">${nl(q.i)}</div>`:''}
+    <div class="qbody"></div>
+    <div class="qact"></div>
+    <div class="hintbox hidden en"></div>
+    <div class="fb"></div></div>`;
+  const body=host.querySelector('.qbody'), act=host.querySelector('.qact'), fb=host.querySelector('.fb'), hb=host.querySelector('.hintbox');
+  const changed=()=>{ o.onChange&&o.onChange(resp); };
+
+  if(q.t==='mc'){
+    body.innerHTML=(q.q?`<div class="qtext he">${nl(q.q)}</div>`:'')+`<div class="opts">${q.o.map((x,i)=>`<button class="opt he" data-i="${i}">${x}</button>`).join('')}</div>`;
+    body.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ if(done||review) return; resp=+b.dataset.i;
+      body.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===b));
+      if(exam) changed(); else submit(); });
+    if(resp!=null) body.querySelectorAll('.opt')[resp]?.classList.add('sel');
+  }
+  if(q.t==='err'){
+    body.innerHTML=`<div class="qtext he">${q._tok.map((t,i)=>`<span class="tok" data-i="${i}">${t}</span>`).join(' ')}</div><div class="small muted en">Tap the wrong word.</div>`;
+    body.querySelectorAll('.tok').forEach(s=>s.onclick=()=>{ if(done||review) return; resp=+s.dataset.i;
+      body.querySelectorAll('.tok').forEach(x=>x.classList.toggle('sel',x===s));
+      if(exam) changed(); else submit(); });
+    if(resp!=null) body.querySelectorAll('.tok')[resp]?.classList.add('sel');
+  }
+  if(q.t==='fill'){
+    const parts=q.q.split('___'); let h='';
+    parts.forEach((p,i)=>{ h+=nl(p); if(i<parts.length-1) h+=`<input class="blank" data-i="${i}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="blank ${i+1}">`; });
+    body.innerHTML=`<div class="qtext he">${h}</div>`;
+    const ins=[...body.querySelectorAll('input.blank')];
+    if(!resp) resp=ins.map(()=> '');
+    ins.forEach((inp,i)=>{ inp.value=resp[i]||''; inp.oninput=()=>{resp[i]=inp.value; changed();};
+      inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<ins.length-1) ins[i+1].focus(); else if(!exam) submit(); } }; });
+    if(!exam&&!review) act.innerHTML=`<button class="pri" data-a="check">Check</button>`;
+  }
+  if(q.t==='rw'){
+    body.innerHTML=`<div class="src-sent he">${nl(q.q)}</div><textarea class="rw" rows="3" spellcheck="false"></textarea><div class="small muted en">Write the full sentence. Ctrl/⌘+Enter to check.</div>`;
+    const ta=body.querySelector('textarea'); ta.value=resp!=null?resp:(q.p||'');
+    if(resp==null) resp=ta.value;
+    ta.oninput=()=>{resp=ta.value; changed();};
+    ta.onkeydown=e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&!exam){ e.preventDefault(); submit(); } };
+    if(!exam&&!review) act.innerHTML=`<button class="pri" data-a="check">Check</button>`;
+  }
+  if(q.t==='sort'){
+    if(!resp) resp=q.it.map(()=>-1);
+    body.innerHTML=`<div class="small muted en">Put each word in a group.</div>`+q.it.map((it,i)=>`<div class="sortrow" data-i="${i}"><span class="w he">${it[0]}</span>${q.g.map((g,gi)=>`<button data-g="${gi}" class="${resp[i]===gi?'sel':''}">${g}</button>`).join('')}</div>`).join('');
+    body.querySelectorAll('.sortrow').forEach(row=>{ const i=+row.dataset.i;
+      row.querySelectorAll('button').forEach(b=>b.onclick=()=>{ if(done||review) return; resp[i]=+b.dataset.g; row.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); changed(); }); });
+    if(!exam&&!review) act.innerHTML=`<button class="pri" data-a="check">Check</button>`;
+  }
+  if(q.h&&!exam&&!review){
+    act.insertAdjacentHTML('beforeend',`<button class="ghost" data-a="hint">💡 Hint</button>`);
+  }
+  act.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    if(b.dataset.a==='check') submit();
+    if(b.dataset.a==='hint'){ hb.innerHTML='💡 '+q.h; hb.classList.remove('hidden'); b.disabled=true; o.onHint&&o.onHint(); }
+  });
+
+  function submit(){
+    if(done) return;
+    if(q.t==='fill'&&!review&&resp.every(v=>!String(v).trim())){ toast('Type your answer first'); return; }
+    if(q.t==='sort'&&!review&&resp.some(v=>v<0)){ toast('Place every word first'); return; }
+    if(q.t==='rw'&&!review&&norm(resp)===norm(q.p||'')){ toast('Write your sentence first'); return; }
+    const g=grade(q,resp);
+    if(g.ok===null){
+      done=true; lock();
+      fb.innerHTML=`<div class="fbbox"><div class="en">Your answer isn't an exact match with the answer key – that can still be right! Compare:</div>
+        <div class="en small muted">Yours:</div><div class="model">${esc(resp)}</div>
+        <div class="en small muted">Model answer${q.a.length>1?' (other correct versions exist)':''}:</div><div class="model">${q.a[0]}.</div>
+        <div class="en"><b>Check:</b> ${q.w}</div>
+        <div class="row" style="margin-top:8px"><button class="pri" data-s="1">✓ Got it (same meaning, correct grammar)</button><button data-s="0">✗ Didn't</button></div></div>`;
+      fb.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>finish(b.dataset.s==='1',g,true));
+      return;
+    }
+    done=true; finish(g.ok,g);
+  }
+  function lock(){ host.querySelectorAll('input,textarea').forEach(x=>x.readOnly=true); act.querySelectorAll('[data-a="check"]').forEach(b=>b.remove()); }
+  function finish(ok,g,self){
+    lock();
+    if(q.t==='mc'){ const bs=body.querySelectorAll('.opt'); bs[q.a].classList.add('right'); if(!ok&&resp!=null) bs[resp].classList.add('wrong'); }
+    if(q.t==='err'){ const ts_=body.querySelectorAll('.tok'); ts_[q._bad].classList.add('right'); if(!ok&&resp!=null) ts_[resp].classList.add('wrong'); }
+    if(q.t==='fill'){ body.querySelectorAll('input.blank').forEach((inp,i)=>inp.classList.add(g.per[i]?'right':'wrong')); }
+    if(q.t==='sort'){ body.querySelectorAll('.sortrow').forEach((row,i)=>row.classList.add(g.per[i]?'right':'wrong')); }
+    if(self){ fb.innerHTML=`<div class="fbbox ${ok?'ok':'no'}"><div class="verdict ${ok?'ok':'no'}">${ok?'✓ Marked as correct':'✗ Marked as wrong'}</div><div class="en">Model answer:<div class="model">${q.a[0]}.</div><div class="why"><b>Why:</b> ${q.w}</div></div></div>`; }
+    else fb.innerHTML=feedbackHTML(q,resp,ok,g);
+    o.onResult&&o.onResult(ok,resp);
+  }
+  if(review) submit();
+  return {submit};
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+function home(){
+  scrollTop();
+  const nextT=TOPICS.find(t=>!ts(t.id).done);
+  const om=openMistakes();
+  let h=`<h1>לשון לבגרות – שאלון 11284</h1>
+  <div class="en muted">5 grammar topics. For each: read the short lesson (with quick checks), then practise ~20 bagrut-style questions in 3 levels. Finish with the mini bagrut.</div>`;
+  TOPICS.forEach((t,i)=>{
+    const st=ts(t.id), p=topicProgress(t.id), sc=topicScore(t.id), m=openMistakes(t.id).length;
+    h+=`<div class="card topic ${nextT===t?'next':''}"><div class="num">${i+1}</div>
+      <div><b class="he">${t.he}</b>${nextT===t?' <span class="tag">▶ start here</span>':''}<div class="small muted en">${t.en}</div></div>
+      <div><div class="bar ${st.done?'good':''}"><i style="width:${Math.round(p*100)}%"></i></div>
+      <div class="small muted en">${st.lessonDone?'Lesson ✓':'Lesson '+Math.min(st.card,t.cards.length)+'/'+t.cards.length} · Practice ${st.done?'✓':Math.min(st.q,t.qs.length)+'/'+t.qs.length}${sc.n?` · Score ${sc.c}/${sc.n}`:''}</div></div>
+      <div class="row"><button class="${!st.lessonDone?'pri':''}" data-go="lesson" data-t="${t.id}">📖 Lesson</button>
+      <button class="${st.lessonDone&&!st.done?'pri':''}" data-go="practice" data-t="${t.id}">✏️ Practice</button>
+      <button data-go="cheat" data-t="${t.id}">📋 Cheat sheet</button>
+      ${m?`<button data-go="mist" data-t="${t.id}">🔁 Mistakes (${m})</button>`:''}</div></div>`;
+  });
+  h+=`<div class="card"><h2>🎓 Mini bagrut</h2><div class="en muted">Mixed questions from all 5 topics in the real exam order (פרק ב – תחביר ומילות היחס, then פרק ג – מערכת הצורות), 30-minute timer, results at the end.</div>
+   <div class="row" style="margin-top:8px"><button class="pri" data-go="mini">Start mini bagrut</button><button data-go="final">📊 My results</button>${om.length?`<button data-go="mistAll">🔁 Redo all my mistakes (${om.length})</button>`:''}</div></div>
+   <div class="row end"><button class="ghost small" data-go="reset">Reset all progress</button></div>`;
+  app.innerHTML=h;
+  app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
+    const t=b.dataset.t;
+    switch(b.dataset.go){
+      case 'lesson': lesson(t); break;
+      case 'practice': practice(t); break;
+      case 'cheat': cheat(t); break;
+      case 'mist': mistakesRound(openMistakes(t),'Mistakes – '+TT[t].he,()=>home()); break;
+      case 'mistAll': mistakesRound(openMistakes(),'All my mistakes',()=>finalScreen()); break;
+      case 'mini': miniIntro(); break;
+      case 'final': finalScreen(); break;
+      case 'reset': if(confirm('Delete all progress and scores?')){ S=blank(); save(); updateTop(); home(); } break;
+    }
+  });
+}
+
+function topBar(tid,label){
+  return `<div class="row" style="justify-content:space-between"><div><span class="tag">${label}</span> <b class="he">${TT[tid].he}</b></div>
+   <div class="row"><button class="ghost" data-nav="cheat">📋 Cheat sheet</button><button class="ghost" data-nav="home">🏠 Home</button></div></div>`;
+}
+function wireNav(tid){ app.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{ if(b.dataset.nav==='home') home(); else cheat(tid); }); }
+
+function lesson(tid,idx){
+  scrollTop();
+  const T=TT[tid], st=ts(tid);
+  if(idx==null) idx=st.lessonDone?0:Math.min(st.card,T.cards.length-1);
+  st.card=Math.max(st.card,idx); save(); updateTop();
+  const cd=T.cards[idx];
+  const dots=T.cards.map((c,i)=>`<i class="${i<=idx?'on':''} ${c.check?'chk':''}"></i>`).join('');
+  app.innerHTML=topBar(tid,'Lesson '+(idx+1)+'/'+T.cards.length)+`<div class="dots">${dots}</div>
+    ${cd.check?`<h2 class="en">✋ Quick check</h2><div id="qhost"></div>`:`<div class="card lesson"><h2 class="en">${cd.title}</h2>${cd.html}</div>`}
+    <div class="row" style="justify-content:space-between;margin-top:12px"><button id="prev" ${idx===0?'disabled':''}>← Back</button><button class="pri" id="next" ${cd.check?'disabled':''}>${idx===T.cards.length-1?'Finish lesson ✓':'Next →'}</button></div>`;
+  wireNav(tid);
+  if(cd.check){ renderQ(cd.check,app.querySelector('#qhost'),{mode:'check',onResult:(ok)=>{ record(cd.check,ok,'check'); app.querySelector('#next').disabled=false; }}); }
+  app.querySelector('#prev').onclick=()=>lesson(tid,idx-1);
+  app.querySelector('#next').onclick=()=>{
+    if(idx<T.cards.length-1){ st.card=Math.max(st.card,idx+1); save(); lesson(tid,idx+1); }
+    else{ st.lessonDone=true; st.card=T.cards.length; save(); updateTop();
+      celebrate('Lesson done!','Now practise: '+T.qs.length+' questions in 3 levels.',()=>practice(tid)); }
+  };
+}
+
+function practice(tid,idx){
+  scrollTop();
+  const T=TT[tid], st=ts(tid);
+  if(idx==null) idx=st.done?0:st.q;
+  if(st.done&&idx===0&&Object.keys(st.res).length){ st.done=false; T.qs.forEach(q=>{delete st.res[q.id]; if(q.re) delete st.res[q.re.id];}); }
+  if(idx>=T.qs.length) return endOfTopic(tid);
+  st.q=idx; save(); updateTop();
+  const q=T.qs[idx];
+  app.innerHTML=topBar(tid,'Practice')+`
+    <div class="row small muted en" style="justify-content:space-between;margin:6px 0"><span>Question ${idx+1} of ${T.qs.length} · Level ${q.l}</span><span>Topic score: ${topicScore(tid).c}/${topicScore(tid).n}</span></div>
+    <div class="bar"><i style="width:${Math.round(idx/T.qs.length*100)}%"></i></div>
+    <div id="qhost" style="margin-top:12px"></div><div id="rhost" style="margin-top:12px"></div>
+    <div class="row end" id="nextRow" style="margin-top:12px"></div>`;
+  wireNav(tid);
+  const nextRow=app.querySelector('#nextRow');
+  const go=()=>{
+    const n=idx+1;
+    if(n>=T.qs.length||T.qs[n].l!==q.l){
+      const s=levelScore(tid,q.l);
+      celebrate('Level '+q.l+' complete!','You got '+s.c+' / '+s.tot+' on the first try.',()=>practice(tid,n));
+    } else practice(tid,n);
+  };
+  renderQ(q,app.querySelector('#qhost'),{mode:'practice',onHint:()=>{st.hints++;save();},onResult:(ok)=>{
+    record(q,ok,'practice');
+    if(ok||!q.re){ nextRow.innerHTML=`<button class="pri" id="nx">Next →</button>`; nextRow.querySelector('#nx').onclick=go; nextRow.querySelector('#nx').focus(); }
+    else{
+      nextRow.innerHTML=`<button class="pri" id="rt">Try a similar one →</button>`;
+      nextRow.querySelector('#rt').onclick=()=>{
+        nextRow.innerHTML='';
+        const rh=app.querySelector('#rhost'); rh.innerHTML='<h3 class="en">🔁 Same rule, different words:</h3><div></div>';
+        renderQ(q.re,rh.lastElementChild,{mode:'practice',onHint:()=>{st.hints++;save();},onResult:(ok2)=>{
+          record(q.re,ok2,'practice');
+          nextRow.innerHTML=`<button class="pri" id="nx">Continue →</button>`; nextRow.querySelector('#nx').onclick=go;
+        }});
+        rh.scrollIntoView({behavior:'smooth',block:'start'});
+      };
+    }
+  }});
+}
+
+function endOfTopic(tid){
+  const st=ts(tid); st.done=true; st.q=TT[tid].qs.length; save(); updateTop();
+  const m=openMistakes(tid);
+  if(m.length){
+    scrollTop();
+    app.innerHTML=topBar(tid,'Mistakes round')+`<div class="card"><h2 class="en">🔁 Mistakes round</h2><div class="en">You have <b>${m.length}</b> question(s) in this topic that you got wrong. Redo them now – a correct answer removes it from your list.</div>
+      <div class="row" style="margin-top:10px"><button class="pri" id="go">Start</button><button id="skip">Skip to summary</button></div></div>`;
+    wireNav(tid);
+    app.querySelector('#go').onclick=()=>mistakesRound(m,'Mistakes – '+TT[tid].he,()=>summary(tid));
+    app.querySelector('#skip').onclick=()=>summary(tid);
+  } else summary(tid);
+}
+
+function mistakesRound(ids,title,onEnd,i){
+  i=i||0; scrollTop();
+  if(!ids.length){ toast('No mistakes to redo 🎉'); return onEnd(); }
+  if(i>=ids.length){
+    const left=ids.filter(id=>!S.mistakes[id]||!S.mistakes[id].fixed).length;
+    return celebrate('Mistakes round done!',(ids.length-left)+' of '+ids.length+' fixed.'+(left?' The rest stay in your list.':''),onEnd);
+  }
+  const q=QMAP[ids[i]];
+  app.innerHTML=`<div class="row" style="justify-content:space-between"><div><span class="tag">🔁 ${esc(title)}</span> <span class="small muted en">${i+1} / ${ids.length} · ${TT[q.topic].he}</span></div>
+   <div class="row"><button class="ghost" id="ch">📋 Cheat sheet</button><button class="ghost" id="hm">🏠 Home</button></div></div>
+   <div class="bar" style="margin:8px 0"><i style="width:${Math.round(i/ids.length*100)}%"></i></div>
+   <div id="qhost"></div><div class="row end" id="nextRow" style="margin-top:12px"></div>`;
+  app.querySelector('#ch').onclick=()=>cheat(q.topic); app.querySelector('#hm').onclick=home;
+  renderQ(q,app.querySelector('#qhost'),{mode:'mistakes',onHint:()=>{ts(q.topic).hints++;save();},onResult:(ok)=>{
+    record(q,ok,'mistakes');
+    const nr=app.querySelector('#nextRow'); nr.innerHTML=`<button class="pri" id="nx">Next →</button>`; nr.querySelector('#nx').onclick=()=>mistakesRound(ids,title,onEnd,i+1);
+  }});
+}
+
+function summary(tid){
+  scrollTop();
+  const T=TT[tid], st=ts(tid), sc=topicScore(tid), idx=TOPICS.indexOf(T);
+  const pct=sc.n?Math.round(sc.c/sc.n*100):0;
+  let rows=[1,2,3].map(l=>{const s=levelScore(tid,l); return `<span class="en">Level ${l}</span><span class="pill ${s.n&&s.c/s.n>=.7?'g':'b'}">${s.c} / ${s.tot}</span>`;}).join('');
+  app.innerHTML=topBar(tid,'Summary')+`<div class="card"><h2 class="en">Topic ${idx+1} done – ${pct}%</h2>
+    <div class="scoregrid">${rows}<span class="en">Hints used</span><span class="pill n">${st.hints}</span><span class="en">Mistakes still open</span><span class="pill n">${openMistakes(tid).length}</span></div>
+    <div class="row" style="margin-top:14px">${idx<TOPICS.length-1?`<button class="pri" id="nt">Next topic: ${TOPICS[idx+1].he} →</button>`:`<button class="pri" id="mb">🎓 Mini bagrut →</button>`}
+    <button id="rp">Redo this topic's practice</button><button id="hm2">🏠 Home</button></div></div>`;
+  wireNav(tid);
+  const nt=app.querySelector('#nt'); if(nt) nt.onclick=()=>lesson(TOPICS[idx+1].id);
+  const mb=app.querySelector('#mb'); if(mb) mb.onclick=miniIntro;
+  app.querySelector('#rp').onclick=()=>{ st.done=false; st.q=0; T.qs.forEach(q=>{delete st.res[q.id]; if(q.re) delete st.res[q.re.id];}); save(); practice(tid,0); };
+  app.querySelector('#hm2').onclick=home;
+  celebrate('Topic '+(idx+1)+' complete!',`${T.he}: ${sc.c}/${sc.n} correct.`);
+}
+
+function weakestRules(){
+  return Object.entries(S.rules).filter(([r,v])=>v.bad>0&&RULES[r])
+    .map(([r,v])=>({r,ok:v.ok,bad:v.bad,acc:v.ok/(v.ok+v.bad)}))
+    .sort((a,b)=>a.acc-b.acc||b.bad-a.bad).slice(0,3);
+}
+function finalScreen(){
+  scrollTop();
+  let h=`<div class="row" style="justify-content:space-between"><h1 class="en">📊 My results</h1><button class="ghost" id="hm">🏠 Home</button></div>`;
+  h+=`<div class="card"><div class="tbl-wrap"><table class="tbl"><tr><th>נושא</th><th class="en">L1</th><th class="en">L2</th><th class="en">L3</th><th class="en">Total</th><th class="en">Hints</th></tr>`;
+  TOPICS.forEach(t=>{ const sc=topicScore(t.id);
+    h+=`<tr><td>${t.he}</td>${[1,2,3].map(l=>{const s=levelScore(t.id,l);return `<td class="en">${s.c}/${s.tot}</td>`;}).join('')}<td class="en"><b>${sc.n?Math.round(sc.c/sc.n*100)+'%':'—'}</b></td><td class="en">${ts(t.id).hints}</td></tr>`; });
+  h+=`</table></div></div>`;
+  const w=weakestRules();
+  h+=`<div class="card"><h2 class="en">🎯 My weakest rule${w.length>1?'s':''}</h2>`+(w.length?w.map((x,i)=>`<div class="en" style="margin:6px 0">${i===0?'<b>':''}${i+1}. ${RULES[x.r]}${i===0?'</b>':''} <span class="small muted">(${x.ok} right, ${x.bad} wrong)</span></div>`).join(''):'<div class="en muted">No mistakes recorded yet – go practise!</div>')+`</div>`;
+  const all=allMistakes(), open=openMistakes();
+  h+=`<div class="card"><h2 class="en">🔁 Mistakes</h2><div class="en">${open.length} open · ${all.length-open.length} fixed</div>
+    <div class="row" style="margin-top:8px"><button class="pri" id="rm" ${all.length?'':'disabled'}>Redo my mistakes</button></div></div>`;
+  if(S.mini.length) h+=`<div class="card"><h2 class="en">🎓 Mini bagrut history</h2>${S.mini.slice(-5).reverse().map(m=>`<div class="en">${m.date}: <b>${m.score}/${m.total}</b> (${Math.round(m.score/m.total*100)}%) in ${m.mins} min</div>`).join('')}</div>`;
+  app.innerHTML=h;
+  app.querySelector('#hm').onclick=home;
+  app.querySelector('#rm').onclick=()=>{ const list=open.concat(all.filter(id=>!open.includes(id))); mistakesRound(list,'All my mistakes',finalScreen); };
+}
+
+/* ============================================================
+   MINI BAGRUT
+   ============================================================ */
+const EXAM_PLAN=[
+ {title:'פרק ב – תחביר ומילות היחס',parts:[['t5',5],['t4',2],['t2',2],['t3',2]]},
+ {title:'פרק ג – מערכת הצורות ומילות היחס',parts:[['t1',4]]}
+];
+const EXAM_MIN=30;
+let EX=null;
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function miniIntro(){
+  scrollTop();
+  const n=EXAM_PLAN.reduce((a,s)=>a+s.parts.reduce((b,p)=>b+p[1],0),0);
+  app.innerHTML=`<div class="row" style="justify-content:space-between"><h1 class="en">🎓 Mini bagrut</h1><button class="ghost" id="hm">🏠 Home</button></div>
+   <div class="card en"><b>${n} questions · ${EXAM_MIN} minutes.</b><br>Like the real exam: no hints and no feedback while you work. You can go back and change answers. When you submit (or time runs out) you get your score, explanations, and wrong answers go to your mistakes list.<br><br>
+   Order: <span class="he">${EXAM_PLAN.map(s=>s.title).join(' → ')}</span>.</div>
+   <div class="row"><button class="pri" id="st">Start the timer ⏱</button></div>`;
+  app.querySelector('#hm').onclick=home;
+  app.querySelector('#st').onclick=startExam;
+}
+function startExam(){
+  const items=[];
+  EXAM_PLAN.forEach((sec,si)=>{
+    sec.parts.forEach(([tid,n])=>{
+      const T=TT[tid]; const pool=[];
+      T.qs.forEach(q=>{ pool.push(q); if(q.re) pool.push(q.re); });
+      const pick=shuffle(pool.filter(q=>q.l>=2||tid==='t5')).filter((q,i,arr)=>!arr.slice(0,i).some(p=>p.id===q.parent||q.id===p.parent)).slice(0,n);
+      pick.sort((a,b)=>a.l-b.l).forEach(q=>items.push({q,sec:si}));
+    });
+  });
+  EX={items,resp:items.map(()=>null),i:0,end:Date.now()+EXAM_MIN*60000,start:Date.now(),timer:null};
+  EX.timer=setInterval(tick,1000);
+  examQ();
+}
+function tick(){
+  if(!EX) return;
+  const left=Math.max(0,EX.end-Date.now()); const el=document.getElementById('timer');
+  if(el){ const m=Math.floor(left/60000), s=Math.floor(left%60000/1000); el.textContent=`⏱ ${m}:${String(s).padStart(2,'0')}`; el.classList.toggle('low',left<5*60000); }
+  if(left<=0){ toast('Time is up!'); submitExam(); }
+}
+function examQ(){
+  scrollTop();
+  const it=EX.items[EX.i], N=EX.items.length;
+  const prevSec=EX.i>0?EX.items[EX.i-1].sec:-1;
+  app.innerHTML=`<div class="row" style="justify-content:space-between"><span class="tag">🎓 Mini bagrut · ${EX.i+1}/${N}</span><span class="timer" id="timer">⏱</span></div>
+   <div class="bar" style="margin:8px 0"><i style="width:${Math.round(EX.i/N*100)}%"></i></div>
+   ${it.sec!==prevSec?`<div class="sec-title he">${EXAM_PLAN[it.sec].title}</div>`:`<div class="small muted he">${EXAM_PLAN[it.sec].title}</div>`}
+   <div id="qhost" style="margin-top:10px"></div>
+   <div class="row" style="justify-content:space-between;margin-top:12px"><button id="pv" ${EX.i===0?'disabled':''}>← Previous</button>
+   ${EX.i<N-1?`<button class="pri" id="nx">Save & next →</button>`:`<button class="pri" id="sb">Submit exam ✓</button>`}</div>
+   <div class="row" style="margin-top:12px">${EX.items.map((x,k)=>`<button class="small" data-j="${k}" style="min-width:44px;${k===EX.i?'outline:2px solid var(--brand)':''}">${k+1}${EX.resp[k]!=null&&String(EX.resp[k]).trim()!==''?'•':''}</button>`).join('')}</div>`;
+  tick();
+  renderQ(it.q,app.querySelector('#qhost'),{mode:'exam',prefill:EX.resp[EX.i],onChange:r=>{EX.resp[EX.i]=r;}});
+  app.querySelector('#pv').onclick=()=>{EX.i--;examQ();};
+  const nx=app.querySelector('#nx'); if(nx) nx.onclick=()=>{EX.i++;examQ();};
+  const sb=app.querySelector('#sb'); if(sb) sb.onclick=()=>{ const un=EX.resp.filter(r=>r==null).length; if(!un||confirm(un+' question(s) unanswered. Submit anyway?')) submitExam(); };
+  app.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{EX.i=+b.dataset.j;examQ();});
+}
+function submitExam(){
+  if(!EX) return;
+  clearInterval(EX.timer);
+  const ex=EX; EX=null; scrollTop();
+  const mins=Math.max(1,Math.round((Date.now()-ex.start)/60000));
+  const marks=ex.items.map(()=>undefined);
+  app.innerHTML=`<div class="row" style="justify-content:space-between"><h1 class="en">🎓 Mini bagrut – results</h1><button class="ghost" id="hm">🏠 Home</button></div>
+    <div class="card en" id="scoreBox"></div><div id="rev"></div>`;
+  app.querySelector('#hm').onclick=home;
+  const rev=app.querySelector('#rev'); let lastSec=-1;
+  const upd=()=>{
+    const pend=marks.filter(m=>m===undefined).length, sc=marks.filter(m=>m===true).length;
+    app.querySelector('#scoreBox').innerHTML=`<h2>Score: ${sc} / ${ex.items.length} (${Math.round(sc/ex.items.length*100)}%)</h2>`+
+      (pend?`<div class="muted">${pend} written answer(s) need you to self-mark below (compare with the model answer).</div>`:`<div>Time: ${mins} min. Wrong answers were added to your mistakes list.</div><div class="row" style="margin-top:8px"><button class="pri" id="rm">🔁 Redo my mistakes</button><button id="fs">📊 My results</button></div>`);
+    if(!pend&&!ex.saved){ ex.saved=true; S.mini.push({date:new Date().toLocaleString(),score:sc,total:ex.items.length,mins}); save();
+      if(sc/ex.items.length>=.7) celebrate('Great exam!',sc+' / '+ex.items.length); }
+    const rm=app.querySelector('#rm'); if(rm) rm.onclick=()=>mistakesRound(openMistakes(),'All my mistakes',finalScreen);
+    const fs=app.querySelector('#fs'); if(fs) fs.onclick=finalScreen;
+  };
+  ex.items.forEach((it,k)=>{
+    if(it.sec!==lastSec){ rev.insertAdjacentHTML('beforeend',`<div class="sec-title he">${EXAM_PLAN[it.sec].title}</div>`); lastSec=it.sec; }
+    const d=document.createElement('div'); d.style.marginTop='10px'; d.innerHTML=`<div class="small muted en">Question ${k+1}</div><div></div>`; rev.appendChild(d);
+    renderQ(it.q,d.lastElementChild,{mode:'review',prefill:ex.resp[k],onResult:(ok)=>{ marks[k]=ok; record(it.q,ok,'exam'); upd(); }});
+  });
+  upd();
+}
+
+/* Arrows: between two Hebrew words (or after Hebrew in a right-to-left block) "→" must be drawn as "←" */
+const HEB=/[\u05D0-\u05EA]/, LAT=/[A-Za-z]/;
+function strongAround(nodes,ni,ci,dir){
+  for(let k=ni;k>=0&&k<nodes.length;k+=dir){
+    const v=nodes[k].nodeValue; let j=k===ni?ci+dir:(dir<0?v.length-1:0);
+    for(;j>=0&&j<v.length;j+=dir){ const c=v[j]; if(HEB.test(c)) return 'h'; if(LAT.test(c)) return 'l'; }
+    if(nodes[k].parentElement&&nodes[k]!==nodes[ni]&&dir>0&&nodes[k].parentElement.closest('button')) break;
+  }
+  return '';
+}
+function fixArrows(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); const nodes=[]; let n;
+  while((n=w.nextNode())){ if(!n.parentElement.closest('script,style')) nodes.push(n); }
+  nodes.forEach((nd,ni)=>{
+    const v=nd.nodeValue; if(v.indexOf('→')<0) return;
+    let out=''; let changed=false;
+    for(let i=0;i<v.length;i++){
+      if(v[i]==='→'){
+        const pv=strongAround(nodes,ni,i,-1), nx=strongAround(nodes,ni,i,1);
+        const rtl=getComputedStyle(nd.parentElement).direction==='rtl';
+        if((pv==='h'&&nx==='h')||(rtl&&pv==='h'&&nx!=='l')){ out+='←'; changed=true; continue; }
+      }
+      out+=v[i];
+    }
+    if(changed) nd.nodeValue=out;
+  });
+}
+let fixQueued=false;
+new MutationObserver(()=>{ if(fixQueued) return; fixQueued=true; queueMicrotask(()=>{ fixQueued=false; fixArrows(document.body); }); })
+  .observe(document.body,{childList:true,subtree:true});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.getElementById('homeBtn').onclick=()=>{ if(EX&&!confirm('Leave the mini bagrut? Your answers will be lost.')) return; if(EX){clearInterval(EX.timer);EX=null;} home(); };
+updateTop(); home();
+window.__T={TOPICS,QMAP,grade,norm,S:()=>S};
+</script>
+</body>
+</html>
