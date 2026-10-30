@@ -1,0 +1,962 @@
+<title>בגרות הלכה לעולים</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: sticky header with unit chips + tabs, one centered reading column; cards only for the active quiz item. Palette: paper + tekhelet ink. */
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --ink:#172031; --muted:#5a6478; --line:#dce1ea;
+  --tekhelet:#1d4fa3; --tekhelet-soft:#e5ecf8; --gold:#9a6b07; --gold-soft:#fbf1da;
+  --good:#1f7a4d; --good-soft:#e2f3ea; --bad:#b3261e; --bad-soft:#fbe7e5;
+  --display:"Frank Ruhl Libre", "David", Georgia, serif;
+  --body:"Assistant", "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f131b; --surface:#171d29; --ink:#e7eaf1; --muted:#9ba4b6; --line:#2a3344;
+  --tekhelet:#86acf2; --tekhelet-soft:#1b2740; --gold:#e3b84f; --gold-soft:#2e2614;
+  --good:#62c895; --good-soft:#15291f; --bad:#f2897f; --bad-soft:#331917; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f131b; --surface:#171d29; --ink:#e7eaf1; --muted:#9ba4b6; --line:#2a3344;
+  --tekhelet:#86acf2; --tekhelet-soft:#1b2740; --gold:#e3b84f; --gold-soft:#2e2614;
+  --good:#62c895; --good-soft:#15291f; --bad:#f2897f; --bad-soft:#331917; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--body);font-size:17px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:12px 0;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--display);font-weight:900;font-size:1.55rem;margin:0;color:var(--tekhelet);text-wrap:balance}
+.brand small{color:var(--muted);font-size:.85rem}
+.units{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 12px;font:600 .85rem var(--body);cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--tekhelet);border-color:var(--tekhelet);color:var(--surface)}
+.tabs{display:flex;gap:2px;overflow-x:auto}
+.tab{flex:0 0 auto;background:none;border:none;border-bottom:3px solid transparent;color:var(--muted);font:700 .92rem var(--body);padding:8px 10px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--tekhelet);border-bottom-color:var(--tekhelet)}
+button:focus-visible,.chip:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+main .wrap{padding-block:20px 60px;display:flex;flex-direction:column;gap:18px}
+h2{font-family:var(--display);font-size:1.6rem;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-size:1.22rem;margin:0 0 6px;color:var(--tekhelet);text-wrap:balance}
+p{margin:0 0 8px}
+.he{direction:rtl;text-align:right}
+.muted{color:var(--muted)}
+.pages{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--gold);background:var(--gold-soft);border-radius:6px;padding:1px 8px}
+.banner{border:1px solid var(--gold);background:var(--gold-soft);border-radius:10px;padding:10px 14px;font-size:.95rem}
+section.lesson{border-top:1px solid var(--line);padding-top:14px;min-width:0}
+ul,ol{margin:4px 0 8px;padding-inline-start:22px}
+li{margin:2px 0}
+.why{border-inline-start:4px solid var(--tekhelet);background:var(--tekhelet-soft);padding:6px 12px;border-radius:0 8px 8px 0;margin:6px 0}
+.why::before{content:"WHY? ";font-weight:800;color:var(--tekhelet);font-size:.8rem;letter-spacing:.06em}
+.teacher{border-inline-start:4px solid var(--gold);background:var(--gold-soft);padding:6px 12px;border-radius:0 8px 8px 0;margin:6px 0}
+.teacher::before{content:"✎ TEACHER'S NOTE ";font-weight:800;color:var(--gold);font-size:.8rem;letter-spacing:.06em}
+.source{direction:rtl;text-align:right;font-family:var(--display);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;font-size:1.05rem}
+.source cite{display:block;font-family:var(--body);font-style:normal;font-size:.82rem;color:var(--muted);margin-top:4px}
+.tblwrap{overflow-x:auto;margin:6px 0 10px}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:start}
+th{background:var(--tekhelet-soft);color:var(--ink);font-weight:700}
+.book{font-size:.82rem;font-weight:700;color:var(--bad)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.q{font-size:1.15rem;font-weight:700;unicode-bidi:plaintext}
+.a{background:var(--good-soft);border-radius:10px;padding:10px 14px;unicode-bidi:plaintext}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--tekhelet);background:var(--tekhelet);color:var(--surface);border-radius:9px;padding:8px 14px;font:700 .95rem var(--body);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--tekhelet)}
+.btn.good{background:var(--good);border-color:var(--good)}
+.btn.bad{background:var(--bad);border-color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+textarea,input[type=text]{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:1rem var(--body);padding:9px 11px;unicode-bidi:plaintext}
+textarea{min-height:110px;resize:vertical}
+.meter{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter>span{display:block;height:100%;background:var(--tekhelet)}
+.stat{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+.grade{border-radius:10px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);unicode-bidi:plaintext}
+.score{font-family:var(--display);font-size:1.6rem;font-weight:900}
+.score.full{color:var(--good)} .score.part{color:var(--gold)} .score.zero{color:var(--bad)}
+.pill{display:inline-block;font-size:.75rem;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:99px;background:var(--tekhelet-soft);color:var(--tekhelet)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.good{background:var(--good-soft);color:var(--good)}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mitem{background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--bad);border-radius:10px;padding:10px 14px}
+.mitem.resolved{border-inline-start-color:var(--good);opacity:.75}
+.cram{columns:2 320px;column-gap:28px}
+.cram section{break-inside:avoid;margin-bottom:16px}
+.cram h3{font-size:1.05rem}
+.cram li{font-size:.95rem}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700}
+.timer{font-family:var(--display);font-weight:900;font-size:1.3rem;font-variant-numeric:tabular-nums;color:var(--tekhelet)}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .18s ease-out}@keyframes in{from{transform:translateY(4px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><h1>בגרות הלכה לעולים</h1><small>במעגלי הלכה – עולים · שאלון 005384</small></div>
+  <div class="units" id="units" role="group" aria-label="Units"></div>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+</div></header>
+<main><div class="wrap" id="view"></div></main>
+
+<script>
+/* ======================= CONTENT (from the book only) ======================= */
+const UNITS = [
+{ id:"brachot", name:"ברכות", pages:"54–69",
+learn:[
+{h:"Why do we say a bracha? · ברכה = נטילת רשות", html:`
+<p>The book's key idea: <b class="he">"לה' הארץ ומלואה"</b> (תהלים כד, א) — everything in the world belongs to ה'. People were given permission to enjoy His world <b>on condition that they bless</b> — that they thank Him. So a bracha is like <b>נטילת רשות</b> — asking permission to enjoy what ה' created.</p>
+<p>In a bracha we also <b>praise ה'</b> for creating the pleasure, and express <b>הכרת הטוב</b> (gratitude) — everything we have comes from ה'.</p>
+<div class="why">Example from the book: before eating fruit we say "בורא פרי העץ" — we remind ourselves <b>who created</b> it. The farmer planted, watered and fertilized, but ה' created the shape of the fruit, made the sun shine and the rain fall.</div>
+<div class="source">אמר רבי חייא בר אבא: פעם אחת נתארחתי אצל בעל הבית בלודקיא... וכשמניחים אותו אומרים "לה' הארץ ומלואה" (תהלים כד, א), וכשמסלקין אותו אומרים "השמים שמים לה' והארץ נתן לבני אדם" (תהלים קטו, טז).<cite>שבת קיט ע"א</cite></div>
+<div class="why">Meaning: <b>before</b> the bracha the food belongs to ה' ("לה' הארץ"); <b>after</b> the bracha it is given to people ("והארץ נתן לבני אדם").</div>
+<p>One must bless <b>with attention</b> and think about the meaning of the words. We don't say ה''s name for nothing, so we <b>don't bless unless we really intend</b> to eat or do the mitzvah.</p>`},
+{h:"3 types of brachot · סוגי הברכות", html:`
+<div class="tblwrap"><table class="he"><tr><th>סוג</th><th>מתי</th><th>דוגמה</th></tr>
+<tr><td><b>ברכות הנהנין</b></td><td>לפני הנאה: אוכלים, שותים, מריחים ריח טוב</td><td>תפוז – "בורא פרי העץ"; מיץ – "שהכל נהיה בדברו"; ריח – "בורא מיני בשמים"</td></tr>
+<tr><td><b>ברכות המצוות</b></td><td>לפני קיום מצווה – מהתורה או מדברי חכמים</td><td>סוכה (מהתורה) – "וציוונו לישב בסוכה"; נר חנוכה (מדברי חכמים) – "להדליק נר חנוכה"; ד' מינים, תפילין, נרות שבת</td></tr>
+<tr><td><b>ברכות השבח</b> (ההודאה)</td><td>מודים לה' על חסדיו ומשבחים את גדולתו</td><td>ברק – "עושה מעשה בראשית"; טיסה ארוכה – "הגומל לחייבים טובות"; שהחיינו</td></tr></table></div>`},
+{h:"How much food? · כמה צריך לאכול", html:`
+<ul><li><b>ברכה ראשונה</b>: on <b>any amount — "כלשהו"</b>, even a tiny bit. Don't interrupt between the bracha and eating — eat right away.</li>
+<li><b>ברכה אחרונה</b>: only after eating at least a <b>"כזית"</b> (size of a matchbox, <b>28 grams</b>) or drinking at least a <b>"רביעית"</b> (<b>86 cc</b>).</li>
+<li>The כזית must be eaten <b>"תוך כדי אכילת פרס"</b> — within about <b>4 minutes</b> <span class="book">(book's number)</span>.</li></ul>
+<div class="why">Why after? In the ברכה אחרונה we thank and praise ה' for the good and kindness He did for us.</div>`},
+{h:"First bracha table · נוסח ברכה ראשונה", html:`
+<div class="tblwrap"><table class="he"><tr><th>ברכה</th><th>על מה</th><th>סוג</th></tr>
+<tr><td>המוציא לחם מן הארץ</td><td>לחם, חלות, פיתות, לחמניות, כעכים</td><td>לחמים</td></tr>
+<tr><td>בורא פרי הגפן</td><td>יין, מיץ ענבים</td><td>יין</td></tr>
+<tr><td>בורא מיני מזונות</td><td>עוגות, עוגיות, ביסקוויטים, וופלים, בייגלה, אטריות מבושלות (ספגטי)</td><td>מאפים מחמשת מיני דגן</td></tr>
+<tr><td>בורא פרי העץ</td><td>זית, תמר, רימון, תפוח, אפרסק, שזיף, לימון, אבוקדו, אגוזים, שקדים</td><td>פירות</td></tr>
+<tr><td>בורא פרי האדמה</td><td>מלפפון, עגבניה, פלפל, <b>אבטיח, מלון, בננה</b>, תירס, כרוב, חסה, תפוח אדמה, גרעיני חמניה (שחורים), גרעיני דלעת (לבנים), <b>בוטנים</b></td><td>ירקות</td></tr>
+<tr><td>שהכל נהיה בדברו</td><td>חלב, גבינה, בשר, דגים, מים, מיצים, גלידה, טחינה, <b>פטריות</b></td><td>מאכלים שלא גדלים באדמה</td></tr></table></div>
+<p><b>Rice (אורז מבושל)</b>: first bracha <b>"בורא מיני מזונות"</b>, last bracha <b>"בורא נפשות"</b>. <b>Rice cakes (פריכיות אורז)</b>: some say "אדמה", some say "שהכל".</p>`},
+{h:"Order of brachot · דיני קדימה", html:`
+<p>1) When eating foods with different brachot, the order is: <b>המוציא, מזונות, גפן, עץ, אדמה, שהכל</b> — mnemonic <b class="he">"המג"ע א"ש"</b>.</p>
+<div class="why">The order is set by the <b>importance</b> of each bracha.</div>
+<p>Example: cake then juice → first "מזונות" on the cake, then "שהכל" on the juice.</p>
+<p>2) Fruit from <b>שבעת המינים</b> (the species Eretz Yisrael is praised for) <b>comes before</b> other fruit. Example: grapes + apple → say "בורא פרי העץ" on the <b>grapes</b>, and it covers (פוטר) the apple.</p>
+<div class="why">Because of the importance of שבעת המינים.</div>`},
+{h:"Washing before bread · נטילת ידיים", html:`
+<ul><li>Before eating bread (פת) we wash hands with water.</li>
+<li>Use a vessel that is <b>whole and not bent</b> (כלי שלם ולא עקום). Pour water on each hand <b>up to the wrist</b> (עד פרק הזרוע).</li>
+<li>Bracha: <span class="he">"...אשר קידשנו במצוותיו וציוונו <b>על נטילת ידיים</b>"</span>.</li>
+<li>After the bracha we <b>dry</b> the hands — drying is also part of the mitzvah.</li></ul>
+<div class="teacher">"מברכים ואז מנגבים" — first say the bracha, then dry.</div>`},
+{h:"Last bracha · ברכה אחרונה", html:`
+<div class="tblwrap"><table class="he"><tr><th>ברכה</th><th>על מה</th></tr>
+<tr><td><b>ברכת המזון</b></td><td>לחמים: לחם, חלות, פיתות, לחמניות, כעכים</td></tr>
+<tr><td>מעין שלוש – "על הגפן ועל פרי הגפן"</td><td>יין, מיץ ענבים</td></tr>
+<tr><td>מעין שלוש – "על המחיה ועל הכלכלה"</td><td>מאפים: עוגות, עוגיות, ביסקוויטים, וופלים, בייגלה, ספגטי</td></tr>
+<tr><td>מעין שלוש – "על העץ ועל פרי העץ"</td><td>פירות משבעת המינים: ענבים, תאנה, רימון, זית, תמר</td></tr>
+<tr><td><b>בורא נפשות</b></td><td>שאר הפירות (תפוח, תפוז...), ירקות וקטניות, מאכלים שלא גדלים באדמה</td></tr></table></div>`},
+{h:"ברכת המזון", html:`
+<p><b>A Torah obligation</b>: <span class="he">"ואכלת ושבעת וברכת את ה' אלוקיך"</span> (דברים ח, י). It is the <b>only bracha written explicitly in the Torah</b>. From this command the Sages learned to institute other brachot.</p>
+<div class="why">After eating and being full, a person should remember that ה' feeds the whole world in His goodness — plants and animals. As עם ישראל we have an extra role, so we mention that later in ברכת המזון.</div>
+<p><b>4 brachot:</b> הזן · הארץ · בונה ירושלים · הטוב והמטיב.</p>
+<div class="source">אמר רב נחמן: משה תיקן לישראל ברכת "הזן" בשעה שירד להם מן. יהושע תיקן להם ברכת "הארץ" כיוון שנכנסו לארץ. דוד ושלמה תיקנו "בונה ירושלים": דוד תיקן "על ישראל עמך ועל ירושלים עירך", ושלמה תיקן "על הבית הגדול והקדוש". "הטוב והמטיב" ביבנה תיקנוה כנגד הרוגי ביתר... הטוב – שלא הסריחו, והמטיב – שניתנו לקבורה.<cite>ברכות מח ע"ב</cite></div>
+<div class="tblwrap"><table class="he"><tr><th>ברכה</th><th>מי תיקן</th><th>מתי</th></tr>
+<tr><td>הזן</td><td>משה</td><td>כשירד המן</td></tr><tr><td>הארץ</td><td>יהושע</td><td>כשנכנסו לארץ</td></tr>
+<tr><td>בונה ירושלים</td><td>דוד ושלמה</td><td>דוד – ירושלים; שלמה – הבית הגדול</td></tr>
+<tr><td>הטוב והמטיב</td><td>חכמי יבנה</td><td>הרוגי ביתר: לא הסריחו + ניתנו לקבורה</td></tr></table></div>
+<div class="teacher">Additions: <b>על הניסים</b> – חנוכה ופורים · <b>רצה</b> – שבת · <b>יעלה ויבוא</b> – ראש חודש וחגים.</div>
+<p>ברכת המזון <b>covers everything eaten in the meal</b> — no separate ברכה אחרונה for other foods and drinks during the meal.</p>`},
+{h:"מעין שלוש — Israel vs. abroad", html:`
+<p>"מעין שלוש" = a <b>summary of three</b>: it briefly mentions the subjects of the <b>first 3 brachot of ברכת המזון</b> — הזן, הארץ, בניין ירושלים. The opening and ending change by food type, and for some there's a difference between fruit grown in Israel and abroad:</p>
+<div class="tblwrap"><table class="he"><tr><th>סוג</th><th>בחוץ לארץ</th><th>בארץ ישראל</th></tr>
+<tr><td>מאפים</td><td>על הארץ ועל המחיה ועל הכלכלה</td><td>על הארץ ועל המחיה ועל הכלכלה <span class="muted">(same)</span></td></tr>
+<tr><td>יין</td><td>על הארץ ועל פרי <b>הגפן</b></td><td>על הארץ ועל פרי <b>גפנה</b></td></tr>
+<tr><td>פירות</td><td>על הארץ ועל <b>הפירות</b></td><td>על הארץ ועל <b>פירותיה</b></td></tr></table></div>
+<div class="source">לדידן [=לנו] שאין אנו בארץ ישראל יאמר על הארץ ועל הפירות, אבל בני ארץ ישראל, כיוון שיושבין בארץ, מפני שבח הארץ יש להם להזכיר פירות הארץ בפירוש ולומר על הארץ ועל פירותיה.<cite>רבינו יונה, ברכות לב ע"א מדפי הרי"ף</cite></div>
+<div class="why">In Israel we say "פירותיה / גפנה" to mention the <b>fruit of the Land</b> explicitly — praise of Eretz Yisrael.</div>
+<p>On שבת, חגים and ראש חודש we mention the day (on Shabbat: <b>"ורצה והחליצנו"</b>).</p>`},
+{h:"Smell · ברכות הריח", html:`
+<p>Only on a good smell from <b>plants</b> (not synthetic perfume):</p>
+<ul class="he"><li>מעצים → "בורא <b>עצי</b> בשמים"</li><li>מעשבים → "בורא <b>עשבי</b> בשמים"</li><li>לא מעצים, לא מעשבים, לא מפירות → "בורא <b>מיני</b> בשמים"</li></ul>`},
+{h:"Brachot of praise · שהחיינו, הגומל, רעם וברק", html:`
+<p>ברכות השבח praise ה' who created the world and leads it: special nature, special people. <b>ברכות ראייה</b> (seeing): lightning, rainbow, very high mountains, ocean. <b>ברכות שמיעה</b> (hearing): thunder, good news, bad news.</p>
+<div class="why">They deepen our awareness that ה' leads and directs all the phenomena of nature.</div>
+<h3>שהחיינו — 4 cases</h3>
+<ol><li>New fruit/vegetable eaten the first time in its season (some say שהחיינו first then the fruit bracha, some the opposite).</li>
+<li>Wearing a new garment you are happy with for the first time / using important new vessels or items.</li>
+<li>Mitzvot not done for a long time — sitting in the sukka first time, lighting Chanukah candles first time.</li>
+<li>חגים — said in <b>קידוש</b>. <b>Ashkenaz custom</b>: women say it when lighting the yom tov candles.</li></ol>
+<h3>הגומל</h3>
+<p>Based on the feeling of <b>gratitude to ה'</b>. 4 main cases: recovering from serious illness, released from <b>prison</b>, sailing at sea, crossing a desert. Also anyone saved from other danger (e.g. nearly run over, a collapse; a woman after birth). Today we also say it after a <b>flight</b>.</p>
+<p class="he">נוסח: "ברוך אתה ה' אלוקינו מלך העולם, <b>הגומל לחייבים טובות, שגמלני כל טוב</b>".</p>
+<p><b>In front of 10 men</b>. Usually during <b>קריאת התורה</b>. Women say it from the עזרת נשים at the end of the prayer.</p>
+<div class="source">ארבעה חייבין לברך הגומל: היוצא מבית האסורים, ומי שהיה חולה ונתרפא, ויורדי הים כשעולין ממנו, והולכי מדברות כשיגיעו אל הישוב. וסימן לדבר: "וכל החיים יודוך סלה" – חולה, ים, יסורין, מדבר. ראשי תיבות "חיים".<cite>מנורת המאור פרק ו – המצוות עמוד 460</cite></div>
+<div class="why">Mnemonic <b>חיים</b>: <b>ח</b>ולה · <b>י</b>סורין (= prison) · <b>י</b>ם · <b>מ</b>דבר.</div>
+<h3>Thunder, lightning, rainbow</h3>
+<ul class="he"><li>ברק (מיד) → "עושה מעשה בראשית"</li><li>רעם (מיד) → "שכוחו וגבורתו מלא עולם"</li><li>קשת → "זוכר הברית, ונאמן בבריתו וקיים במאמרו"</li></ul>
+<div class="why">Rainbow: we mention the <b>covenant</b> — ה''s promise to Noach after the flood never to flood the earth again; the rainbow is its sign (בראשית ט, ח-יז). Don't stare at a rainbow too long.</div>
+<h3>ברכת האילנות</h3>
+<p>In <b>Nisan</b>, seeing at least <b>2 fruit trees</b> (even the same kind) blossoming: <span class="he">"...שלא חיסר בעולמו כלום וברא בו בריות טובות ואילנות טובות ליהנות בהם בני אדם"</span>. <b>Once a year</b> only.</p>
+<h3>תפילת הדרך</h3>
+<p>Said <b>in plural</b> ("יהי רצון מלפניך... שתוליכנו לשלום..."), ends "ברוך אתה ה' <b>שומע תפילה</b>". We ask ה' to protect us on the way and bring us safely to our destination. <b>Once a day</b>; say it <b>right after leaving the city</b>.</p>`}
+],
+cards:[
+["What does \"ברכה היא נטילת רשות\" mean? Which פסוק is it based on?","Everything belongs to ה' — \"לה' הארץ ומלואה\" (תהלים כד, א). We may enjoy the world only on condition we bless/thank Him, so the bracha is like asking permission."],
+["Source שבת קיט: what did they say when the food was brought, and when it was cleared?","Brought: \"לה' הארץ ומלואה\". Cleared: \"השמים שמים לה' והארץ נתן לבני אדם\" — before the bracha it is ה''s, after it is given to people."],
+["3 types of brachot?","ברכות הנהנין, ברכות המצוות, ברכות השבח (הודאה)."],
+["How much food requires a ברכה ראשונה?","Any amount — \"כלשהו\"."],
+["How much requires a ברכה אחרונה?","Food: כזית (28 g, matchbox) within כדי אכילת פרס (~4 minutes). Drink: רביעית (86 cc)."],
+["Mnemonic for order of brachot?","המג\"ע א\"ש — המוציא, מזונות, גפן, עץ, אדמה, שהכל. Set by importance."],
+["Grapes and an apple — what do you bless?","בורא פרי העץ on the grapes (שבעת המינים come first) — it covers the apple."],
+["Cooked rice: first and last bracha?","בורא מיני מזונות; afterwards בורא נפשות."],
+["Bracha on banana / watermelon / peanuts?","בורא פרי האדמה."],
+["Bracha on mushrooms?","שהכל נהיה בדברו (doesn't grow from the ground)."],
+["2 conditions for the vessel for נטילת ידיים?","Whole (שלם) and not bent (לא עקום). Pour up to the wrist."],
+["Teacher's note on נטילת ידיים?","מברכים ואז מנגבים — bracha first, then dry. Drying is part of the mitzvah."],
+["The only bracha explicitly in the Torah? Pasuk?","ברכת המזון — \"ואכלת ושבעת וברכת את ה' אלוקיך\" (דברים ח, י)."],
+["4 brachot of ברכת המזון + who instituted each?","הזן – משה (מן); הארץ – יהושע (entering the Land); בונה ירושלים – דוד ושלמה; הטוב והמטיב – יבנה (הרוגי ביתר)."],
+["הטוב והמטיב — what do הטוב and המטיב refer to?","הרוגי ביתר: הטוב – their bodies did not decay; המטיב – they were allowed to be buried."],
+["What is added to ברכת המזון on Shabbat / ר\"ח and חגים / חנוכה and פורים?","שבת – רצה; ר\"ח וחגים – יעלה ויבוא; חנוכה ופורים – על הניסים."],
+["Why is it called \"מעין שלוש\"?","It summarizes the first 3 brachot of ברכת המזון: הזן, הארץ, בניין ירושלים."],
+["מעין שלוש on wine/fruit — Israel vs. abroad?","Abroad: \"על הארץ ועל פרי הגפן / ועל הפירות\". Israel: \"על פרי גפנה / ועל פירותיה\" — praise of the Land (רבינו יונה)."],
+["3 foods that get מעין שלוש?","Wine/grape juice; cakes/pastries from 5 grains; fruit of 7 species (grapes, figs, pomegranates, olives, dates)."],
+["Smell brachot (3)?","עצים – בורא עצי בשמים; עשבים – בורא עשבי בשמים; other – בורא מיני בשמים. Only natural plant source."],
+["4 cases of שהחיינו?","New fruit in season; new garment/important item; mitzvah not done for long (sukka, Chanukah candles first time); חגים (in קידוש)."],
+["Mnemonic for הגומל and its 4 cases?","\"וכל החיים יודוך סלה\" — חיים: חולה, יסורין (prison), ים, מדבר."],
+["In front of how many people is הגומל said? When?","10 men; usually during קריאת התורה. Women from עזרת נשים at the end of the prayer."],
+["Bracha on lightning / thunder?","Lightning: עושה מעשה בראשית. Thunder: שכוחו וגבורתו מלא עולם."],
+["Rainbow bracha and why?","\"זוכר הברית, ונאמן בבריתו וקיים במאמרו\" — the promise to Noach of no more flood (בראשית ט)."],
+["ברכת האילנות: when, what, how often?","Nisan, seeing 2+ blossoming fruit trees; once a year."],
+["תפילת הדרך: language, ending, when?","Plural; ends \"שומע תפילה\"; once a day, right after leaving the city."]
+],
+qs:[
+{q:"Explain why we make a blessing before eating. (4 points)",pts:4,rubric:"Full marks: (1) everything belongs to ה' — לה' הארץ ומלואה; (2) the bracha is נטילת רשות — permission to benefit from ה''s world; and/or (3) praise and thanks / הכרת הטוב to ה' who created the food (farmer example). Bonus: שבת קיט source (השמים שמים לה' והארץ נתן לבני אדם)."},
+{q:"(1) What is the minimum amount of food that obligates a ברכה ראשונה? (2) What minimum obligates a ברכה אחרונה? (7 points)",pts:7,rubric:"(1) כלשהו — any amount. (2) כזית (~28 g) of food eaten within כדי אכילת פרס (~4 minutes), or רביעית (~86 cc) of drink. Missing the time limit or the drink amount loses points."},
+{q:"(1) Give one case in which we say שהחיינו. (2) Give one case in which we say הגומל. (7 points)",pts:7,rubric:"(1) any: new fruit in season first time; new garment/important item; mitzvah after long time (sukka/Chanukah first time); חגים in קידוש. (2) any: recovered from serious illness; released from prison; sea voyage; crossing desert; saved from danger; after a flight; woman after birth."},
+{q:"Dani wants to eat cake and drink orange juice. Which bracha first and why? (6 points)",pts:6,rubric:"Cake first — בורא מיני מזונות, then שהכל on the juice. Reason: order of precedence המג\"ע א\"ש (המוציא, מזונות, גפן, עץ, אדמה, שהכל), set by the importance of each bracha."},
+{q:"(1) List three types of food after which we say ברכה מעין שלוש. (2) Why is it called מעין שלוש? (8 points)",pts:8,rubric:"(1) wine/grape juice (על הגפן); pastries/cakes from 5 grains (על המחיה); fruit of 7 species — grapes, figs, pomegranates, olives, dates (על העץ). (2) It is a short summary of the first 3 brachot of ברכת המזון: הזן, הארץ, בניין ירושלים."},
+{q:"Compare: the ending of מעין שלוש on fruit in Israel vs. abroad, and give the reason. (6 points)",pts:6,rubric:"Abroad: על הארץ ועל הפירות (wine: פרי הגפן). In Israel: על הארץ ועל פירותיה (wine: פרי גפנה). Reason (רבינו יונה): those living in Israel mention the fruit of the Land explicitly because of the praise of Eretz Yisrael."},
+{q:"(1) ברכת המזון contains four blessings. Name two and describe their content/who instituted them. (2) Name one section added on Shabbat or a festival. (11 points)",pts:11,rubric:"(1) any two: הזן — thanks for food for the whole world, instituted by משה when the מן fell; הארץ — thanks for the Land, יהושע on entering the Land; בונה ירושלים — דוד (ירושלים) and שלמה (the Temple); הטוב והמטיב — יבנה, on הרוגי ביתר (did not decay; were buried). (2) רצה – Shabbat; יעלה ויבוא – חגים/ר\"ח (also על הניסים – חנוכה/פורים)."},
+{q:"What does the mnemonic \"חיים\" stand for, and what is its source? (6 points)",pts:6,rubric:"Those obligated in הגומל: ח-חולה שנתרפא, י-יסורין (יוצא מבית האסורים), י-ים (יורדי הים), מ-מדבר (הולכי מדברות). From \"וכל החיים יודוך סלה\" (מנורת המאור)."},
+{q:"List two conditions for the vessel used for נטילת ידיים, and explain the order of bracha and drying. (6 points)",pts:6,rubric:"Vessel: whole (שלם), not bent (לא עקום); pour on each hand to the wrist. Bracha 'על נטילת ידיים' is said after washing and BEFORE drying — drying is part of the mitzvah (מברכים ואז מנגבים)."},
+{q:"Why do we say a bracha on seeing a rainbow and what is its wording? (5 points)",pts:5,rubric:"\"ברוך... זוכר הברית ונאמן בבריתו וקיים במאמרו\". We mention the covenant — ה''s promise to Noach after the flood not to bring another flood; the rainbow is its sign (בראשית ט). One shouldn't stare at it too long."}
+]},
+
+{ id:"tefila", name:"תפילה", pages:"47–54",
+learn:[
+{h:"ה' hears quiet prayer", html:`<div class="source">ראה כמה הוא [הקב"ה] גבוה מעולמו, ואדם נכנס לבית הכנסת ועומד אחורי העמוד ומתפלל בלחישה והקב"ה מאזין את תפלתו, שנאמר "וחנה היא מדברת על לבה רק שפתיה נעות וקולה לא ישמע" (שמואל א א, יג)... כאדם המשיח באוזן חבירו והוא שומע. וכי יש לך אלוה קרוב מזה, שהוא קרוב לבריותיו כפה לאוזן?<cite>תלמוד ירושלמי ברכות ט, א</cite></div>
+<div class="why">ה' is very high, yet very close — like a mouth to an ear. That's why the Amidah is said quietly (like חנה).</div>`},
+{h:"Direction of the body · כיוון הגוף", html:`<ul><li>Abroad → face <b>Eretz Yisrael</b>.</li><li>In Eretz Yisrael → face <b>Yerushalayim</b>.</li><li>In Yerushalayim → face <b>the place of the Mikdash</b>.</li><li>Everywhere: direct your heart as if standing in the Beit HaMikdash, in the <b>קודש הקודשים</b>.</li></ul>`},
+{h:"Posture & bows · צורת העמידה והכריעות", html:`<p>תפילת <b>עמידה</b> — as its name: standing, <b>feet together</b>. Don't lean on a table or pillar.</p>
+<p><b>4 bows</b> in שמונה עשרה:</p><ol class="he"><li>תחילת ברכת אבות ("ברוך אתה ה' אלוקינו...")</li><li>סוף ברכת אבות ("ברוך אתה ה' מגן אברהם")</li><li>תחילת מודים ("מודים אנחנו לך...")</li><li>סוף מודים ("ברוך אתה ה' הטוב שמך ולך נאה להודות")</li></ol>
+<div class="why">The bows show <b>הכנעה ויראת כבוד</b> (submission and awe) before ה' who hears our prayers. Don't bow at the start/end of other brachot.</div>
+<p>Stages: <b>א – ברוך · ב – אתה · ג – השם · ד – הזדקפות חזרה</b> (straighten up).</p>`},
+{h:"Shacharit structure · מבנה שחרית", html:`<div class="tblwrap"><table class="he"><tr><th>חלק</th><th>תוכן</th></tr>
+<tr><td>לפני התפילה</td><td>ברכות השחר</td></tr>
+<tr><td>פסוקי דזמרה</td><td>"ברוך שאמר"; "אשרי" – מזמור מרכזי (ט"ו פעמים "כל"); מזמורי "הללויה"; פסוקי הסיום של תהלים; "ויברך דוד" – שבח שאמר דוד; שירת הים – שבח שאמרו משה וישראל; ברכה מסיימת – ישתבח</td></tr>
+<tr><td>קריאת שמע וברכותיה</td><td>"ברכו"; ברכה ראשונה ושנייה; שמע, והיה אם שמוע, ציצית; ברכה שלישית</td></tr>
+<tr><td>תפילת עמידה</td><td>3 ראשונות – אבות, גבורות, קדושת השם · 13 אמצעיות – בקשות · 3 אחרונות – עבודה, הודאה, ברכת שלום</td></tr>
+<tr><td>סיום התפילה</td><td>תחנון, קריאת התורה, אשרי ובא לציון, שיר של יום, אין כאלוהינו, עלינו לשבח</td></tr></table></div>
+<p><b>End of Shacharit</b>: תחנון, אשרי, למנצח, ובא לציון → <b>שיר של יום</b> → אין כאלוקינו, עלינו לשבח.</p>
+<div class="why">שיר של יום = a psalm the <b>Levi'im</b> sang in the Mikdash when the <b>קורבן תמיד</b> was offered — a different psalm each day of the week.</div>`},
+{h:"Kaddish · קדיש", html:`<p>Said only <b>בציבור</b>, at fixed places (after פסוקי דזמרה, after ובא לציון, etc.). In <b>Aramaic</b>.</p><div class="why">We sanctify ה''s name and pray that His name be great and holy among all the nations, that all recognize His kingship and thank His name.</div>`},
+{h:"Mincha · מנחה", html:`<div class="why">Why so important? שחרית is before work/study, ערבית after we're free in the evening — but מנחה is <b>in the middle of the day's activity</b>: a person takes time out from his busy day. He repeats the central requests: "השיבה שופטינו", "את צמח דוד עבדך", "ולירושלים עירך ברחמים תשוב".</div>
+<p>Mincha corresponds to the <b>קורבן התמיד של בין הערביים</b> (the last korban of the day).</p>
+<ul><li><b>מנחה גדולה</b> — from the early afternoon (after midday).</li><li><b>מנחה קטנה</b> — close to evening, before sunset.</li></ul>
+<p class="muted">Book example (כ"ד טבת): חצות 11:50 · מנחה גדולה 12:20 · מנחה קטנה 14:52.</p>
+<p><b>Order</b>: "אשרי" → שמונה עשרה (3 שבח · weekday 13 בקשה / Shabbat & chag קדושת היום · 3 הודאה) → "למנצח" (some communities), תחנון → "עלינו לשבח".</p>`},
+{h:"Arvit · ערבית", html:`<p>קריאת שמע with <b>2 brachot before and 2 after</b>, then עמידה — <b>no חזרת הש"ץ</b> — then "עלינו".</p>
+<div class="tblwrap"><table class="he"><tr><th>חלק</th><th>תוכן</th></tr><tr><td>ק"ש וברכותיה</td><td>ברכו; 1 "המעריב ערבים"; 2 "אוהב עמו ישראל"; קריאת שמע; 3 "גאל ישראל"; 4 "השכיבנו"</td></tr>
+<tr><td>עמידה</td><td>3 שבח; חול 13 בקשה ("שמע קולנו"); שבת/חג – קדושת היום; 3 הודאה</td></tr><tr><td>סיום</td><td>"עלינו לשבח"</td></tr></table></div>
+<p><b>Time of קריאת שמע של ערבית</b>: from <b>צאת הכוכבים</b> and all night. <span class="muted">Example: שקיעה 17:07, צאת הכוכבים 17:25.</span></p>`}
+],
+cards:[
+["Which way do you face when praying abroad / in Israel / in Yerushalayim?","Abroad – Eretz Yisrael; Israel – Yerushalayim; Yerushalayim – place of the Mikdash. Heart: as if in קודש הקודשים."],
+["Posture in the Amidah?","Standing, feet together; don't lean on a table/pillar."],
+["The 4 bows in שמונה עשרה?","Start and end of אבות; start and end of מודים."],
+["Why do we bow?","הכנעה ויראת כבוד — submission and awe before ה' who hears our prayers."],
+["4 stages of a bow?","ברוך (bend knees) – אתה (bow) – השם – straighten up."],
+["3 parts of the Amidah?","3 first – שבח (אבות, גבורות, קדושת השם); 13 middle – בקשות; 3 last – הודאה (עבודה, הודאה, שלום)."],
+["What is שיר של יום?","A psalm the Levi'im sang in the Mikdash at the קורבן תמיד; different each day."],
+["How does שחרית end?","אין כאלוקינו, עלינו לשבח."],
+["What is קדיש and in what language?","Aramaic; sanctifying ה''s name, praying all nations recognize His kingship. Only בציבור."],
+["Why is Mincha so important?","Prayed in the middle of the busy day — a person takes time from his activities."],
+["מנחה corresponds to which korban?","קורבן התמיד של בין הערביים — last korban of the day."],
+["מנחה גדולה vs. מנחה קטנה?","גדולה – early afternoon (after midday); קטנה – close to evening before sunset."],
+["Brachot around שמע in ערבית?","2 before (המעריב ערבים, אוהב עמו ישראל), 2 after (גאל ישראל, השכיבנו)."],
+["Is there חזרת הש\"ץ at Arvit?","No."],
+["Time of קריאת שמע של ערבית?","From צאת הכוכבים, all night."],
+["Which source says ה' hears quiet prayer, and from whom do we learn it?","ירושלמי ברכות ט, א — חנה: \"רק שפתיה נעות וקולה לא ישמע\"."]
+],
+qs:[
+{q:"The weekday Amidah is made up of three parts. (1) What are they? (2) List three blessings from one part. (10 points)",pts:10,rubric:"(1) 3 first — שבח; 13 middle — בקשות; 3 last — הודאה. (2) e.g. אבות, גבורות, קדושת השם / עבודה, הודאה, ברכת שלום / any 3 בקשות (e.g. השיבה שופטינו, את צמח דוד, ולירושלים, שמע קולנו)."},
+{q:"(1) Explain why a person who prays Mincha is greatly rewarded. (2) When is מנחה גדולה and when מנחה קטנה? (8 points)",pts:8,rubric:"(1) Mincha is in the middle of the day's activities — the person takes time from his busy day (שחרית before work, ערבית after). (2) גדולה — from the early afternoon after midday (book example 30 min after חצות); קטנה — close to evening, before sunset."},
+{q:"Where do the 4 bows in the Amidah take place, and what do they express? (6 points)",pts:6,rubric:"Start and end of ברכת אבות, start and end of מודים. Express הכנעה (submission) and יראת כבוד before ה' who hears our prayers. Not at other brachot."},
+{q:"Which direction should a person face when praying abroad, in Israel and in Yerushalayim? Where should his heart be directed? (6 points)",pts:6,rubric:"Abroad → Eretz Yisrael; Israel → Yerushalayim; Yerushalayim → place of the Mikdash; heart → as if standing in the Mikdash, in קודש הקודשים."},
+{q:"What is שיר של יום and why is it said? (4 points)",pts:4,rubric:"A psalm from Tehillim the Levi'im sang in the Mikdash at the time of the קורבן תמיד; a different psalm for each day of the week."},
+{q:"Describe the structure of תפילת ערבית and how it differs from שחרית. (6 points)",pts:6,rubric:"Arvit: ק\"ש with 2 brachot before (המעריב ערבים, אוהב עמו ישראל) and 2 after (גאל ישראל, השכיבנו), עמידה, no חזרת הש\"ץ, עלינו. Differences: no פסוקי דזמרה, no חזרת הש\"ץ, 2 brachot after שמע (שחרית has 1 after), no תחנון/קריאת התורה."}
+]},
+
+{ id:"tishrei", name:"ר\"ח · תשובה · ראש השנה", pages:"99–109",
+learn:[
+{h:"Regular vs. leap year · שנה מעוברת", html:`<p>Regular year: <b>12</b> months. Leap year: <b>13</b> — we add another <b>Adar</b>.</p>
+<ul><li>Solar (Gregorian) calendar — by the <b>sun</b>, ~365 days; seasons stay in the same months.</li><li>Hebrew calendar — by the <b>moon</b>; 12 lunar months = <b>354 days</b>. Difference ≈ <b>11 days</b>.</li></ul>
+<div class="why">Without correction Pesach and Sukkot would move 11 days every year. But the Torah commands <b>Pesach in spring (אביב)</b> and <b>Sukkot at harvest time (אסיף)</b> — seasons set by the sun. So a leap year adds <b>30 days</b> about <b>once every 3 years</b> and corrects the gap.</div>`},
+{h:"Rosh Chodesh · ראש חודש", html:`<p>A Hebrew month follows the moon's orbit ≈ <b>29.5 days</b>, so usually one month is <b>30 days ("חודש מלא")</b> and the next <b>29 ("חודש חסר")</b>.</p>
+<p>After a 30-day month, Rosh Chodesh is <b>2 days</b>: ל' of the old month + א' of the new month. After a 29-day month — only א'.</p>
+<p>On ר"ח: <b>"יעלה ויבוא"</b> in עמידה and ברכת המזון; <b>"חצי הלל"</b> (we skip two half-chapters). Honor it with nice clothes and special food.</p>
+<div class="source">איזו אומה כאומה הזאת? בנוהג שבעולם השלטון אומר: הדין היום, והליסטים אומר: למחר הדין – למי שומעין? לא לשלטון? אבל הקב"ה אינו כן. אמרו בית דין: "היום ראש השנה" – הקב"ה אומר למלאכי השרת: העמידו בימה... נמלכו בית דין לעברה למחר – הקב"ה אומר: העבירו בימה... מאי טעמא? "כי חק לישראל הוא משפט לאלהי יעקב" (תהלים פא, ה).<cite>ירושלמי ראש השנה פרק א</cite></div>
+<div class="why">ה' "follows" the date that the Jewish בית דין fixes — the power of עם ישראל in setting the calendar.</div>`},
+{h:"Elul & 10 days of teshuva · ימים נוראים", html:`<p>ימים נוראים: from <b>א' אלול</b> to <b>י' תשרי</b> (Yom Kippur) — <b>40 days</b>. The last 10 (ר"ה → יוה"כ) = <b>עשרת ימי תשובה</b>.</p>
+<div class="why">In these days ה' judges all creatures and decides their future — on actions, words and thoughts. So we must do teshuva, check our deeds, accept עול מלכות שמיים and crown ה' over us and the world. Therefore <b>ר"ה prayers focus on crowning ה' (המלכה)</b> and <b>יוה"כ prayers on teshuva</b>.</div>
+<p>Increase Torah, prayer, mitzvot and tzedaka — through teshuva, Torah, prayer, good deeds and recognizing ה''s greatness we can change the decree for the good. Teshuva is all year, but these days have a greater advantage.</p>`},
+{h:"3 stages of teshuva · שלבי התשובה", html:`<ol><li><b>עזיבת החטא</b> — stop doing the sin.</li><li><b>חרטה</b> with a full heart + <b>וידוי</b> (confession) — e.g. "אשמנו, בגדנו, גזלנו...".</li><li><b>קבלה לעתיד</b> — a real decision not to sin again.</li></ol>
+<div class="source">גדולה תשובה שמגעת עד כסא הכבוד (ר' לוי) · שמביאה את הגאולה (ר' יונתן) · שזדונות נעשות לו כשגגות (ריש לקיש) · שמארכת שנותיו של אדם... גדולה תשובה, שבשביל יחיד שעשה תשובה מוחלין לכל העולם כולו (ר' מאיר).<cite>יומא פו ע"א–ע"ב</cite></div>
+<p>Also there: בשר ודם who is insulted may or may not be appeased — but ה' is appeased with <b>words</b>: "קחו עמכם דברים ושובו אל ה'" (הושע יד, ג), and considers it as if one offered bulls: "ונשלמה פרים שפתינו".</p>`},
+{h:"Sins between people · בין אדם לחברו", html:`<div class="source">עבירות שבין אדם לחברו, אין יום הכיפורים מכפר עד שירצה (שיפייס) את חברו.<cite>יומא פה ע"ב</cite></div>
+<ul><li>Ask forgiveness with a full heart from everyone you hurt this year — by words or actions (insulted, embarrassed, lied, gossiped).</li><li>Money/items that came to you <b>dishonestly</b> — besides asking forgiveness, you must <b>return them</b>.</li><li>Someone asked to forgive — <b>must not refuse</b>; forgive with a full heart.</li></ul>`},
+{h:"Selichot · סליחות", html:`<div class="tblwrap"><table class="he"><tr><th>ספרד</th><th>אשכנז</th></tr><tr><td>מ<b>ב' באלול</b></td><td>מ<b>מוצאי השבת שלפני ר"ה</b> (אם ר"ה חל בשני או שלישי – ממוצ"ש שבשבוע שקודם לכן)</td></tr></table></div>
+<p>Famous selichot: "בן אדם מה לך נרדם", "אדון הסליחות", "אם אפס רובע הקן".</p>
+<p>From <b>א' אלול</b>: add "לדוד ה' אורי וישעי" (תהלים כז). In Elul we blow shofar to wake up to teshuva.</p>`},
+{h:"Erev Rosh Hashana · ערב ר\"ה", html:`<p>כ"ט אלול — last day of the year. Increase Torah and teshuva.</p>
+<div class="why">No shofar on ערב ר"ה — to <b>separate</b> the optional custom-blowing of Elul (תקיעות הרשות) from the obligatory Torah mitzvah of ר"ה (תקיעות החובה).</div>
+<p><b>התרת נדרים</b>: stand before <b>3 people</b> (like a בית דין) and declare regret for all vows made this year (some do it ערב יוה"כ). Greeting: "לשנה טובה תכתב ותחתם".</p>`},
+{h:"Rosh Hashana · two days, prayers, shofar", html:`<p><b>א'–ב' תשרי</b>. Day 1 — <b>from the Torah</b>; day 2 — <b>תקנת חכמים</b>. Yom tov laws: no melacha, no <b>lighting</b> a new fire, but may <b>cook from an existing flame</b>.</p>
+<p>Amidah of שחרית/מנחה/ערבית: <b>7 brachot</b>. מוסף: <b>9 brachot</b>.</p>
+<h3>Shofar — "וציוונו לשמוע קול שופר"</h3>
+<ul><li>A <b>מצוות עשה מהתורה</b> to <b>hear</b> the shofar. <b>100 sounds</b> in total.</li><li>Before מוסף and during מוסף.</li><li><b>תקיעה</b> — one long sound · <b>שברים</b> — 3 medium sounds · <b>תרועה</b> — 9 short sounds.</li><li><b>Women</b> are exempt — מצוות עשה שהזמן גרמא — but the custom is that women come to hear.</li><li>R"H on <b>Shabbat</b> — no shofar.</li></ul>
+<div class="why">Purpose: to <b>wake us to teshuva</b> and to <b>crown ה'</b> through the sound of the shofar.</div>
+<div class="source">"עלה אלהים בתרועה ה' בקול שופר" (תהלים מז, ו) – בשעה שהקב"ה יושב ועולה על כסא דין – בדין הוא עולה... ובשעה שישראל נוטלין את שופריהן ותוקעין – עומד מכסא הדין ויושב בכסא רחמים... והופך עליהם מדת הדין לרחמים. אימתי? "בחודש השביעי".<cite>ויקרא רבה פרשת אמור כט</cite></div>`},
+{h:"Musaf: מלכויות, זכרונות, שופרות", html:`<p>The <b>only prayer of the year with 9 brachot</b>: 3 first + 3 last + <b>3 special middle ones</b>, each with <b>10 pesukim</b>; shofar is blown after each.</p>
+<div class="tblwrap"><table class="he"><tr><th>ברכה</th><th>תוכן</th><th>חתימה</th></tr>
+<tr><td>מלכויות</td><td>מלכות ה' על עולמו; לעתיד בגאולה כל הברואים יכירו שה' מולך</td><td>"מלך על כל הארץ, מקדש ישראל ויום הזיכרון"</td></tr>
+<tr><td>זכרונות</td><td>ה' משגיח על יצוריו וזוכר מעשי כולם; שיזכור זכות <b>עקידת יצחק</b></td><td>"זוכר הברית"</td></tr>
+<tr><td>שופרות</td><td>מעמד הר סיני וקול השופר שנשמע בו; שנזכה לשמוע שופר בגאולה השלמה</td><td>"שומע קול תרועת עמו ישראל ברחמים"</td></tr></table></div>
+<div class="source">אמרו לפני בראש השנה מלכויות, זכרונות ושופרות. מלכויות – כדי שתמליכוני עליכם, זכרונות – כדי שיעלה זכרוניכם לפני לטובה. ובמה? בשופר. ...למה תוקעין בשופר של איל? ...כדי שאזכור לכם עקידת יצחק בן אברהם, ומעלה אני עליכם כאילו עקדתם עצמכם לפני.<cite>ראש השנה טז ע"א</cite></div>`},
+{h:"Tashlich · תשליך", html:`<p>Day 1 of R"H, after Mincha, before sunset, near <b>water</b> (sea, stream, reservoir).</p><div class="why">Expresses our wish to "throw away" all our sins, do teshuva and stay clean of sin.</div>`},
+{h:"10 days of teshuva — additions", html:`<p>Be extra careful with mitzvot בין אדם למקום and בין אדם לחברו, look inward, make good decisions.</p>
+<ul><li>Continue סליחות and "לדוד ה' אורי".</li><li>After ישתבח: "שיר המעלות ממעמקים" (תהלים קל).</li><li>In שמונה עשרה: <b>"המלך הקדוש"</b> (instead of "האל הקדוש") and <b>"המלך המשפט"</b> (instead of "מלך אוהב צדקה ומשפט").</li><li>Additions: "זכרנו לחיים", "מי כמוך", "וכתוב לחיים", "בספר חיים".</li><li>After שמונה עשרה: <b>"אבינו מלכנו"</b>.</li></ul>`},
+{h:"Tzom Gedalia & Shabbat Shuva", html:`<p><b>צום גדליה</b> — <b>ג' תשרי</b>, morning to evening, no eating or drinking. <b>Why?</b> גדליה בן אחיקם — the Jewish leader appointed by the Babylonians after the destruction of the <b>First Temple</b> — was <b>murdered by another Jew</b>. As a result the remaining Jews fled and the Land became desolate.</p>
+<p><b>שבת שובה / שבת תשובה</b> — the Shabbat in עשרת ימי תשובה, named after the haftara <b>"שובה ישראל עד ה' אלוקיך"</b> (הושע יד). The Rav gives a drasha calling to teshuva.</p>`}
+],
+cards:[
+["How many months in a regular / leap year? What is added?","12 / 13 — another Adar."],
+["Why do we need a leap year?","Lunar year 354 days, ~11 days shorter than solar. Torah requires Pesach in spring and Sukkot at harvest (sun seasons), so we add 30 days ~every 3 years."],
+["חודש מלא vs. חודש חסר?","מלא = 30 days; חסר = 29. Month ≈ 29.5 days."],
+["When is Rosh Chodesh 2 days?","After a 30-day month: ל' of the old month + א' of the new."],
+["What is added on ר\"ח?","יעלה ויבוא (עמידה + ברכת המזון), חצי הלל."],
+["Why is it called חצי הלל?","We skip two half-chapters of Hallel."],
+["When do the ימים נוראים start and end? How many days?","א' אלול – י' תשרי; 40 days."],
+["What are עשרת ימי תשובה?","From ר\"ה until יוה\"כ — ה' judges everyone."],
+["Focus of ר\"ה prayers vs. יוה\"כ prayers?","ר\"ה – crowning ה' (המלכת ה'); יוה\"כ – teshuva."],
+["3 stages of teshuva?","עזיבת החטא; חרטה + וידוי; קבלה לעתיד."],
+["Source: does יוה\"כ atone for sins against people?","No — \"עד שירצה את חברו\" (יומא פה ע\"ב / משנה יומא ח, ט)."],
+["When do Sefardim / Ashkenazim start selichot?","Sefard – ב' אלול; Ashkenaz – מוצאי שבת before ר\"ה (a week earlier if ר\"ה is Mon/Tue)."],
+["Psalm added from א' אלול?","\"לדוד ה' אורי וישעי\" (תהלים כז)."],
+["Why no shofar on ערב ר\"ה?","To separate תקיעות הרשות (Elul custom) from תקיעות החובה (Torah mitzvah of ר\"ה)."],
+["What is התרת נדרים?","Standing before 3 people (like a בית דין) and regretting all vows of the year."],
+["Which day of ר\"ה is from the Torah?","Day 1; day 2 is תקנת חכמים."],
+["How many brachot in Musaf of ר\"ה? In the other Amidot?","Musaf 9; others 7."],
+["How many shofar sounds in total?","100."],
+["תקיעה / שברים / תרועה?","Long sound / 3 medium / 9 short."],
+["Are women obligated in shofar? Why?","No — מצוות עשה שהזמן גרמא; but women customarily come to hear."],
+["Shofar on Shabbat?","Not blown."],
+["3 special brachot of Musaf R\"H and their endings?","מלכויות – מלך על כל הארץ מקדש ישראל ויום הזיכרון; זכרונות – זוכר הברית; שופרות – שומע קול תרועת עמו ישראל ברחמים."],
+["How many pesukim in each of מלכויות/זכרונות/שופרות?","10."],
+["Why a ram's horn (ר\"ה טז)?","To remind ה' of עקידת יצחק — as if we bound ourselves before Him."],
+["What does the shofar do according to ויקרא רבה?","ה' rises from the כסא דין and sits on the כסא רחמים — turns judgment to mercy."],
+["When and where is תשליך?","Day 1 of ר\"ה, after Mincha before sunset, near water."],
+["Changes in Amidah in עשרת ימי תשובה?","המלך הקדוש; המלך המשפט; זכרנו לחיים, מי כמוך, וכתוב לחיים, בספר חיים."],
+["What is said after שמונה עשרה in עשי\"ת?","אבינו מלכנו."],
+["Psalm added after ישתבח in עשי\"ת?","שיר המעלות ממעמקים (תהלים קל)."],
+["Date and reason of צום גדליה?","ג' תשרי — murder of גדליה בן אחיקם (leader after בית ראשון) by a Jew → remaining Jews fled, Land desolate."],
+["Why is it called שבת שובה?","Haftara \"שובה ישראל עד ה' אלוקיך\" (הושע יד)."]
+],
+qs:[
+{q:"Explain why the Hebrew calendar needs a leap year. (6 points)",pts:6,rubric:"Lunar year = 12 months ≈ 354 days, ~11 days shorter than the solar year (~365). Torah commands Pesach in spring (אביב) and Sukkot at harvest (אסיף) — seasons depend on the sun. Without correction the festivals would move 11 days a year. Leap year adds a month (Adar, 30 days) about every 3 years."},
+{q:"List the three stages of teshuva and explain each. (9 points)",pts:9,rubric:"עזיבת החטא — stop the sin; חרטה בלב שלם + וידוי (confess/detail the sin, אשמנו בגדנו); קבלה לעתיד — firm decision not to sin again. 3 points each."},
+{q:"Does Yom Kippur atone for sins between a person and his friend? Explain with a source and give two practical laws. (8 points)",pts:8,rubric:"No — 'עבירות שבין אדם לחברו אין יוה\"כ מכפר עד שירצה את חברו' (יומא פה ע\"ב / משנה יומא ח, ט). Laws: ask forgiveness from everyone you hurt; return money/items acquired dishonestly; the one asked must forgive and not refuse."},
+{q:"(1) What is the purpose of blowing the shofar on ר\"ה? (2) Name the three sounds. (3) Are women obligated? Explain. (10 points)",pts:10,rubric:"(1) wake to teshuva + crown ה' (also: turns מדת הדין to רחמים, ויקרא רבה). (2) תקיעה – long; שברים – 3 medium; תרועה – 9 short. (3) Exempt — מצוות עשה שהזמן גרמא, but women customarily come to hear. (+100 sounds; not on Shabbat)."},
+{q:"Musaf of Rosh Hashana has a special structure. Explain. (8 points)",pts:8,rubric:"Only prayer of the year with 9 brachot: 3 first, 3 last, 3 middle: מלכויות (ה''s kingship; ends מלך על כל הארץ...), זכרונות (ה' remembers all deeds; עקידת יצחק; ends זוכר הברית), שופרות (הר סיני + future redemption; ends שומע קול תרועת עמו ישראל ברחמים). 10 pesukim each; shofar after each."},
+{q:"Why don't we blow shofar on ערב ראש השנה? (4 points)",pts:4,rubric:"To make a separation between תקיעות הרשות (blown by custom during Elul) and תקיעות החובה (the Torah mitzvah on ר\"ה)."},
+{q:"Compare the Sefardi and Ashkenazi customs of selichot. (4 points)",pts:4,rubric:"Sefard from ב' אלול; Ashkenaz from motzaei Shabbat before ר\"ה (if ר\"ה falls on Monday/Tuesday — from the motzaei Shabbat a week earlier)."},
+{q:"List three additions to the prayers in עשרת ימי תשובה. (6 points)",pts:6,rubric:"Any 3: המלך הקדוש; המלך המשפט; זכרנו לחיים / מי כמוך / וכתוב לחיים / בספר חיים; אבינו מלכנו; שיר המעלות ממעמקים after ישתבח; continue selichot and לדוד ה' אורי."},
+{q:"When is צום גדליה and why do we fast? (5 points)",pts:5,rubric:"ג' תשרי (day after ר\"ה). Gedalia ben Achikam, appointed by the Babylonians to lead the Jews after the First Temple's destruction, was murdered by a Jew; the remaining Jews fled and the Land became desolate."},
+{q:"What is תשליך, when is it said and what does it express? (5 points)",pts:5,rubric:"A prayer on the first day of ר\"ה after Mincha before sunset, near water (sea/stream). Expresses the wish to cast away our sins, return in teshuva and remain clean of sin."}
+]},
+
+{ id:"kippur", name:"יום הכיפורים", pages:"109–115",
+learn:[
+{h:"Erev Yom Kippur · ערב יוה\"כ", html:`<p><b>Mitzva to eat</b> on ערב יוה"כ. Chazal: whoever eats on the 9th and fasts on the 10th is considered as if he fasted <b>both</b> the 9th and the 10th.</p><div class="why">Eating prepares us for the fast.</div>
+<p>Some do <b>התרת נדרים</b> on erev Yom Kippur.</p>
+<h3>כפרות</h3><p>A very ancient custom. <b>Purpose</b>: a person "redeems" himself by giving the money to <b>tzedaka</b>. With a chicken — after slaughter the food goes to the poor. Coins circled around the head: "זה הכסף ילך לצדקה ואנו ניכנס ונלך לחיים טובים ארוכים ולשלום".</p>
+<h3>וידוי במנחה</h3><p>Mincha is prayed <b>before</b> the סעודה מפסקת; at the end of שמונה עשרה a long <b>וידוי</b> (detailing sins, asking to return). Said in every prayer of יוה"כ.</p>
+<h3>סעודה מפסקת</h3><p>The last meal before the fast. Light foods. Stop eating a little before sunset —</p><div class="why">"<b>להוסיף מן החול על הקודש</b>" — start the fast while it is still day.</div>
+<h3>ברכת הבנים & preparations</h3><p>Before going to shul parents bless their sons and daughters: sealed for good life, hearts full of יראת ה', grow in Torah, succeed in everything. At Kol Nidrei night we wear a <b>tallit</b> — put on <b>before sunset</b> with a bracha. Some wear <b>white</b> — like <b>מלאכי השרת</b>.</p>
+<div class="source">מאי דכתיב "ולקדוש ה' מכובד" (ישעיהו נח, יג)? ...זה יום הכיפורים, שאין בו לא אכילה ולא שתיה, אמרה תורה: כבדהו בכסות נקיה.<cite>שבת קיט ע"א</cite></div>`},
+{h:"The holiness of the day", html:`<p><b>י' תשרי</b>. A holy day of spiritual elevation and return to ה'. "<b>תשובה, תפילה וצדקה מעבירין את רוע הגזירה</b>".</p>
+<div class="why">The holiness of the day — <b>together with teshuva</b> — has the power to atone. Prayers with kavana help teshuva; we decide to improve בין אדם למקום and בין אדם לחברו and open a new page. On יוה"כ each person's judgment is <b>sealed</b>.</div><p>Greeting: "גמר חתימה טובה".</p>
+<div class="source">האומר אחטא ואשוב אחטא ואשוב – אין מספיקין בידו לעשות תשובה. אחטא ויום הכיפורים מכפר – אין יום הכיפורים מכפר. עבירות שבין אדם למקום – יום הכיפורים מכפר. עבירות שבין אדם לחברו – אין יום הכיפורים מכפר, עד שירצה חברו.<cite>משנה יומא ח, ט</cite></div>`},
+{h:"No melacha · 5 עינויים", html:`<p>Holiness like <b>Shabbat</b> — every melacha forbidden on Shabbat is forbidden. So, <b>unlike other chagim, cooking is forbidden</b>.</p>
+<p>Fast from <b>before sunset</b> on erev יוה"כ until <b>after צאת הכוכבים</b> the next night.</p>
+<ol><li><b>אכילה ושתייה</b> — not even a little; no brushing teeth or rinsing the mouth.</li>
+<li><b>רחיצה</b> — no washing; morning/bathroom נטילה only on the <b>fingers</b>, not the palms.</li>
+<li><b>סיכה</b> — no anointing body with oil/creams/perfume.</li>
+<li><b>נעילת הסנדל</b> — no <b>leather</b> shoes/sandals.</li>
+<li><b>תשמיש המיטה / קשרי אישות</b> — forbidden, even touching.</li></ol>
+<p><b>Children</b>: educate boys and girls to a <b>"תענית שעות"</b> (fast a few hours) and keep the other prohibitions according to their strength.</p>`},
+{h:"Pikuach nefesh · פיקוח נפש", html:`<p><b>פיקוח נפש דוחה</b> the prohibitions of יוה"כ: a sick person whose life is in danger if he doesn't eat/drink — <b>must</b> eat/drink.</p>
+<ul><li>Eat <b>less than the שיעור</b> (small amounts, less than the Torah-forbidden amount).</li><li>Pause between eating.</li><li>Known medical problem — get advice from a <b>G-d-fearing doctor</b> who understands Yom Kippur and consult a <b>Rav</b> before the day.</li></ul>`},
+{h:"5 prayers & Torah readings", html:`<p><b>5 prayers</b>: ערבית, שחרית, מוסף, מנחה, <b>נעילה</b>.</p>
+<ol><li><b>כל נדרי</b> — in Ashkenaz and some Sefardi communities, before Arvit: annuls vows made during the year.</li>
+<li>ערבית, שחרית, מנחה: עמידה of <b>7 brachot</b>; in חזרת הש"ץ we add <b>פיוטים</b> about teshuva and forgiveness; after every עמידה — the long <b>וידוי</b>.</li>
+<li><b>Torah reading (morning)</b> — <b>2 Sifrei Torah</b>: (1) the <b>Kohen Gadol's service</b> on יוה"כ (ויקרא טז) — he entered קודש הקודשים once a year where the ארון הברית was and prayed for Israel; (2) the <b>korban musaf</b> of יוה"כ (במדבר כט).</li>
+<li><b>Musaf</b>: in חזרת הש"ץ — <b>"סדר העבודה"</b>, a piyut describing the Kohen Gadol's service.</li>
+<li><b>Mincha</b>: read <b>פרשת העריות</b> (forbidden family relationships, ויקרא יח); haftara <b>ספר יונה</b> — the teshuva of the people of <b>Nineveh</b>.</li>
+<li><b>Neila</b>: the closing prayer — we ask ה' to <b>seal</b> the judgment for good. Starts when the sun is "<b>בראש האילנות</b>" (a little before sunset). The ארון stays <b>open</b> the whole prayer. Say "<b>חתמנו</b> לחיים" instead of "כתבנו". At the end: "שמע ישראל" aloud and one <b>תקיעה</b> to announce the end of the fast.</li></ol>
+<div class="source">פתח לנו שער, בעת נעילת שער, כי פנה יום... אנא אל נא, שא נא, סלח נא, מחל נא, חמל נא, רחם נא, כפר נא, כבוש חטא ועוון.<cite>פיוט בתפילת נעילה (מחבר לא ידוע)</cite></div>
+<p><b>מוצאי יוה"כ</b>: begin building the sukka — to move straight from the mitzvot of יוה"כ to the mitzva of sukka.</p>`}
+],
+cards:[
+["Why is there a mitzva to eat on ערב יוה\"כ?","Whoever eats on the 9th and fasts on the 10th is considered as if he fasted both days; eating prepares for the fast."],
+["Purpose of כפרות?","Redeeming oneself through giving the money (or the chicken) to tzedaka/the poor."],
+["When is the long וידוי first said?","In Mincha of erev יוה\"כ, before the סעודה מפסקת; then in every יוה\"כ prayer."],
+["Why stop eating before sunset?","להוסיף מן החול על הקודש — start the fast while still day."],
+["Why white clothes on יוה\"כ?","To be like מלאכי השרת."],
+["When is the tallit put on for Kol Nidrei?","Before sunset, with a bracha."],
+["Source for clean clothes on יוה\"כ?","שבת קיט: \"ולקדוש ה' מכובד\" — כבדהו בכסות נקיה."],
+["What 3 things remove the evil decree?","תשובה, תפילה וצדקה."],
+["Can you cook on יוה\"כ? Why?","No — its holiness is like Shabbat (unlike other chagim)."],
+["The 5 עינויים?","אכילה ושתייה, רחיצה, סיכה, נעילת הסנדל, תשמיש המיטה (קשרי אישות)."],
+["How do we wash hands on יוה\"כ morning?","Only the fingers, not the palms."],
+["Which shoes are forbidden?","Leather."],
+["What do children do on יוה\"כ?","תענית שעות + other prohibitions by their strength."],
+["Pikuach nefesh — how should a sick person eat?","Less than the שיעור, with pauses; ask a G-d-fearing doctor and a Rav beforehand."],
+["5 prayers of יוה\"כ?","ערבית, שחרית, מוסף, מנחה, נעילה."],
+["What is כל נדרי?","Annulment of vows of the year, before Arvit (Ashkenaz + some Sefard)."],
+["Morning Torah readings?","2 sifrei Torah: Kohen Gadol's service (ויקרא טז); korban musaf (במדבר כט)."],
+["What is סדר העבודה?","Piyut in Musaf's חזרת הש\"ץ describing the Kohen Gadol's service in the Mikdash."],
+["Mincha reading and haftara?","פרשת העריות (ויקרא יח); ספר יונה — teshuva of Nineveh."],
+["When does Neila start? Special features?","When the sun is בראש האילנות; ark open all prayer; \"חתמנו\"; ends with שמע ישראל and a tekia."],
+["What do we do on מוצאי יוה\"כ?","Start building the sukka — mitzva to mitzva."]
+],
+qs:[
+{q:"List the five עינויים of Yom Kippur. (5 points)",pts:5,rubric:"אכילה ושתייה; רחיצה; סיכה; נעילת הסנדל (leather shoes); תשמיש המיטה/קשרי אישות. One point each."},
+{q:"Explain the law of פיקוח נפש on Yom Kippur and give two details of how a sick person should eat. (8 points)",pts:8,rubric:"Saving life overrides the prohibitions of יוה\"כ — a sick person in danger MUST eat/drink. Details: eat less than the שיעור (small amounts); pause between eatings; consult a G-d-fearing doctor and a Rav before the day."},
+{q:"Name the five prayers of Yom Kippur and describe two that are special to this day. (10 points)",pts:10,rubric:"ערבית, שחרית, מוסף, מנחה, נעילה. Special: כל נדרי (annul vows, before Arvit); סדר העבודה in Musaf (Kohen Gadol's service); Neila (sealing the judgment, ark open, חתמנו, שמע ישראל + tekia, starts בראש האילנות); וידוי after every עמידה."},
+{q:"What is read in the Torah and the haftara at Mincha of Yom Kippur? What is the connection to the day? (6 points)",pts:6,rubric:"פרשת העריות (ויקרא יח) — warnings against forbidden relationships; haftara ספר יונה — the teshuva of the people of Nineveh: teaches the power of teshuva."},
+{q:"Explain two customs of ערב יום הכיפורים and the reason for each. (8 points)",pts:8,rubric:"Any two: eating — counts as if fasting 9th and 10th, prepares for fast; כפרות — redemption via tzedaka; וידוי at Mincha; סעודה מפסקת with light foods, stopping before sunset — להוסיף מן החול על הקודש; ברכת הבנים; tallit before sunset; white clothes — like angels; התרת נדרים."},
+{q:"Why is it forbidden to cook on Yom Kippur though cooking is allowed on other festivals? (4 points)",pts:4,rubric:"Holiness of יוה\"כ is like Shabbat — all melachot forbidden on Shabbat are forbidden, including cooking (אוכל נפש not permitted)."},
+{q:"Quote/explain the Mishna (Yoma 8:9) about 'אחטא ואשוב'. (6 points)",pts:6,rubric:"One who says 'I will sin and repent' is not given the chance to repent; 'I will sin and Yom Kippur will atone' — it doesn't atone; בין אדם למקום — יוה\"כ atones; בין אדם לחברו — only after appeasing the friend."}
+]},
+
+{ id:"sukkot", name:"סוכות", pages:"116–123",
+learn:[
+{h:"Dates & mitzvot", html:`<p>One of the <b>3 רגלים</b> (פסח, שבועות, סוכות) — going up to the Mikdash.</p>
+<ul><li><b>ט"ו–כ"א תשרי</b> — 7 days. <b>ט"ו</b> = yom tov: no melacha except <b>אוכל נפש</b> — may cook, but not light a new fire.</li><li><b>ט"ז–כ"א</b> = <b>חול המועד</b> — some melachot forbidden.</li><li><b>כ"ב תשרי</b> = <b>שמיני עצרת</b> — the last chag; yom tov, but the special mitzvot of Sukkot are <b>not</b> done.</li></ul>
+<p>In Mikdash times: offerings, <b>water libation</b> (ניסוך המים) on the mizbe'ach, and from motzaei the first day — <b>שמחת בית השואבה</b>. Today: 2 main mitzvot — <b>sitting in the sukka</b> and <b>taking the 4 species</b>.</p>`},
+{h:"Why a sukka?", html:`<p><span class="he">"בסוכות תשבו שבעת ימים... כי בסוכות הושבתי את בני ישראל בהוציאי אותם מארץ מצרים"</span> (ויקרא כג, מב-מג). A Torah mitzva — <b>זכר לענני הכבוד</b> and <b>זכר לסוכות</b> of the Exodus.</p>
+<div class="source">...ואף על פי שיצאנו ממצרים בחודש ניסן לא צונו לעשות סוכה באותו הזמן, לפי שהוא ימות הקיץ ודרך כל אדם לעשות סוכה לצל, ולא היתה ניכרת עשייתנו בהם במצות הבורא יתברך. ולכן צוה אותנו שנעשה בחודש השביעי, שהוא זמן הגשמים ודרך כל אדם לצאת מסוכתו ולישב בביתו, ואנחנו יוצאין מן הבית לישב בסוכה. בזה יראה לכל שמצות המלך היא עלינו לעשותה.<cite>טור, אורח חיים הלכות סוכה סימן תרכה</cite></div>
+<div class="why">Why Tishrei, not Nisan? In summer everyone sits in a hut for shade — no one would see it's a mitzva. In Tishrei, rainy season, people go <b>into</b> their houses and we go <b>out</b> to the sukka — everyone sees we do it because of <b>ה''s command</b>.</div>
+<div class="source">"חג הסוכות תעשה לך באספך מגרנך ומיקבך"... באספך את תבואת הארץ ובתיכם מלאים כל טוב... למען תזכרו כי בסוכות הושבתי את בני ישראל במדבר ארבעים שנה בלא יישוב ובלא נחלה, ומתוך כך תתנו הודאה... ואל תאמרו בלבבכם כחי ועוצם ידי עשה לי את החיל הזה... לבלתי רום לבבו על בתיהם המלאים כל טוב.<cite>רשב"ם, ויקרא כג, מג</cite></div>
+<div class="why">Rashbam: at harvest, with full houses, we leave them for the sukka to remember the desert — so we <b>thank ה'</b> and don't become arrogant ("כחי ועוצם ידי").</div>`},
+{h:"Sukka laws · דיני הסוכה", html:`<p>The sukka becomes your <b>home</b> — bring nice dishes and bedding; decorate it for <b>הידור מצווה</b>.</p>
+<ul><li><b>Under the open sky</b> — not under a roof or a tree.</li><li>At least <b>3 walls</b>; 4 if possible. Any material, as long as they're <b>stable</b>.</li></ul>
+<h3>סכך</h3><ul><li>From things that <b>grow from the ground</b> ("גידולו מן הארץ").</li><li><b>Detached</b> — not attached to the ground; no branches still on the tree.</li><li>Today: "<b>סכך לנצח</b>" — a mat made specially for schach.</li><li>Put the schach <b>after</b> the walls are up.</li><li><b>"צילתה מרובה מחמתה"</b> — more shade than sun.</li></ul>`},
+{h:"Eating & sleeping in the sukka", html:`<p>For 7 days live in the sukka like in your house: eat, drink, sleep. <b>First night</b>: obligatory to make kiddush and eat in the sukka.</p>
+<ul><li>Allowed outside: <b>אכילת עראי</b> (a snack), drinking, fruit and snacks (not mezonot). Being strict even on water — praiseworthy.</li><li>Eating bread or cake in the sukka: say <b>"...וציוונו לישב בסוכה"</b> <span class="book">book: first</span>, then the food bracha.</li></ul>
+<p><b>אושפיזין</b> — each day we invite a guest: <b>אברהם, יצחק, יעקב, משה, אהרון, יוסף, דוד</b>.</p>
+<h3>שמחת בית השואבה</h3><p>Every night of the chag from motzaei day 1: drew water from the <b>מעיין השילוח</b> to pour on the mizbe'ach; singing and dancing all night, led by the great Torah scholars. "<b>מי שלא ראה שמחת בית השואבה לא ראה שמחה מימיו</b>". Today: celebrations in חוה"מ nights "זכר לשמחת בית השואבה".</p>`},
+{h:"The 4 species · ארבעת המינים", html:`<p><span class="he">"ולקחתם לכם... פרי עץ הדר, כפות תמרים, וענף עץ עבות, וערבי נחל"</span> (ויקרא כג, מ). Every day of Sukkot <b>except Shabbat</b>: <b>1 אתרוג, 1 לולב, 3 הדסים, 2 ערבות</b>. Buy with a הכשר or ask an expert.</p>
+<div class="tblwrap"><table class="he"><tr><th>מין</th><th>הלכות כשרות</th></tr>
+<tr><td>אתרוג</td><td>לא מורכב (רק עץ אתרוג, לא הורכב עם לימון); שלם, אינו חסר; העוקץ והפיטם לא חסרים; נקי, צורת מגדל – רחב למטה צר למעלה</td></tr>
+<tr><td>לולב</td><td>ישר ולא כפוף; לח וירוק, לא יבש; לא קטום</td></tr>
+<tr><td>הדס</td><td>"משולש" – 3 עלים מאותו גובה; לא יבש, במיוחד העליונים</td></tr>
+<tr><td>ערבה</td><td>לא יבשה, ראשה לא קטום; לא נשרו רוב העלים; מחליפים בחדשה במהלך החג</td></tr></table></div>
+<div class="source">"פרי עץ הדר" אלו ישראל, מה אתרוג זה יש בו טעם ויש בו ריח, כך ישראל יש בהם בני אדם שיש בהם תורה ויש בהם מעשים טובים. "כפות תמרים"... יש בה טעם ואין בה ריח – תורה ואין מעשים טובים. "וענף עץ עבות"... הדס יש בו ריח ואין בו טעם – מעשים טובים ואין בהם תורה. "וערבי נחל"... אין בה טעם ואין בה ריח – לא תורה ולא מעשים טובים. ומה הקב"ה עושה להם? לאבדן אי אפשר, אלא... יוקשרו כולם אגודה אחת, והן מכפרים אלו על אלו.<cite>מדרש רבה, ויקרא ל, יא</cite></div>
+<div class="tblwrap"><table class="he"><tr><th>מין</th><th>טעם</th><th>ריח</th><th>=</th></tr><tr><td>אתרוג</td><td>✓</td><td>✓</td><td>תורה + מעשים טובים</td></tr><tr><td>לולב (תמר)</td><td>✓</td><td>✗</td><td>תורה בלי מעשים</td></tr><tr><td>הדס</td><td>✗</td><td>✓</td><td>מעשים בלי תורה</td></tr><tr><td>ערבה</td><td>✗</td><td>✗</td><td>לא תורה ולא מעשים</td></tr></table></div>
+<div class="why">The message: <b>unity</b> — all Jews bound together, each atoning for the others.</div>`},
+{h:"How to take them · נטילה ונענועים", html:`<ol><li><b>Bind</b> (with thread or a lulav leaf) the lulav with <b>3 hadasim on its right</b> and <b>2 aravot on its left</b>.</li>
+<li>Take them each day except Shabbat; bless <b>once a day</b>; <b>by day, not at night</b>.</li>
+<li>Stand; lulav + hadasim + aravot in the <b>right hand</b> (hadasim to the right of the lulav), etrog in the <b>left</b>, held together.</li>
+<li>Bracha: <span class="he">"...וציוונו <b>על נטילת לולב</b>"</span>; on the first day also <b>שהחיינו</b>.</li>
+<li><b>נענועים</b>: after the bracha and during <b>Hallel</b> — to the <b>4 directions, up and down</b>.</li></ol>
+<h3>Special prayers</h3><p>Every day <b>הלל שלם</b> in שחרית, shaking the 4 species. After Hallel — take out a Sefer Torah to the bima and say <b>הושענות</b> (from the words "הושע נא"); everyone with 4 species <b>circles the bima</b> — <b>זכר למקדש</b>, where they circled the mizbe'ach on Sukkot. Then Torah reading and Musaf.</p>`}
+],
+cards:[
+["Dates of Sukkot, chol hamoed, Shemini Atzeret?","ט\"ו–כ\"א תשרי; חוה\"מ ט\"ז–כ\"א; שמיני עצרת כ\"ב תשרי."],
+["What may be done on the first day of Sukkot?","Only melacha for אוכל נפש — cook, but not light a new fire."],
+["Are Sukkot mitzvot kept on Shemini Atzeret?","No — it's a separate yom tov."],
+["2 main mitzvot of Sukkot today?","Sitting in the sukka; taking the 4 species."],
+["2 reasons for the sukka?","זכר לענני הכבוד; זכר לסוכות of the Exodus (ויקרא כג, מב-מג)."],
+["Why Tishrei and not Nisan (Tur)?","In summer people sit in huts for shade — not recognizable as a mitzva; in rainy Tishrei we leave the house — clearly ה''s command."],
+["Rashbam's reason?","At harvest with full houses we sit in the sukka to remember the desert — thank ה', not \"כחי ועוצם ידי\"."],
+["Where may a sukka not stand?","Under a roof or a tree — needs open sky."],
+["Minimum walls?","3 (4 preferred); any stable material."],
+["3 laws of schach?","Grows from the ground; detached; not branches attached to a tree. (סכך לנצח OK.)"],
+["What is צילתה מרובה מחמתה?","More shade than sun — most of the sukka covered."],
+["Is it obligatory to eat in the sukka on the first night?","Yes — kiddush and eating in the sukka."],
+["What may be eaten outside the sukka?","אכילת עראי, drinks, fruit, snacks (not mezonot)."],
+["Order of brachot when eating bread in the sukka (book)?","First \"לישב בסוכה\", then the food bracha."],
+["The 7 אושפיזין?","אברהם, יצחק, יעקב, משה, אהרון, יוסף, דוד."],
+["What was שמחת בית השואבה?","Drawing water from the Shiloach for the libation; singing/dancing all night, led by scholars."],
+["\"מי שלא ראה שמחת בית השואבה...\"","\"...לא ראה שמחה מימיו\"."],
+["How many of each species?","1 etrog, 1 lulav, 3 hadasim, 2 aravot."],
+["On which day are the 4 species not taken?","Shabbat."],
+["3 laws of etrog?","Not grafted (מורכב); whole; עוקץ and פיטם intact; clean, tower-shaped."],
+["What is a \"משולש\" hadas?","3 leaves coming out at the same height."],
+["Midrash: what does each species symbolize?","Etrog – Torah + good deeds; lulav – Torah only; hadas – deeds only; arava – neither. Bound together they atone for each other."],
+["How are the species bound?","Lulav with 3 hadasim on the right and 2 aravot on the left."],
+["Which hand holds what?","Right: lulav+hadasim+aravot; left: etrog; held together."],
+["Bracha on the 4 species?","\"על נטילת לולב\"; day 1 also שהחיינו."],
+["Day or night?","By day only; bless once a day."],
+["When and how do we shake?","After the bracha and during Hallel — 4 directions, up and down."],
+["What are הושענות and the הקפה?","Piyutim (\"הושע נא\") circling the bima with the 4 species — זכר למקדש (circling the mizbe'ach)."]
+],
+qs:[
+{q:"We sit in the sukka to remember the Exodus, which was in Nisan. Why then do we sit in the sukka in Tishrei? (5 points)",pts:5,rubric:"Tur: in Nisan (summer) people normally sit in huts for shade, so it wouldn't be recognized as a mitzva. In Tishrei, the rainy season, people go into their houses and we leave to the sukka — everyone sees we do it because of ה''s command. (Rashbam: at harvest time with full houses — to remember the desert and not be arrogant.)"},
+{q:"(1) Name two foods we may eat outside the sukka. (2) Name one food we may eat only in the sukka. (4 points)",pts:4,rubric:"(1) fruit, snacks (not mezonot), drinks/water, any אכילת עראי. (2) bread or cake/mezonot meal (קביעות); the first-night kiddush meal."},
+{q:"List three laws of the schach. (6 points)",pts:6,rubric:"Any 3: grows from the ground (גידולו מן הארץ); detached (תלוש), not attached; no branches still on a tree; placed after walls; צילתה מרובה מחמתה; סכך לנצח is OK."},
+{q:"Explain the midrash on the four species and its message. (8 points)",pts:8,rubric:"Etrog – taste+smell = Torah + good deeds; lulav (date) – taste only = Torah; hadas – smell only = deeds; arava – neither. ה' doesn't destroy them: they are bound together and atone for each other — message of unity of Israel (מדרש רבה ויקרא ל)."},
+{q:"Describe how one performs the mitzva of the four species: binding, holding, bracha and shaking. (10 points)",pts:10,rubric:"Bind lulav with 3 hadasim on its right and 2 aravot on its left; stand; right hand lulav bundle, left hand etrog, together; bracha 'על נטילת לולב' (+שהחיינו day 1); by day, every day except Shabbat; shake after bracha and in Hallel — 4 directions, up and down."},
+{q:"Give two conditions of a kosher etrog and two of a kosher lulav. (8 points)",pts:8,rubric:"Etrog: not grafted; whole; עוקץ and פיטם intact; clean, tower shape. Lulav: straight not bent; fresh green not dry; tip not cut (קטום)."},
+{q:"What was שמחת בית השואבה and how do we remember it today? (6 points)",pts:6,rubric:"In Mikdash times every night of Sukkot from motzaei day 1, water drawn from מעיין השילוח was poured on the mizbe'ach; singing and dancing all night led by Torah scholars; 'מי שלא ראה...'. Today: celebrations on nights of chol hamoed 'זכר לשמחת בית השואבה'."},
+{q:"What are the הושענות and why do we circle the bima? (5 points)",pts:5,rubric:"After Hallel with a Sefer Torah on the bima, piyutim with the words 'הושע נא'; everyone with 4 species circles the bima — זכר למקדש where they circled the mizbe'ach on Sukkot."}
+]},
+
+{ id:"pesach-shavuot", name:"פסח · ספירה · שבועות", pages:"147–156",
+learn:[
+{h:"End of the Seder", html:`<ul><li><b>אפיקומן</b> — זכר לקורבן פסח eaten in Mikdash times. Eaten at the <b>end of the meal</b>; some finish it <b>before חצות</b>. Kids "steal" the afikoman and get presents — <b>to keep children awake</b> to the end. After the afikoman — <b>no more eating</b>.</li>
+<li><b>ברך</b> — end the meal (ברכת המזון), drink the <b>3rd cup</b>.</li><li><b>הלל</b> — finish Hallel, <b>4th cup</b>.</li>
+<li><b>נרצה</b> — pray for renewing the Temple service and the korban Pesach, and that our prayers and deeds be accepted.</li></ul>
+<h3>הסבה</h3><p>Lean on the <b>left</b> side when eating <b>מצה, כורך, אפיקומן</b> and drinking the <b>4 cups</b>.</p><div class="why">זכר ליציאה מעבדות לחירות — free people ate reclining in ancient times. <b>מרור</b> (זכר לשעבוד) is eaten <b>without</b> reclining.</div>`},
+{h:"Prayers of Pesach", html:`<ul><li><b>הלל שלם</b>: at Arvit and the Seder night, and Shacharit of the first day.</li><li><b>חצי הלל</b>: chol hamoed and שביעי של פסח (like ר"ח).</li><li><b>תפילת/תיקון טל</b>: Musaf of day 1 — praise ה''s power to bring dew; pray it be a blessing. From then until שמחת תורה we say <b>"מוריד הטל"</b>.</li></ul>`},
+{h:"Shvi'i shel Pesach & leftover chametz", html:`<p><b>כ"א ניסן</b>, yom tov, but <b>no שהחיינו</b> at candles/kiddush — it continues the chag and we already said it at the start.</p>
+<p>The miracle of <b>קריעת ים סוף</b> → read <b>קריעת ים סוף and שירת הים</b> (שמות יד–טו).</p>
+<div class="source">יפה היתה הקרבת פרעה לישראל ממאה צומות ותפלות... תלו עיניהם לאביהם שבשמים וצעקו... ולמה עשה הקב"ה להם כך? אלא שהיה הקב"ה מתאוה לתפלתן... [משל למלך ובת מלכים והלסטים] ...אמר הקב"ה למשה: מה אתה עומד ומתפלל? כבר קדמה תפלתן של בני לתפלתך, שנאמר "מה תצעק אלי".<cite>שמות רבה, בשלח פרשה כא</cite></div>
+<div class="why">ה' brought them to the sea in danger because He "longed" for their prayer.</div>
+<p><b>חמץ שעבר עליו הפסח</b>: chametz owned by a Jew during Pesach and <b>not sold</b> to a non-Jew — forbidden to eat <b>and benefit from</b> even after Pesach; must be burned. So after Pesach buy only in stores with a <b>"תעודת מכירת חמץ"</b> from the Rabbanut.</p>`},
+{h:"Sefirat HaOmer · ספירת העומר", html:`<p>Count from <b>ט"ז ניסן</b> (the day after Seder night) until Shavuot: <b>49 days</b>; day 50 = Shavuot. Named after the <b>קורבן העומר</b> — a mincha of the first <b>barley</b>, offered on ט"ז ניסן.</p>
+<div class="why">ספר החינוך (מצווה ש"ו): Israel was redeemed from Egypt in order to receive the Torah. We count from יציאת מצרים — <b>physical freedom</b> — to מתן תורה — <b>spiritual freedom</b>; counting shows how much we <b>long</b> for the Torah.</div>
+<div class="source">...ומנה ממנו תשעה וארבעים יום שבעה שבועות כימי עולם, וקדש יום שמיני כשמיני של חג, והימים הספורים בינתיים כחולו של מועד בין הראשון והשמיני בחג, והוא יום מתן תורה...<cite>רמב"ן, ויקרא כג, לו</cite></div>
+<div class="why">Ramban: the Omer days are like <b>chol hamoed</b> between Pesach and Shavuot; Shavuot is like the "eighth day" of Pesach.</div>
+<h3>Time & bracha</h3><p>After <b>Arvit</b>, only when it's surely night. Stand, bless "<b>...על ספירת העומר</b>", then count days and weeks.</p>
+<div class="tblwrap"><table class="he"><tr><th>ספרד</th><th>אשכנז</th></tr><tr><td>"היום תשעה עשר יום <b>לעומר</b>, שהם שני שבועות וחמישה ימים"</td><td>"היום תשעה עשר יום שהם שני שבועות וחמישה ימים <b>לעומר</b>"</td></tr></table></div>
+<h3>If you forgot</h3><div class="tblwrap"><table><tr><th>Situation</th><th>Law</th></tr>
+<tr><td>Ideal</td><td>Bless and count at the start of the night</td></tr><tr><td>Didn't count early</td><td>Count during the night <b>with</b> bracha</td></tr>
+<tr><td>Forgot all night</td><td>Count by <b>day without</b> bracha; continue other days <b>with</b> bracha</td></tr>
+<tr><td>Forgot night <b>and</b> day</td><td>Continue <b>without</b> bracha; better to hear the bracha from someone, answer אמן, then count</td></tr>
+<tr><td>Not sure if counted</td><td>Continue <b>with</b> bracha</td></tr></table></div>`},
+{h:"Mourning in the Omer", html:`<p>In the Omer <b>24,000 students of Rabbi Akiva</b> died because they did not treat each other with respect. In memory of those hard days, when Torah learning decreased:</p><ul><li>No haircuts, no shaving</li><li>No weddings</li><li>No dancing, celebrations or performances</li></ul>`},
+{h:"Special days in the Omer", html:`<div class="tblwrap"><table><tr><th>Day</th><th>Date</th><th>What & what we do</th></tr>
+<tr><td>יום השואה והגבורה</td><td>כ"ז ניסן</td><td>Set by the <b>Knesset</b> for 6 million Jews killed על קידוש השם in Europe ת"ש–תש"ה (1940–45). Ceremonies, נרות נשמה, "אל מלא רחמים" in Shacharit, Tehillim, learning Mishnayot. The <b>Rabbanut opposed</b> this date (no eulogies in Nisan) and set <b>י' בטבת</b> as <b>"יום הקדיש הכללי"</b>.</td></tr>
+<tr><td>יום הזיכרון לחללי צה"ל</td><td>ד' אייר</td><td>Fallen in the underground/defence before the state, wars after, and terror victims. Ceremonies, graves, נרות נשמה, "אל מלא רחמים", Tehillim, Mishnayot.</td></tr>
+<tr><td>יום העצמאות</td><td>ה' אייר</td><td>Friday afternoon ה' אייר תש"ח — state declared hours before the British Mandate ended. Rabbanut: festive prayer; praise psalms before & after Arvit; greeting "מועדים לשמחה ולגאולה שלמה"; Shacharit — psalms, <b>הלל שלם</b>, haftara from <b>ישעיהו</b> (redemption), prayer for the State, מי שברך for soldiers, אל מלא רחמים. <b>No Omer mourning</b> — may cut hair, proper to shave; festive meal. If on/near Shabbat — moved earlier/later to <b>avoid חילול שבת</b>.</td></tr>
+<tr><td>פסח שני</td><td>י"ד אייר</td><td>Who was <b>טמא</b> or <b>far</b> from Yerushalayim brought the korban Pesach then.</td></tr>
+<tr><td>ל"ג בעומר</td><td>י"ח אייר</td><td><b>הילולא</b> of <b>רבי שמעון בר יוחאי</b>, author of the <b>Zohar</b> (secrets of Torah). Bonfires; main hilula in <b>Meron</b>. The plague of R' Akiva's students <b>stopped</b>.</td></tr>
+<tr><td>יום ירושלים</td><td>כ"ח אייר</td><td>Iyar תשכ"ז (1967): Arab states planned to destroy Israel; great miracle — in <b>6 days</b> צה"ל won: Sinai, Yehuda & Shomron, Golan; peak — liberation of the <b>Old City and Temple Mount</b>. Festive prayer, Tehillim, <b>הלל שלם</b>.</td></tr></table></div>
+<div class="source">שיר שבתורה – משה וישראל אמרוהו בשעה שעלו מן הים. והלל זה מי אמרו? נביאים שביניהן תקנו להן לישראל שיהו אומרין אותו על כל פרק ופרק ועל כל צרה וצרה שלא תבא עליהן, ולכשנגאלין אומרים אותו על גאולתן.<cite>פסחים קיז ע"א</cite> רש"י: כלומר שאם חס ושלום תבוא צרה עליהן ויושעו ממנה, אומרים אותו על גאולתן, כגון חנוכה.</div>
+<div class="why">This is the basis for saying Hallel on a day of salvation like יום העצמאות.</div>
+<p class="he"><b>תפילה לשלום המדינה:</b> "אבינו שבשמים, צור ישראל וגואלו, ברך את מדינת ישראל, ראשית צמיחת גאולתנו..."</p>`},
+{h:"Shavuot · חג השבועות", html:`<ul><li><b>שלושת ימי ההגבלה</b> — ג'–ה' סיון: Israel prepared for receiving the Torah; we too prepare spiritually.</li>
+<li><b>ו' סיון</b>, after 7 weeks of Omer. <b>"חג מתן תורה"</b> — read the parasha of מתן תורה and <b>עשרת הדיברות</b>.</li>
+<li>Yom tov laws: no melacha; cook only from a fire lit <b>before</b> the chag.</li>
+<li>One of the 3 רגלים. Also <b>"יום הביכורים"</b> — offered "<b>שתי הלחם</b>" (ויקרא כג, יז). From after Shavuot until <b>Chanukah</b> they brought bikkurim of the 7 species.</li>
+<li><b>תיקון ליל שבועות</b> — many stay awake all night learning; <b>Sefardim</b> read "תיקון ליל שבועות" (beginnings and endings of Torah sections).</li>
+<li><b>מגילת רות</b> — (1) <b>David</b>, Ruth's great-grandson, was born on Shavuot; (2) Ruth was a <b>convert who accepted the Torah</b>, and on Shavuot Israel accepted the Torah.</li>
+<li><b>Greenery</b> in home and shul — זכר להר סיני that was green at מתן תורה.</li>
+<li><b>Dairy</b> — Torah is compared to honey and milk: "<b>דבש וחלב תחת לשונך</b>" (שיר השירים ד, יא) — we want Torah sweet in our mouths.</li></ul>`}
+],
+cards:[
+["Why do we eat the afikoman?","זכר לקורבן פסח eaten in Mikdash times."],
+["Why do children \"steal\" the afikoman?","To keep them awake until the end of the Seder."],
+["Which cups go with ברך and הלל?","ברך – 3rd cup; הלל – 4th cup."],
+["What is נרצה?","Prayer for renewing the Temple service/korban Pesach and that our prayers be accepted."],
+["When do we recline? Why?","Matza, korech, afikoman, 4 cups — like free people (from slavery to freedom). On the left side."],
+["Why no reclining for maror?","It's a זכר לשעבוד (slavery)."],
+["When is full Hallel said on Pesach?","Arvit and Seder night; Shacharit of day 1."],
+["When is half Hallel on Pesach?","Chol hamoed and שביעי של פסח."],
+["What is תפילת טל and its result?","Musaf day 1: praising ה' for dew; from then until שמחת תורה \"מוריד הטל\"."],
+["Why no שהחיינו on שביעי של פסח?","It continues the chag; already said at the start."],
+["What is read on שביעי של פסח?","קריעת ים סוף and שירת הים (שמות יד–טו)."],
+["Why did ה' bring Israel to the sea (שמות רבה)?","He longed for their prayer (king and princess parable)."],
+["What is חמץ שעבר עליו הפסח?","Jewish-owned unsold chametz over Pesach — forbidden to eat/benefit forever; buy in stores with תעודת מכירת חמץ."],
+["When does counting start? How many days?","ט\"ז ניסן; 49 days; Shavuot day 50."],
+["Why is it called ספירת העומר?","After the korban Omer — barley mincha on ט\"ז ניסן."],
+["Sefer HaChinuch's reason for counting?","From physical freedom (Exodus) to spiritual freedom (מתן תורה) — shows our longing for the Torah."],
+["Ramban: what are the Omer days like?","Like chol hamoed between Pesach and Shavuot."],
+["When do we count?","After Arvit, when surely night; standing; bracha \"על ספירת העומר\"."],
+["Forgot at night — what now?","Count by day without bracha; continue with bracha."],
+["Forgot night and day?","Continue without bracha (hear the bracha from someone, answer אמן)."],
+["Not sure if you counted yesterday?","Continue with bracha."],
+["Ashkenaz vs. Sefard wording of the count?","Sefard: \"...יום לעומר, שהם...\"; Ashkenaz: \"...שהם ... ימים לעומר\" (at the end)."],
+["Why mourning in the Omer?","24,000 students of R' Akiva died for not respecting each other; Torah decreased."],
+["3 mourning customs of the Omer?","No haircuts/shaving, no weddings, no dancing/celebrations."],
+["Date of יום השואה? Who set it?","כ\"ז ניסן; the Knesset."],
+["Why did the Rabbanut oppose the Holocaust date? What did it set?","No eulogies in Nisan; set י' בטבת as יום הקדיש הכללי."],
+["Date of יום הזיכרון / יום העצמאות?","ד' אייר / ה' אייר."],
+["3 things added to prayer on יום העצמאות?","Hallel shalem; haftara from Yeshayahu; prayer for the State / מי שברך for soldiers / psalms of praise."],
+["What if ה' אייר falls on/near Shabbat?","Yom HaZikaron and Atzmaut moved earlier/later — to avoid חילול שבת."],
+["Source for Hallel on a day of salvation?","פסחים קיז + רש\"י: prophets instituted Hallel for every salvation, e.g. Chanukah."],
+["What is פסח שני and its date?","י\"ד אייר — the טמא or far away brought the korban Pesach."],
+["ל\"ג בעומר — date and reasons?","י\"ח אייר — hilula of Rashbi (Zohar), Meron, bonfires; plague of R' Akiva's students stopped."],
+["יום ירושלים date and event?","כ\"ח אייר תשכ\"ז — Six-Day War, liberation of the Old City and Temple Mount."],
+["What are שלושת ימי ההגבלה?","ג'–ה' סיון — preparation for receiving the Torah."],
+["Date and names of Shavuot?","ו' סיון; חג מתן תורה; יום הביכורים."],
+["What was offered on Shavuot?","שתי הלחם (\"ביכורים\", ויקרא כג, יז)."],
+["Until when were bikkurim brought?","From after Shavuot until Chanukah."],
+["2 reasons for reading רות?","David (Ruth's descendant) born on Shavuot; Ruth was a convert who accepted the Torah."],
+["Why greenery on Shavuot?","Har Sinai was green at מתן תורה."],
+["Why dairy on Shavuot?","Torah compared to milk and honey — \"דבש וחלב תחת לשונך\"."],
+["What is תיקון ליל שבועות?","Staying up learning; Sefardim read beginnings and endings of Torah sections."]
+],
+qs:[
+{q:"(1) What is the reason for reclining (הסבה) on Seder night? (2) Name two mitzvot performed while reclining. (10 points)",pts:10,rubric:"(1) Free people in ancient times ate reclining — זכר ליציאה מעבדות לחירות. (2) any two: matza, korech, afikoman, the 4 cups. Lean on the left. (Maror without reclining — זכר לשעבוד.)"},
+{q:"Why do we eat the afikoman, and why do children 'steal' it? (6 points)",pts:6,rubric:"זכר לקורבן פסח eaten at the end of the meal; children steal it and get presents to keep them awake until the end of the Seder. Nothing eaten after it; some finish before חצות."},
+{q:"(1) When does ספירת העומר begin, and how many days are counted? (2) Explain the reason for the mitzva according to ספר החינוך. (8 points)",pts:8,rubric:"(1) ט\"ז ניסן, after the Seder night; 49 days, Shavuot day 50; named after the korban Omer (barley). (2) Redemption from Egypt was in order to receive the Torah — we count from physical freedom to spiritual freedom, showing how much we long for מתן תורה."},
+{q:"Someone forgot to count the Omer. Explain what to do in each case: (a) forgot at night but remembered by day; (b) forgot night and day; (c) not sure if he counted. (9 points)",pts:9,rubric:"(a) count by day without bracha; continue the other days with bracha. (b) continue without bracha; preferably hear the bracha from another, answer אמן and count. (c) continue with bracha."},
+{q:"Why do we keep mourning customs during the Omer? List two customs. (6 points)",pts:6,rubric:"24,000 students of R' Akiva died in the Omer because they didn't respect each other; Torah learning decreased. Customs: no haircut/shaving, no weddings, no dancing/music/performances."},
+{q:"How do we celebrate יום העצמאות according to the Chief Rabbinate, and what is the source for saying Hallel? (10 points)",pts:10,rubric:"ה' אייר: festive prayer, praise psalms before/after Arvit, 'מועדים לשמחה ולגאולה שלמה', Shacharit with psalms, הלל שלם, haftara from Yeshayahu, prayer for the State, מי שברך for soldiers, אל מלא רחמים; no Omer mourning; festive meal. Source: פסחים קיז — prophets instituted Hallel for every redemption from trouble; Rashi: e.g. Chanukah."},
+{q:"List three laws and customs connected with Shavuot and explain each. (6 points)",pts:6,rubric:"Any 3: reading מתן תורה and עשרת הדיברות; yom tov laws; תיקון ליל שבועות (stay awake learning); מגילת רות (David born; Ruth accepted Torah); greenery (Har Sinai green); dairy (דבש וחלב תחת לשונך); שלושת ימי ההגבלה; bikkurim/שתי הלחם."},
+{q:"Why don't we say שהחיינו on שביעי של פסח, and what is read in the Torah? (5 points)",pts:5,rubric:"It is a continuation of the chag; שהחיינו was already said at the start. We read קריעת ים סוף and שירת הים (שמות יד–טו) — the miracle happened on that day."},
+{q:"Why did the Rabbanut oppose the date of יום השואה, and what did it set instead? (5 points)",pts:5,rubric:"יום השואה כ\"ז ניסן was set by the Knesset; the Rabbanut opposed because one doesn't eulogize in Nisan; it set י' בטבת as 'יום הקדיש הכללי' — kaddish for those whose day of death is unknown."}
+]},
+
+{ id:"fasts", name:"תעניות · תשעה באב", pages:"156–163",
+learn:[
+{h:"Purpose of public fasts", html:`<div class="why">Fast days are for <b>teshuva, חשבון נפש and fixing our deeds</b>. The destruction, exiles and troubles of our fathers wake us to return to ה'. Following ה''s way can <b>prevent more troubles</b>. The essence of a fast is <b>תיקון המעשים</b> and full teshuva — not just not eating.</div>`},
+{h:"The 5 fasts", html:`<div class="tblwrap"><table class="he"><tr><th>תאריך</th><th>צום</th><th>מה אירע</th></tr>
+<tr><td>ג' תשרי</td><td>צום גדליה</td><td>נהרג גדליהו בן אחיקם, שהבבלים מינו כאחראי על היהודים אחרי חורבן בית ראשון</td></tr>
+<tr><td>י' טבת</td><td>עשרה בטבת</td><td>החל המצור על ירושלים (בית ראשון); בדורנו גם "יום הקדיש הכללי" – קדיש על קרובים שנספו בשואה ולא ידוע יום מותם</td></tr>
+<tr><td>י"ג אדר</td><td>תענית אסתר</td><td>זכר לצום בימי מרדכי ואסתר</td></tr>
+<tr><td>י"ז תמוז</td><td>שבעה עשר בתמוז</td><td>נפרצה חומת ירושלים בימי בית שני</td></tr>
+<tr><td>ט' אב</td><td>תשעה באב</td><td>חורבן בית ראשון, ובאותו תאריך – חורבן בית שני</td></tr></table></div>
+<p>A fast on <b>Shabbat</b> is <b>postponed to Sunday</b> — except <b>תענית אסתר</b>, which is moved <b>earlier to Thursday</b>.</p>
+<ul><li>No eating or drinking. Ate/drank by mistake or on purpose — <b>must continue fasting</b>.</li><li>All (except ת"ב) from <b>עלות השחר</b> (first light) to <b>צאת הכוכבים</b>.</li><li>Leniencies for the <b>sick</b>, <b>pregnant and nursing</b> women.</li></ul>`},
+{h:"17 Tammuz & בין המצרים", html:`<p><b>5 troubles on י"ז בתמוז:</b></p><ol><li>The sin of the <b>golden calf</b> — Moshe <b>broke the Luchot</b>.</li><li>The <b>קורבן תמיד</b> stopped (before the destruction).</li><li>The <b>walls of Yerushalayim</b> were breached.</li><li><b>אפוסטמוס</b> burned the Torah.</li><li>An <b>idol</b> (צלם) was set up in the היכל.</li></ol>
+<p><b>בין המצרים</b> — י"ז תמוז to ט' באב: Israel was in distress in Yerushalayim, surrounded by enemies. Name from איכה א, ג: "<b>כל רודפיה השיגוה בין המצרים</b>". מצר — from צר וצער.</p>
+<div class="tblwrap"><table class="he"><tr><th>אשכנז</th><th>ספרד</th></tr><tr><td>מנהגי אבלות מ<b>י"ז בתמוז</b> עד ט' באב</td><td>מ<b>א' באב</b> עד ט' באב</td></tr></table></div>
+<ul><li>No weddings · no haircuts/shaving · no dancing, celebrations, performances.</li><li>No <b>שהחיינו</b> in בין המצרים (some say it on Shabbat).</li></ul>`},
+{h:"The 9 Days & Shabbat Chazon", html:`<p>"<b>משנכנס אב ממעטים בשמחה</b>". From ר"ח אב — stricter mourning:</p>
+<ul><li>No buying new clothes (even to wear after ת"ב).</li><li>No laundry or ironing (even for after ת"ב); small children's clothes may be washed.</li><li>No bathing for pleasure.</li><li>No <b>meat or wine</b> — except at a <b>סעודת מצווה</b> (ברית, פדיון הבן).</li></ul>
+<p>Customs differ: some keep laundry/meat/wine only in the <b>week of</b> ת"ב (from motzaei Shabbat), others from ר"ח אב — each follows his family's custom.</p>
+<p><b>שבת חזון</b> — Shabbat before ת"ב, named after the haftara "<b>חזון ישעיהו בן אמוץ</b>" (ישעיהו א) — harsh rebuke for Israel's sins. On this Shabbat Shabbat clothes, meat and wine are <b>permitted</b>.</p>`},
+{h:"Tisha B'Av · תשעה באב", html:`<p><b>Erev ת"ב (ח' אב)</b> — סעודה מפסקת with some mourning: <b>only one cooked dish</b>; don't sit to eat in a group of <b>3</b>; finish before sunset.</p>
+<p><b>5 troubles on ט' באב:</b></p><ol><li><b>חטא המרגלים</b> — decree that the generation of the desert won't enter the Land; they cried "בכייה של חינם" → "בכייה לדורות".</li><li>Destruction of the <b>First Temple</b>.</li><li>Destruction of the <b>Second Temple</b>.</li><li>The city of <b>Beitar</b> was captured (Bar Kochba revolt).</li><li><b>טורנוסרופוס ploughed</b> the היכל — to make Yerushalayim a pagan city.</li></ol>
+<div class="why">The mourning is accompanied by <b>hope</b> for the rebuilding of the Mikdash and the complete redemption.</div>
+<p><b>Time</b>: from <b>sunset</b> to <b>צאת הכוכבים</b> next day (~<b>25 hours</b>). <b>עינויים</b> like Yom Kippur: eating & drinking, washing, anointing, leather shoes, marital relations. Plus:</p>
+<ul><li>Don't greet "שלום".</li><li>Sit <b>low</b> until <b>חצות</b>.</li><li>No work until <b>חצות</b> (allowed: work that doesn't distract from mourning, like turning on a light).</li><li>Learn only sad topics — laws of fasts, פרקי פורענות in Tanach.</li><li>Dim the lights in shul.</li></ul>`},
+{h:"Prayers of Tisha B'Av & 10 Av", html:`<ol><li><b>Night</b>: after שמונה עשרה read <b>מגילת איכה</b> — written by <b>ירמיהו</b>, lamenting the destruction. Then <b>קינות</b> — lamentations on the Temple, troubles and exiles ("קינות לתשעה באב").</li>
+<li><b>Shacharit</b>: <b>no tallit and no tefillin</b>. Add "<b>עננו</b>" (prayer for a fast day). Long kinot — on the Temple and later tragedies: <b>עשרת הרוגי מלכות</b>, the <b>Crusades</b>, and today kinot for the <b>Holocaust</b>.</li>
+<li><b>Mincha</b>: <b>tallit and tefillin</b> are put on.</li></ol>
+<p><b>עשרה באב</b>: the Mikdash started burning on ט' and kept burning on י' באב — so until <b>חצות</b> of the 10th: no bathing for pleasure, no laundry or haircuts, no meat or wine.</p>
+<div class="source">"שמחו את ירושלים וגילו בה כל אהביה, שישו אתה משוש כל המתאבלים עליה" (ישעיהו סו, י). מכאן אמרו: כל המתאבל על ירושלים זוכה ורואה בשמחתה, ושאינו מתאבל על ירושלים אינו רואה בשמחתה.<cite>תענית ל ע"ב</cite></div>`}
+],
+cards:[
+["Purpose of public fasts?","Teshuva, חשבון נפש, fixing deeds — the troubles wake us to return to ה'."],
+["5 public fasts and dates?","צום גדליה ג' תשרי; עשרה בטבת; תענית אסתר י\"ג אדר; י\"ז תמוז; ט' באב."],
+["What happened on י' בטבת?","Siege of Yerushalayim began (First Temple). Today also יום הקדיש הכללי."],
+["What does the table say happened on י\"ז תמוז?","Walls of Yerushalayim breached (Second Temple)."],
+["Fast on Shabbat?","Postponed to Sunday — except תענית אסתר, moved earlier to Thursday."],
+["When do minor fasts start and end?","עלות השחר to צאת הכוכבים."],
+["Ate by mistake on a fast?","Must continue fasting."],
+["Who is treated leniently?","The sick, pregnant and nursing women."],
+["5 troubles of י\"ז תמוז?","Luchot broken; תמיד stopped; walls breached; Apostomos burned the Torah; idol in the היכל."],
+["Why \"בין המצרים\"?","Israel in distress, surrounded; איכה א, ג \"כל רודפיה השיגוה בין המצרים\"."],
+["Ashkenaz vs. Sefard — when does mourning start?","Ashkenaz from י\"ז תמוז; Sefard from א' באב."],
+["3 customs of בין המצרים?","No weddings; no haircuts/shaving; no dancing/performances (+ no שהחיינו)."],
+["4 customs of the 9 Days?","No new clothes; no laundry/ironing; no pleasure bathing; no meat or wine."],
+["When are meat/wine allowed in the 9 days?","סעודת מצווה (ברית, פדיון הבן) — and Shabbat."],
+["Why \"שבת חזון\"?","Haftara \"חזון ישעיהו בן אמוץ\" (ישעיהו א) — rebuke."],
+["Laws of the סעודה מפסקת of ת\"ב?","One cooked dish; not in a group of 3; finish before sunset."],
+["5 troubles of ט' באב?","Spies decree; 1st Temple; 2nd Temple; Beitar captured; Turnus Rufus ploughed the היכל."],
+["Why is ת\"ב a \"בכייה לדורות\"?","The people cried for nothing after the spies — so a crying for generations was set."],
+["How long is ת\"ב?","~25 hours, sunset to צאת הכוכבים."],
+["Extra laws of ת\"ב beyond the 5 עינויים?","No \"שלום\"; sit low till חצות; no work till חצות; learn only sad topics; dim lights."],
+["What is read on ת\"ב night? Who wrote it?","מגילת איכה — ירמיהו; then קינות."],
+["Tallit and tefillin on ת\"ב?","Not at Shacharit; yes at Mincha."],
+["What is added in the Amidah on ת\"ב?","עננו."],
+["Which later tragedies appear in the kinot?","עשרת הרוגי מלכות, Crusades, the Holocaust."],
+["Why mourning on י' באב? Until when?","The Mikdash burned on 9th and 10th; until חצות."],
+["Source: \"כל המתאבל על ירושלים...\"?","\"...זוכה ורואה בשמחתה\" (תענית ל ע\"ב, on ישעיהו סו, י)."]
+],
+qs:[
+{q:"(1) List two activities it is customary to refrain from during the Three Weeks. (2) Give one event on י\"ז בתמוז and two events on ט' באב. (10 points)",pts:10,rubric:"(1) weddings; haircuts/shaving; dancing/performances; (שהחיינו). (2) י\"ז תמוז: Luchot broken / תמיד stopped / walls breached / Apostomos burned Torah / idol in היכל. ט' באב: spies decree; 1st Temple; 2nd Temple; Beitar; Turnus Rufus ploughed."},
+{q:"(1) One affliction on Tisha B'Av is not eating or drinking. Give another. (2) What megilla is read? (6 points)",pts:6,rubric:"(1) washing, anointing, leather shoes, marital relations (also: no greeting, sit low). (2) מגילת איכה, by ירמיהו."},
+{q:"Compare Yom Kippur and Tisha B'Av: give two similarities and two differences. (8 points)",pts:8,rubric:"Similar: both ~25 hours sunset to stars; same 5 עינויים. Differences: יוה\"כ — day of atonement/holiness like Shabbat, all melacha forbidden, tallit all day, 5 prayers; ת\"ב — mourning for the Temple, work forbidden only until חצות, no tallit/tefillin at Shacharit, no greeting, sit low, איכה and kinot, learning restricted."},
+{q:"What is the purpose of public fast days? (4 points)",pts:4,rubric:"Teshuva, חשבון נפש and fixing deeds; the troubles of the past wake us to return to ה'; the essence is תיקון המעשים, not only refraining from food; walking in ה''s ways prevents more troubles."},
+{q:"What happens when a public fast falls on Shabbat? (4 points)",pts:4,rubric:"Postponed to Sunday; except Ta'anit Esther, which is moved earlier to Thursday."},
+{q:"List three customs of the Nine Days and explain when meat is permitted. (7 points)",pts:7,rubric:"No new clothes; no laundry/ironing (except small children's); no pleasure bathing; no meat/wine. Meat permitted at a סעודת מצווה (brit, pidyon haben) and on Shabbat (Shabbat Chazon)."},
+{q:"Describe the prayers of Tisha B'Av at night, Shacharit and Mincha. (9 points)",pts:9,rubric:"Night: after Amidah — מגילת איכה (ירמיהו) and קינות. Shacharit: no tallit/tefillin, עננו, long kinot (Temple, עשרת הרוגי מלכות, Crusades, Holocaust). Mincha: tallit and tefillin."},
+{q:"Explain the name 'בין המצרים' and the difference between Ashkenaz and Sefard customs. (6 points)",pts:6,rubric:"From איכה א, ג 'כל רודפיה השיגוה בין המצרים'; Israel was in distress surrounded by enemies; מצר = צר/צער. Ashkenaz keep mourning from י\"ז תמוז; Sefard from א' באב (until ט' באב)."}
+]}
+];
+
+const CRAM = `
+<section><h3>ברכות</h3><ul>
+<li>ברכה = <b>נטילת רשות</b> · לה' הארץ ומלואה · שבת קיט</li>
+<li>ראשונה: <b>כלשהו</b> · אחרונה: <b>כזית 28g / 4 min</b> · <b>רביעית 86cc</b></li>
+<li>Order <b>המג"ע א"ש</b> (importance) · 7 species first</li>
+<li>Rice: מזונות → בורא נפשות · banana/watermelon/peanuts: אדמה · mushrooms: שהכל</li>
+<li>נטילה: כלי שלם, לא עקום, to the wrist · <b>מברכים ואז מנגבים</b></li>
+<li>בהמ"ז from Torah (דברים ח, י) · הזן–משה · הארץ–יהושע · בונה ירושלים–דוד ושלמה · הטוב והמטיב–יבנה/ביתר</li>
+<li>Additions: רצה–שבת · יעלה ויבוא–ר"ח/חג · על הניסים–חנוכה/פורים</li>
+<li>מעין שלוש = summary of first 3 · Israel: <b>גפנה / פירותיה</b> (רבינו יונה)</li>
+<li>Smell: עצי / עשבי / מיני בשמים</li>
+<li>הגומל: <b>חיים</b> — חולה, יסורין, ים, מדבר · 10 men · flight</li>
+<li>ברק: עושה מעשה בראשית · רעם: שכוחו וגבורתו · קשת: זוכר הברית</li>
+<li>אילנות: Nisan, 2 trees, once a year · תפילת הדרך: plural, once a day, leaving the city</li></ul></section>
+<section><h3>תפילה</h3><ul>
+<li>Face: abroad→Israel→Yerushalayim→Mikdash · heart: קודש הקודשים</li>
+<li>Feet together · 4 bows: start/end אבות + מודים · הכנעה ויראה</li>
+<li>Amidah: 3 שבח · 13 בקשה · 3 הודאה</li>
+<li>שיר של יום = Levi'im at the תמיד · קדיש: Aramaic, בציבור</li>
+<li>מנחה: middle of the day · תמיד של בין הערביים · גדולה (afternoon) / קטנה (before sunset)</li>
+<li>ערבית: 2 before + 2 after שמע · no חזרה · ק"ש from צאת הכוכבים</li></ul></section>
+<section><h3>תשרי</h3><ul>
+<li>Leap year: 354 vs 365 → +Adar ~every 3 yrs (Pesach in spring)</li>
+<li>ר"ח: יעלה ויבוא, חצי הלל · 30-day month → 2 days</li>
+<li>א' אלול–י' תשרי = 40 days · ר"ה = המלכה · יוה"כ = תשובה</li>
+<li>Teshuva: עזיבה · חרטה+וידוי · קבלה לעתיד</li>
+<li>Selichot: Sefard ב' אלול · Ashkenaz motzaei Shabbat before ר"ה</li>
+<li>No shofar ערב ר"ה (רשות vs חובה) · התרת נדרים before 3</li>
+<li>Shofar: 100 · תקיעה / שברים 3 / תרועה 9 · women exempt · not on Shabbat</li>
+<li>Musaf 9: מלכויות, זכרונות (עקידה), שופרות (סיני) · 10 pesukim each</li>
+<li>תשליך: day 1, after Mincha, by water</li>
+<li>עשי"ת: המלך הקדוש, המלך המשפט, זכרנו, אבינו מלכנו</li>
+<li>צום גדליה ג' תשרי · שבת שובה: "שובה ישראל"</li></ul></section>
+<section><h3>יום כיפור</h3><ul>
+<li>Erev: eat (= fast 2 days) · כפרות → tzedaka · וידוי at Mincha · מפסקת: light, stop early (מוסיף מחול על הקודש)</li>
+<li>White = angels · tallit before sunset · ברכת הבנים</li>
+<li>Like Shabbat → no cooking · 5 עינויים: אכילה, רחיצה, סיכה, נעילה, תשמיש</li>
+<li>Kids: תענית שעות · פיקוח נפש: less than שיעור, doctor + Rav</li>
+<li>5 prayers + Neila (בראש האילנות, ark open, חתמנו, שמע + tekia)</li>
+<li>Readings: ויקרא טז + במדבר כט · Mincha: עריות + יונה · סדר העבודה</li>
+<li>Motzaei: start building the sukka</li></ul></section>
+<section><h3>סוכות</h3><ul>
+<li>ט"ו–כ"א · שמיני עצרת כ"ב · 3 רגלים</li>
+<li>Reason: ענני הכבוד / סוכות · Tur: Tishrei = visible mitzva · Rashbam: humility at harvest</li>
+<li>3 walls · open sky · schach: from the ground, detached · צילתה מרובה מחמתה</li>
+<li>1st night must eat · עראי outside OK · book: לישב בסוכה → food</li>
+<li>אושפיזין: אברהם יצחק יעקב משה אהרון יוסף דוד</li>
+<li>4 species: 1+1+3+2 · not Shabbat · by day · על נטילת לולב (+שהחיינו day 1)</li>
+<li>Midrash: טעם=תורה, ריח=מעשים · אגודה אחת</li>
+<li>Shake: after bracha + Hallel, 6 directions · הושענות = זכר למקדש</li></ul></section>
+<section><h3>פסח → שבועות</h3><ul>
+<li>אפיקומן = קורבן פסח · ברך 3rd cup · הלל 4th · נרצה</li>
+<li>הסבה (left): מצה, כורך, אפיקומן, 4 כוסות · not מרור</li>
+<li>Full Hallel: night + day 1 · half: chol hamoed + 7th · טל → מוריד הטל</li>
+<li>7th: no שהחיינו · קריעת ים סוף · חמץ שעבר עליו הפסח — forbidden forever</li>
+<li>Omer: ט"ז ניסן, 49 days · Chinuch: physical → spiritual freedom · Ramban: chol hamoed</li>
+<li>Forgot night → day no bracha, continue with · forgot day too → continue without</li>
+<li>Mourning: 24,000 students of R' Akiva</li>
+<li>כ"ז ניסן שואה · ד' אייר זיכרון · ה' אייר עצמאות · י"ד אייר פסח שני · י"ח אייר ל"ג · כ"ח אייר ירושלים</li>
+<li>Shavuot ו' סיון · ג'–ה' הגבלה · רות (David; convert) · green (Sinai) · dairy (דבש וחלב)</li></ul></section>
+<section><h3>תעניות</h3><ul>
+<li>Purpose: teshuva & fixing deeds</li>
+<li>Shabbat → Sunday · Esther → Thursday · עלות השחר → צאת הכוכבים</li>
+<li>י"ז תמוז ×5: לוחות, תמיד, חומה, אפוסטמוס, צלם</li>
+<li>בין המצרים (איכה א, ג) · Ashk from 17 Tammuz · Sef from 1 Av</li>
+<li>9 days: no clothes, laundry, pleasure-bathing, meat, wine</li>
+<li>שבת חזון (ישעיהו א) · מפסקת: 1 dish, no 3 together</li>
+<li>ט' באב ×5: מרגלים, בית ראשון, בית שני, ביתר, נחרש ההיכל</li>
+<li>25 hrs · no שלום, sit low & no work till חצות</li>
+<li>איכה (ירמיהו) + קינות · no tallit/tefillin until Mincha · עננו</li>
+<li>י' באב till חצות · "כל המתאבל על ירושלים זוכה ורואה בשמחתה"</li></ul></section>`;
+
+/* ======================= STATE & STORAGE ======================= */
+const TABS=[["learn","Learn"],["cards","Flashcards"],["exam","Exam questions"],["mock","Mock exam"],["mistakes","Mistakes"],["cram","Cram sheet"]];
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let state={tab:LS.get("tab","learn"),unit:LS.get("unit","brachot")};
+let progress=LS.get("progress",{});   // cardId -> "known"|"missed"
+let mistakes=LS.get("mistakes",[]);    // {id,unit,kind,q,mine,correct,created,resolved}
+let db=null, sample=null;
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const unitById=id=>UNITS.find(u=>u.id===id)||UNITS[0];
+const cardId=(u,i)=>u+":c"+i;
+const stripHtml=h=>{const d=document.createElement("div");d.innerHTML=h;return d.textContent.replace(/\s+/g," ").trim()};
+
+async function saveProgress(id,val){progress[id]=val;LS.set("progress",progress);if(db){try{await db.doc("progress/main").set({cards:progress,updated:Date.now()})}catch(e){}}}
+async function addMistake(m){m.id="m"+Date.now()+Math.floor(Math.random()*1000);m.created=Date.now();m.resolved=false;
+  mistakes=mistakes.filter(x=>!(x.q===m.q&&!x.resolved));mistakes.unshift(m);LS.set("mistakes",mistakes);
+  if(db){try{await db.collection("mistakes").doc(m.id).set(m)}catch(e){}}}
+async function resolveMistake(id,val){const m=mistakes.find(x=>x.id===id);if(!m)return;m.resolved=val;LS.set("mistakes",mistakes);
+  if(db){try{await db.doc("mistakes/"+id).set(m)}catch(e){}}}
+
+/* ======================= RENDER: CHROME ======================= */
+function renderChrome(){
+  const uEl=document.getElementById("units");
+  uEl.innerHTML=UNITS.map(u=>`<button class="chip" data-unit="${u.id}" aria-pressed="${u.id===state.unit}">${esc(u.name)}</button>`).join("");
+  uEl.hidden = ["mock","mistakes","cram"].includes(state.tab);
+  document.getElementById("tabs").innerHTML=TABS.map(([k,l])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${k===state.tab}">${l}${k==="mistakes"?` (${mistakes.filter(m=>!m.resolved).length})`:""}</button>`).join("");
+}
+document.addEventListener("click",e=>{
+  const u=e.target.closest("[data-unit]");if(u){state.unit=u.dataset.unit;LS.set("unit",state.unit);cardIdx=0;render();window.scrollTo(0,0);return}
+  const t=e.target.closest("[data-tab]");if(t){state.tab=t.dataset.tab;LS.set("tab",state.tab);render();window.scrollTo(0,0)}
+});
+function render(){renderChrome();const v=document.getElementById("view");
+  ({learn:renderLearn,cards:renderCards,exam:renderExam,mock:renderMock,mistakes:renderMistakes,cram:renderCram})[state.tab](v)}
+
+const MISSING=`<div class="banner"><b>Not in the app yet:</b> pp. 23–46 and 124–146 haven't been scanned. Send them in the chat and they'll be added.</div>`;
+
+/* ======================= LEARN ======================= */
+function renderLearn(v){const u=unitById(state.unit);
+  const known=u.cards.filter((c,i)=>progress[cardId(u.id,i)]==="known").length;
+  v.innerHTML=`${MISSING}
+  <div><span class="pages">pp. ${u.pages}</span><h2>${esc(u.name)}</h2>
+  <div class="row stat">Flashcards known: ${known}/${u.cards.length}</div><div class="meter"><span style="width:${Math.round(100*known/u.cards.length)}%"></span></div></div>
+  ${u.learn.map(s=>`<section class="lesson"><h3>${esc(s.h)}</h3>${s.html}</section>`).join("")}
+  <section class="lesson" id="tutor"><h3>Ask the tutor about this unit</h3>
+   <p class="muted">Answers come only from the book material in this unit.</p>
+   <textarea id="tutorQ" placeholder="e.g. Why don't women have to hear the shofar?"></textarea>
+   <div class="row"><button class="btn" id="tutorBtn">Ask</button></div><div id="tutorA"></div></section>
+  <div class="row"><button class="btn" data-tab="cards">Practice the flashcards →</button></div>`;
+  const btn=document.getElementById("tutorBtn"),out=document.getElementById("tutorA");
+  if(!sample){btn.disabled=true;out.innerHTML=`<p class="muted">The tutor isn't available in this view.</p>`;return}
+  btn.onclick=async()=>{const q=document.getElementById("tutorQ").value.trim();if(!q)return;btn.disabled=true;out.innerHTML=`<div class="grade">Thinking...</div>`;
+    const notes=u.learn.map(s=>s.h+": "+stripHtml(s.html)).join("\n");
+    try{const {text}=await sample(`You are a patient tutor for an Israeli Bagrut exam in Halacha for olim (book "במעגלי הלכה – עולים"). Answer the student's question ONLY from the book notes below. If the notes don't cover it, say the book pages provided don't cover it. Give the reason ("why") when there is one. Write simple English mixed with Hebrew terms in Hebrew. Keep it under 150 words. No markdown headings.\n\nBOOK NOTES (unit: ${u.name}):\n${notes}\n\nSTUDENT QUESTION: ${q}`,{cache:false,onText:({text})=>{out.innerHTML=`<div class="grade" style="white-space:pre-wrap">${esc(text)}</div>`}});
+      out.innerHTML=`<div class="grade" style="white-space:pre-wrap">${esc(text)}</div>`}
+    catch(e){out.innerHTML=`<div class="grade">${e.code==="not_granted"?"The tutor needs permission to use Claude.":e.code==="rate_limited"?"Too many questions right now — try again in a minute.":"Couldn't get an answer. Try again."}</div>`}
+    finally{btn.disabled=false}}
+}
+
+/* ======================= FLASHCARDS ======================= */
+let cardIdx=0, cardMode="all";
+function renderCards(v){const u=unitById(state.unit);
+  let order=u.cards.map((c,i)=>i);
+  if(cardMode==="weak")order=order.filter(i=>progress[cardId(u.id,i)]!=="known");
+  const known=u.cards.filter((c,i)=>progress[cardId(u.id,i)]==="known").length;
+  if(cardIdx>=order.length)cardIdx=0;
+  const head=`<div><span class="pages">pp. ${u.pages}</span><h2>Flashcards · ${esc(u.name)}</h2>
+   <div class="row stat">Known ${known}/${u.cards.length}</div><div class="meter"><span style="width:${Math.round(100*known/u.cards.length)}%"></span></div></div>
+   <div class="row"><button class="btn ${cardMode==="all"?"":"ghost"}" id="mAll">All cards</button><button class="btn ${cardMode==="weak"?"":"ghost"}" id="mWeak">Only cards I don't know yet</button></div>`;
+  if(!order.length){v.innerHTML=head+`<div class="card"><p class="q">You know every card in this unit. 🎉</p><div class="row"><button class="btn" data-tab="exam">Try the exam questions →</button></div></div>`;bindModes();return}
+  const i=order[cardIdx],[q,a]=u.cards[i],st=progress[cardId(u.id,i)];
+  v.innerHTML=head+`<div class="card">
+   <div class="row"><span class="pill">Card ${cardIdx+1} of ${order.length}</span>${st?`<span class="pill ${st==="known"?"good":"bad"}">${st==="known"?"known":"missed before"}</span>`:""}</div>
+   <div class="q" dir="auto">${esc(q)}</div>
+   <textarea id="myA" placeholder="Type your answer first (optional), then reveal" dir="auto" style="min-height:70px"></textarea>
+   <div class="row"><button class="btn" id="reveal">Show answer</button></div>
+   <div id="ans" hidden><div class="a" dir="auto"><b>Answer:</b> ${esc(a)}</div>
+    <p class="muted" style="margin-top:8px">Be honest: did you have it?</p>
+    <div class="row"><button class="btn good" id="gotIt">Got it</button><button class="btn bad" id="missed">Missed it → mistakes list</button></div></div>
+   <div class="row"><button class="btn ghost" id="prev">← Previous</button><button class="btn ghost" id="next">Skip →</button></div></div>`;
+  bindModes();
+  document.getElementById("reveal").onclick=()=>{document.getElementById("ans").hidden=false;document.getElementById("reveal").hidden=true};
+  const advance=()=>{cardIdx=(cardMode==="weak")?cardIdx:(cardIdx+1);render()};
+  document.getElementById("gotIt").onclick=async()=>{await saveProgress(cardId(u.id,i),"known");advance()};
+  document.getElementById("missed").onclick=async()=>{await saveProgress(cardId(u.id,i),"missed");
+    await addMistake({unit:u.id,kind:"flashcard",q,mine:document.getElementById("myA").value.trim(),correct:a});cardIdx++;render()};
+  document.getElementById("next").onclick=()=>{cardIdx++;render()};
+  document.getElementById("prev").onclick=()=>{cardIdx=Math.max(0,cardIdx-1);render()};
+}
+function bindModes(){document.getElementById("mAll").onclick=()=>{cardMode="all";cardIdx=0;render()};document.getElementById("mWeak").onclick=()=>{cardMode="weak";cardIdx=0;render()}}
+
+/* ======================= EXAM QUESTIONS (AI examiner) ======================= */
+function gradePrompt(u,qo,ans){
+  const notes=u.learn.map(s=>s.h+": "+stripHtml(s.html)).join("\n").slice(0,12000);
+  return `You are a STRICT examiner for the Israeli Bagrut exam "תורה שבעל פה – דינים ומבוא לעולים" (שאלון 005384). Grade ONLY by the book "במעגלי הלכה – עולים" — use the rubric and book notes below. If the student's answer follows another custom that differs from the book, say the book's version is what counts. Reasons ("why") earn points; vague answers lose points; list answers need the required number of items.
+QUESTION (${qo.pts} points): ${qo.q}
+RUBRIC FOR FULL MARKS: ${qo.rubric}
+BOOK NOTES: ${notes}
+STUDENT ANSWER: ${ans||"(no answer)"}
+Reply with only JSON: {"score": number (0-${qo.pts}, may use .5), "verdict": "one short sentence", "good": ["what earned points"], "missing": ["what lost points — be specific"], "fullAnswer": "a model full-marks answer, concise, English with Hebrew terms"}. Feedback in simple English with Hebrew terms in Hebrew.`}
+function gradeHtml(r,max){const s=Number(r.score)||0,cls=s>=max?"full":s>0?"part":"zero";
+  return `<div class="grade"><div class="score ${cls}">${s} / ${max}</div><p dir="auto">${esc(r.verdict||"")}</p>
+  ${(r.good||[]).length?`<p><b>Earned points:</b></p><ul>${r.good.map(x=>`<li dir="auto">${esc(x)}</li>`).join("")}</ul>`:""}
+  ${(r.missing||[]).length?`<p><b>Lost points:</b></p><ul>${r.missing.map(x=>`<li dir="auto">${esc(x)}</li>`).join("")}</ul>`:""}
+  <details><summary>Full-marks answer</summary><p dir="auto" style="white-space:pre-wrap">${esc(r.fullAnswer||"")}</p></details></div>`}
+let qIdx=0;
+function renderExam(v){const u=unitById(state.unit);if(qIdx>=u.qs.length)qIdx=0;const qo=u.qs[qIdx];
+  v.innerHTML=`<div><span class="pages">pp. ${u.pages}</span><h2>Exam questions · ${esc(u.name)}</h2>
+   <p class="muted">Bagrut-style. Write a full answer, then a strict examiner grades it. Anything below full marks goes to your mistakes list.</p></div>
+  <div class="card"><div class="row"><span class="pill">Question ${qIdx+1} of ${u.qs.length}</span><span class="pill">${qo.pts} points</span></div>
+   <div class="q" dir="auto">${esc(qo.q)}</div>
+   <textarea id="ansBox" dir="auto" placeholder="Write your answer (English, Hebrew or mixed)"></textarea>
+   <div class="row"><button class="btn" id="gradeBtn">Grade my answer</button><button class="btn ghost" id="showModel">Show what full marks needs</button></div>
+   <div id="gradeOut"></div>
+   <div class="row"><button class="btn ghost" id="qPrev">← Previous</button><button class="btn ghost" id="qNext">Next question →</button></div></div>`;
+  const out=document.getElementById("gradeOut"),gb=document.getElementById("gradeBtn");
+  document.getElementById("qPrev").onclick=()=>{qIdx=Math.max(0,qIdx-1);render()};
+  document.getElementById("qNext").onclick=()=>{qIdx=(qIdx+1)%u.qs.length;render()};
+  document.getElementById("showModel").onclick=()=>{out.innerHTML=`<div class="grade"><b>Full marks needs:</b><p dir="auto">${esc(qo.rubric)}</p>
+    <p class="muted">Grade yourself:</p><div class="row"><button class="btn good" id="selfFull">I had it all</button><button class="btn bad" id="selfMiss">I missed parts → mistakes</button></div></div>`;
+    document.getElementById("selfFull").onclick=()=>{out.insertAdjacentHTML("beforeend",`<p class="pill good">Nice.</p>`)};
+    document.getElementById("selfMiss").onclick=async()=>{await addMistake({unit:u.id,kind:"exam",q:qo.q,mine:document.getElementById("ansBox").value.trim(),correct:qo.rubric});renderChrome();out.insertAdjacentHTML("beforeend",`<p class="pill bad">Added to mistakes.</p>`)}};
+  if(!sample){gb.hidden=true;return}
+  gb.onclick=async()=>{const ans=document.getElementById("ansBox").value.trim();if(!ans){out.innerHTML=`<div class="grade">Write an answer first — even a short one.</div>`;return}
+    gb.disabled=true;out.innerHTML=`<div class="grade">The examiner is reading your answer...</div>`;
+    try{const r=await sample.json(gradePrompt(u,qo,ans),{cache:false});out.innerHTML=gradeHtml(r,qo.pts);
+      if((Number(r.score)||0)<qo.pts){await addMistake({unit:u.id,kind:"exam",q:qo.q,mine:ans,correct:(r.missing||[]).join(" · ")+" — Full answer: "+(r.fullAnswer||qo.rubric)});renderChrome()}}
+    catch(e){out.innerHTML=`<div class="grade">${e.code==="not_granted"?"Grading needs permission to use Claude. Use “Show what full marks needs” instead.":e.code==="rate_limited"?"Too many requests — wait a minute and try again.":"Couldn't grade this time. Try again, or use “Show what full marks needs”."}</div>`}
+    finally{gb.disabled=false}}
+}
+
+/* ======================= MOCK EXAM ======================= */
+let mock=LS.get("mock",null), mockTimer=null;
+function newMock(){const all=[];UNITS.forEach(u=>u.qs.forEach((q,i)=>all.push({u:u.id,i})));
+  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]]}
+  const pick=[],used=new Set();for(const x of all){if(pick.length>=9)break;const key=x.u+(pick.length<5?"A":"B");if(used.has(key))continue;used.add(key);pick.push(x)}
+  mock={started:Date.now(),qs:pick.map((x,k)=>({...x,part:k<5?"A":"B",ans:"",res:null}))};LS.set("mock",mock)}
+function renderMock(v){clearInterval(mockTimer);
+  if(!mock){v.innerHTML=`<div><h2>Mock Bagrut exam</h2><p>Built like the real שאלון 005384: <b>1.5 hours</b>. <b>Part A</b> — answer <b>4 of 5</b> questions (18 points each). <b>Part B</b> — answer <b>2 of 4</b> (14 points each). Questions are mixed from all units.</p></div>${MISSING}<div class="row"><button class="btn" id="startMock">Start the exam</button></div>`;
+    document.getElementById("startMock").onclick=()=>{newMock();render()};return}
+  const qhtml=(x,k)=>{const u=unitById(x.u),qo=u.qs[x.i];return `<div class="card"><div class="row"><span class="pill">${k+1}</span><span class="pill">${esc(u.name)}</span></div>
+    <div class="q" dir="auto">${esc(qo.q.replace(/\(\d+ points\)/,""))}</div>
+    <textarea data-mq="${k}" dir="auto" placeholder="Leave empty if you skip this question">${esc(x.ans)}</textarea>${x.res?gradeHtml(x.res,x.part==="A"?18:14):""}</div>`};
+  const graded=mock.qs.some(x=>x.res);
+  v.innerHTML=`<div class="row" style="justify-content:space-between"><h2>Mock exam</h2><span class="timer" id="timer"></span></div>
+   <h3>Part A — answer 4 of 5 (18 points each)</h3>${mock.qs.filter(x=>x.part==="A").map((x)=>qhtml(x,mock.qs.indexOf(x))).join("")}
+   <h3>Part B — answer 2 of 4 (14 points each)</h3>${mock.qs.filter(x=>x.part==="B").map((x)=>qhtml(x,mock.qs.indexOf(x))).join("")}
+   <div id="mockOut"></div>
+   <div class="row"><button class="btn" id="gradeMock" ${sample?"":"hidden"}>${graded?"Re-grade":"Hand in & grade"}</button><button class="btn ghost" id="newMock">New exam</button></div>`;
+  v.querySelectorAll("[data-mq]").forEach(t=>t.addEventListener("input",()=>{mock.qs[+t.dataset.mq].ans=t.value;LS.set("mock",mock)}));
+  const tick=()=>{const left=90*60-Math.floor((Date.now()-mock.started)/1000),el=document.getElementById("timer");if(!el)return;
+    el.textContent=left>0?`${Math.floor(left/60)}:${String(left%60).padStart(2,"0")} left`:"Time's up";};tick();mockTimer=setInterval(tick,1000);
+  document.getElementById("newMock").onclick=()=>{mock=null;LS.set("mock",null);render()};
+  showMockTotal();
+  const gm=document.getElementById("gradeMock");gm.onclick=async()=>{
+    const a=mock.qs.filter(x=>x.part==="A"&&x.ans.trim()),b=mock.qs.filter(x=>x.part==="B"&&x.ans.trim()),out=document.getElementById("mockOut");
+    if(a.length>4||b.length>2){out.innerHTML=`<div class="banner">Like the real exam: answer only <b>4</b> in Part A and <b>2</b> in Part B. You answered ${a.length} and ${b.length}.</div>`;return}
+    gm.disabled=true;
+    for(const x of [...a,...b]){const u=unitById(x.u),qo=u.qs[x.i],max=x.part==="A"?18:14;
+      out.innerHTML=`<div class="grade">Grading question ${mock.qs.indexOf(x)+1}...</div>`;
+      try{const r=await sample.json(gradePrompt(u,{...qo,pts:max},x.ans),{cache:false});x.res=r;LS.set("mock",mock);
+        if((Number(r.score)||0)<max)await addMistake({unit:u.id,kind:"mock exam",q:qo.q,mine:x.ans,correct:(r.missing||[]).join(" · ")+" — Full answer: "+(r.fullAnswer||qo.rubric)})}
+      catch(e){out.innerHTML=`<div class="grade">Grading stopped (${esc(e.code)}). Try again later.</div>`;gm.disabled=false;return}}
+    gm.disabled=false;render()};
+}
+function showMockTotal(){if(!mock||!mock.qs.some(x=>x.res))return;const tot=mock.qs.reduce((s,x)=>s+(x.res?Number(x.res.score)||0:0),0);
+  document.getElementById("mockOut").innerHTML=`<div class="grade"><div class="score ${tot>=85?"full":tot>=55?"part":"zero"}">${tot} / 100</div><p>Every lost point is in your mistakes list.</p></div>`}
+
+/* ======================= MISTAKES ======================= */
+let reqIdx=0;
+function renderMistakes(v){const open=mistakes.filter(m=>!m.resolved),done=mistakes.filter(m=>m.resolved);
+  const item=m=>`<div class="mitem ${m.resolved?"resolved":""}"><div class="row"><span class="pill">${esc(unitById(m.unit).name)}</span><span class="pill ${m.resolved?"good":"bad"}">${esc(m.kind)}${m.resolved?" · fixed":""}</span></div>
+   <p class="q" dir="auto" style="font-size:1rem;margin-top:6px">${esc(m.q)}</p>${m.mine?`<p dir="auto" class="muted">You wrote: ${esc(m.mine)}</p>`:""}
+   <details><summary>Correct answer</summary><p dir="auto">${esc(m.correct)}</p></details>
+   <div class="row" style="margin-top:6px"><button class="btn ghost" data-res="${m.id}" data-val="${!m.resolved}">${m.resolved?"Mark as still weak":"I know it now"}</button></div></div>`;
+  v.innerHTML=`<div><h2>Mistakes list</h2><p class="muted">Everything you missed in flashcards, exam questions and mock exams. Re-quiz until it's empty.</p></div>
+   ${open.length?`<div class="card" id="requiz"></div>`:`<div class="card"><p class="q">No open mistakes. Keep practicing — anything you miss lands here.</p></div>`}
+   <h3>Open (${open.length})</h3><div class="mlist">${open.map(item).join("")||"<p class='muted'>None.</p>"}</div>
+   ${done.length?`<h3>Fixed (${done.length})</h3><div class="mlist">${done.map(item).join("")}</div>`:""}`;
+  v.querySelectorAll("[data-res]").forEach(b=>b.onclick=async()=>{await resolveMistake(b.dataset.res,b.dataset.val==="true");render()});
+  if(open.length){if(reqIdx>=open.length)reqIdx=0;const m=open[reqIdx],box=document.getElementById("requiz");
+    box.innerHTML=`<div class="row"><span class="pill">Re-quiz ${reqIdx+1} of ${open.length}</span></div><div class="q" dir="auto">${esc(m.q)}</div>
+     <textarea id="rqA" dir="auto" style="min-height:70px" placeholder="Answer from memory"></textarea>
+     <div class="row"><button class="btn" id="rqShow">Check</button></div><div id="rqAns" hidden><div class="a" dir="auto">${esc(m.correct)}</div>
+     <div class="row" style="margin-top:8px"><button class="btn good" id="rqGood">Got it now</button><button class="btn bad" id="rqBad">Still weak</button></div></div>`;
+    document.getElementById("rqShow").onclick=()=>{document.getElementById("rqAns").hidden=false};
+    document.getElementById("rqGood").onclick=async()=>{await resolveMistake(m.id,true);render()};
+    document.getElementById("rqBad").onclick=()=>{reqIdx++;render()};}
+}
+
+/* ======================= CRAM ======================= */
+function renderCram(v){v.innerHTML=`<div><h2>Cram sheet</h2><p class="muted">The most-tested facts from every unit. Read it the night before and the morning of the exam.</p></div>${MISSING}<div class="cram">${CRAM}</div>`}
+
+/* ======================= BOOT ======================= */
+render();
+(async()=>{
+  if(!window.claude?.use)return;
+  try{sample=await claude.use("sample")}catch(e){sample=null}
+  try{db=await claude.use("db")}catch(e){db=null}
+  if(db){try{
+      const p=await db.doc("progress/main").get();if(p.exists){progress={...progress,...(p.data().cards||{})};LS.set("progress",progress)}
+      const ms=await db.collection("mistakes").get();const remote=ms.docs.map(d=>d.data());
+      const ids=new Set(remote.map(m=>m.id));mistakes=[...remote,...mistakes.filter(m=>!ids.has(m.id))].sort((a,b)=>b.created-a.created);LS.set("mistakes",mistakes);
+    }catch(e){}}
+  render();
+})();
+</script>
