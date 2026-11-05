@@ -1,5 +1,5 @@
 /* The Bread Club: home and info pages. Renders the menu from logic.js (prices live in one place)
-   and runs the scroll motion: sideways menu, moving text strips, hero drift, reveals. */
+   and runs the scroll motion: sideways menu, hero drift, reveals. */
 (function () {
   'use strict';
   var t = BreadClubI18n.t;
@@ -41,13 +41,6 @@
       text.appendChild(row);
       panel.appendChild(text);
       host.appendChild(panel);
-    });
-  }
-
-  function renderMarquees() {
-    document.querySelectorAll('.marquee__track').forEach(function (track) {
-      track.textContent = '';
-      for (var i = 0; i < 4; i++) track.appendChild(el('span', '', t('marquee') + ' '));
     });
   }
 
@@ -113,9 +106,6 @@
     hs.count.textContent = pad(current + 1) + ' / ' + pad(panels.length);
   }
 
-  var lastY = window.scrollY;
-  var drift = 0;
-
   function onScroll() {
     var y = window.scrollY;
     var nav = document.querySelector('.nav');
@@ -129,13 +119,6 @@
       hero.style.setProperty('--hero-p', p.toFixed(3));
     }
 
-    // Text strips: they always drift, and scrolling pushes them further.
-    drift += (y - lastY) * 0.6;
-    document.querySelectorAll('.marquee__inner').forEach(function (m, i) {
-      m.style.transform = 'translate3d(' + ((i % 2 ? 1 : -1) * drift % 2000) + 'px,0,0)';
-    });
-    lastY = y;
-
     updateSideways();
   }
 
@@ -147,7 +130,7 @@
     onScroll();
   }
 
-  function render() { renderMenu(); renderMarquees(); renderContacts(); }
+  function render() { renderMenu(); renderContacts(); }
 
   document.addEventListener('DOMContentLoaded', function () { render(); reveal(); setupSideways(); scrollMotion(); });
   document.addEventListener('bc:lang', function () { render(); measureSideways(); });
