@@ -16,16 +16,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600&family=Frank+Ruhl+Libre:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/site.css">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 <body data-title="meta.orderTitle">
   <a class="skip-link label" href="#main" data-i18n="nav.skip">Skip to content</a>
 
   <header class="nav">
     <div class="wrap nav__inner">
-      <a class="nav__logo" href="./" data-i18n-attr="aria-label:nav.home" aria-label="The Bread Club, home">
-        <img src="assets/img/logo.png" alt="The Bread Club" width="160" height="80">
-      </a>
+      <a class="nav__brand" href="./" data-i18n-attr="aria-label:nav.home" aria-label="The Bread Club, home" lang="en">The Bread Club</a>
       <button class="nav__lang" type="button" data-lang-toggle data-i18n="nav.lang" data-i18n-attr="aria-label:nav.langLabel" lang="he" aria-label="קראו את האתר בעברית">עברית</button>
+      <a class="nav__order" href="./#menu" data-i18n="nav.back">Back to the menu</a>
     </div>
   </header>
 
@@ -173,7 +173,8 @@
 
   <footer class="footer">
     <div class="wrap">
-      <img src="assets/img/logo.png" alt="The Bread Club" width="160" height="80" loading="lazy">
+      <p class="footer__brand" lang="en">The Bread Club</p>
+      <p class="label" lang="en">Est. 2025</p>
       <div class="footer__links">
         <a class="js-instagram" href="https://instagram.com/thebreadclub.il" dir="ltr">@thebreadclub.il</a>
         <a class="js-wa" data-baker="0" href="https://wa.me/972549112175">Eliana · 054-911-2175</a>

@@ -16,7 +16,7 @@
     var lang = BreadClubI18n.lang;
     host.textContent = '';
     [['original', 'menu.original'], ['collection', 'menu.collection']].forEach(function (section) {
-      host.appendChild(el('h3', 'label label--dashed', t(section[1])));
+      host.appendChild(el('h3', 'label menu__section', t(section[1])));
       var ul = el('ul', 'menu-list');
       BreadClub.MENU.filter(function (m) { return m.section === section[0]; }).forEach(function (m) {
         var li = el('li');
@@ -45,7 +45,7 @@
   }
 
   function reveal() {
-    var items = document.querySelectorAll('.reveal');
+    var items = document.querySelectorAll('.reveal, .strip');
     if (!('IntersectionObserver' in window)) {
       items.forEach(function (n) { n.classList.add('is-visible'); });
       return;
@@ -54,12 +54,38 @@
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
       });
-    }, { rootMargin: '0px 0px -40px 0px' });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
     items.forEach(function (n) { io.observe(n); });
+  }
+
+  /* Hairline under the nav once the page scrolls; phone order bar once the top of the page is gone. */
+  function scrollCues() {
+    var nav = document.querySelector('.nav');
+    var bar = document.querySelector('.order-bar');
+    var hero = document.querySelector('.hero');
+    var menuCta = document.querySelector('.menu-cta');
+    var ticking = false;
+    function check() {
+      ticking = false;
+      if (nav) nav.classList.toggle('is-scrolled', window.scrollY > 8);
+      if (bar && hero) {
+        var pastHero = hero.getBoundingClientRect().bottom < 0;
+        var r = menuCta ? menuCta.getBoundingClientRect() : null;
+        var ctaOnScreen = r && r.top < window.innerHeight && r.bottom > 0;
+        var show = pastHero && !ctaOnScreen;
+        bar.classList.toggle('is-shown', show);
+        bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+        bar.tabIndex = show ? 0 : -1;
+      }
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(check); }
+    }, { passive: true });
+    check();
   }
 
   function render() { renderMenu(); renderContacts(); }
 
-  document.addEventListener('DOMContentLoaded', function () { render(); reveal(); });
+  document.addEventListener('DOMContentLoaded', function () { render(); reveal(); scrollCues(); });
   document.addEventListener('bc:lang', render);
 })();
