@@ -1,7 +1,7 @@
 # The Bread Club: interview notes
 
 Business: **The Bread Club** (EST. 2025), sourdough bakery in Ra'anana. Instagram: @thebreadclub.il.
-Run by Eliana (and Shayna? She's listed on the menu as a WhatsApp contact. Role to be confirmed).
+Run by two partners: **Eliana Eltes** and **Shayna Lightstone**. Both need to see and manage orders.
 
 ## Answers so far (Nov 5, 2026)
 
@@ -39,13 +39,38 @@ Run by Eliana (and Shayna? She's listed on the menu as a WhatsApp contact. Role 
 - Food photos: rustic loaves in Dutch ovens, on parchment and cooling racks.
 - Eliana wants the website to match this look so everything is professional and consistent.
 
+## Second round of answers (Nov 5, 2026)
+- Shayna is a business partner.
+- **Pickup** is offered too. The pickup address is sent only after an order is placed (never shown on the site).
+- **Delivery area:** Ra'anana, Herzliya and places close by. Will drive further for bigger orders.
+- **Capacity:** 12–18 loaves per bake day.
+- **Cutoff time:** 4pm.
+- **Language:** both English and Hebrew.
+- **Website sections wanted:** about us, photo gallery, Instagram, contact, and the usual things sourdough sites have.
+- **Domain:** Eliana will decide later.
+
+### Current Google Form (from screenshots)
+1. Intro text: payment policy, menu, delivery (+₪5, free on ₪100+), pickup (address texted after ordering), deadlines.
+2. Full name (required), phone (required).
+3. "Order: how many of each?" grid with 8 rows (Plain, Garlic, Rosemary garlic, Cinnamon, Olive, Chocolate chip, Pesto & sundried tomato, Flavor of the season) and quantity columns 0–3.
+4. Pickup or delivery (required). Payment: Bit 054-911-2175 with full name in the note, or cash at door (required).
+5. Delivery address (required, delivery branch only).
+6. Pickup / delivery day: "Tuesday (order by Sunday)" / "Friday (order by Tuesday)" (required). Notes or allergies (optional).
+
+### Brand kit (uploaded zips + design direction PDF)
+- `DESIGN-DIRECTION-prompt-for-Claude` and `WEBSITE-PROMPT-for-Claude-Code.md` give exact tokens, type, layout, components, voice and "do not" rules. Follow them.
+- Logos (transparent PNGs), stickers, fonts (Bodoni Moda, Cormorant), 5 loaf photos, Instagram menus and posts, docs (handoff, form brief, tracker page, customer messages).
+- Missing from the zips: `backgrounds/` and `instagram/bread-on-brand-backgrounds/`. The brand README says the diagonal watercolor checks were not made by them, so their source must be checked before use.
+
+## Discrepancies to confirm
+- Friday cutoff: the form option says "order by **Tuesday**", but the form intro, menu, weekly message and Eliana all say **Wednesday**.
+- Capacity: is 18 a hard cap per day? Should the site show "sold out" for that day once it's reached?
+- Shayna's number: 058-678-6600 vs 058-678-6900 (flagged in the website prompt).
+- Names: "Pesto" vs "Pesto & sundried tomato", and "Cinnamon sugar" vs "Cinnamon".
+- Max quantity per flavor: 3 on the live form, "5+" in the form brief.
+- Flavor of the season has no fixed price, so how is the order total shown?
+
 ## Still unknown
-- Cutoff time of day; what happens on holidays or weeks off.
-- Is pickup offered, or delivery only? Delivery area, time windows, how addresses are collected.
-- Weekly capacity per bake day; what happens on sell-out.
-- Shayna's role; who needs to see orders.
-- Language: Hebrew, English, or both.
-- Exact Google Form questions.
-- Where the brand files (logos, fonts, photos) are stored; which fonts were used.
-- Bit details: one number or two; what payment instructions customers get.
-- Domain name or hosting preference.
+- Holidays / weeks off: how ordering is paused.
+- Exact delivery boundary and the minimum order for "further away".
+- Domain name / hosting.
