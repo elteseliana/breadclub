@@ -160,9 +160,13 @@ test('setup creates the order, test, settings and summary tabs', () => {
   assert.equal(orders.get(1, env.ctx.COLUMNS.length), 'Order ID');
   assert.equal(env.sheets.get('Settings').get(2, 2), 18);
   assert.equal(orders.rules.length, 2, 'unpaid and canceled highlighting');
-  const summary = env.sheets.get('Bake summary').formulas.get('2,1');
-  assert.match(summary, /^=QUERY\('Website orders'!A2:Z, "select P, sum\(D\), sum\(E\), sum\(F\), sum\(G\), sum\(H\), sum\(I\), sum\(J\), sum\(Q\) where P is not null and V <> 'canceled' group by P/);
-  assert.match(env.sheets.get('Bake summary').formulas.get('2,12'), /select P, count\(X\), sum\(T\) where P is not null and L = 'Bit' and not U = true and V <> 'canceled'/);
+  const sum = env.sheets.get('Bake summary');
+  assert.deepEqual([1, 2, 9].map((c) => sum.get(2, c)), ['Delivery date', 'Plain sourdough', 'Total loaves']);
+  assert.equal(sum.formulas.get('3,1'), "=IFERROR(SORT(UNIQUE(FILTER('Website orders'!P2:P, 'Website orders'!P2:P<>\"\")), 1, FALSE), \"\")");
+  assert.equal(sum.formulas.get('3,2'), "=ARRAYFORMULA(IF($A3:$A=\"\", \"\", SUMIFS('Website orders'!D2:D, 'Website orders'!P2:P, $A3:$A, 'Website orders'!V2:V, \"<>canceled\")))");
+  assert.equal(sum.formulas.get('3,9'), "=ARRAYFORMULA(IF($A3:$A=\"\", \"\", SUMIFS('Website orders'!Q2:Q, 'Website orders'!P2:P, $A3:$A, 'Website orders'!V2:V, \"<>canceled\")))");
+  assert.match(sum.formulas.get('3,12'), /COUNTIFS\('Website orders'!P2:P, \$A3:\$A, 'Website orders'!L2:L, "Bit", 'Website orders'!U2:U, "<>TRUE", 'Website orders'!V2:V, "<>canceled"\)/);
+  assert.match(sum.formulas.get('3,13'), /SUMIFS\('Website orders'!T2:T, /);
   // Running setup again keeps settings Eliana changed
   env.sheets.get('Settings').set(2, 2, 12);
   env.ctx.setup();
@@ -365,4 +369,23 @@ test('when the sheet runs out of rows, more are added with the same formats', ()
   assert.equal(sheet.getLastRow(), 4);
   assert.equal(env.row('Website orders', 4)['Phone number'], '0530000000');
   assert.ok(sheet.textCols.has(env.ctx.COLUMNS.indexOf('Phone number') + 1), 'new rows formatted');
+});
+
+test('leftover FALSE checkboxes from an older setup do not push orders down the sheet', () => {
+  const env = makeEnv(THURSDAY);
+  env.ctx.setup();
+  const sheet = env.sheets.get('Website orders');
+  const cols = env.ctx.COLUMNS;
+  for (let r = 2; r <= 1000; r++) {
+    sheet.set(r, cols.indexOf('Paid') + 1, false);
+    sheet.set(r, cols.indexOf('Payment reminder') + 1, false);
+  }
+  assert.equal(env.post(order()).orderNumber, 1001);
+  assert.equal(env.row('Website orders', 2)['Order #'], 1001, 'first order goes in row 2, not row 1001');
+  assert.equal(sheet.maxRows, 1000, 'no extra rows added');
+  env.ctx.setup(); // re-running setup clears the leftovers but keeps the order and its checkbox
+  assert.equal(sheet.get(3, cols.indexOf('Paid') + 1), '');
+  assert.equal(env.row('Website orders', 2)['Order #'], 1001);
+  assert.equal(env.row('Website orders', 2).Paid, false);
+  assert.equal(env.get({ action: 'availability' }).dates[0].remaining, 16);
 });

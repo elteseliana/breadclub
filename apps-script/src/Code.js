@@ -75,6 +75,19 @@ function reminderFormula(r, reminder) {
     '),"Send reminder"))';
 }
 
+/** Last row that holds a real order (has an Order # or a Timestamp). getLastRow() also counts
+ *  empty checkbox cells, which would push new orders far down the sheet. */
+function lastOrderRow(sheet) {
+  var max = sheet.getMaxRows();
+  if (max < 2) return 1;
+  var a = sheet.getRange(2, col('Order #') + 1, max - 1, 1).getValues();
+  var b = sheet.getRange(2, col('Timestamp') + 1, max - 1, 1).getValues();
+  for (var i = a.length - 1; i >= 0; i--) {
+    if (String(a[i][0]).trim() !== '' || String(b[i][0]).trim() !== '') return i + 2;
+  }
+  return 1;
+}
+
 function sheetStore(test) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(test ? SHEETS.test : SHEETS.orders);
@@ -94,7 +107,7 @@ function sheetStore(test) {
     },
 
     listOrders: function () {
-      var last = sheet.getLastRow();
+      var last = lastOrderRow(sheet);
       if (last < 2) return [];
       return sheet.getRange(2, 1, last - 1, COLUMNS.length).getValues().map(function (r) {
         // Count loaves from the flavor columns, so editing a quantity updates the day's count.
@@ -123,7 +136,7 @@ function sheetStore(test) {
     },
 
     appendOrder: function (rec, reminderFor) {
-      var last = sheet.getLastRow();
+      var last = lastOrderRow(sheet);
       var numbers = last >= 2 ? sheet.getRange(2, col('Order #') + 1, last - 1, 1).getValues()
         .map(function (r) { return Number(r[0]) || 0; }) : [];
       var orderNumber = Math.max.apply(null, [FIRST_ORDER_NUMBER - 1].concat(numbers)) + 1;
@@ -241,8 +254,17 @@ function formatOrderRows(sheet) {
   // Plain text, so a date typed by hand (2026-11-10) stays text like the website's and is summed.
   sheet.getRange(2, col('Delivery date') + 1, rows, 1).setNumberFormat('@');
   sheet.getRange(2, col('Phone number') + 1, rows, 1).setNumberFormat('@');
-  sheet.getRange(2, col('Paid') + 1, rows, 1).setDataValidation(
-    SpreadsheetApp.newDataValidation().requireCheckbox().build());
+  // Leftover FALSE values in empty rows (from an earlier version) would look like orders: clear them.
+  ['Paid', 'Payment reminder'].forEach(function (name) {
+    var range = sheet.getRange(2, col(name) + 1, rows, 1);
+    var orderNums = sheet.getRange(2, col('Order #') + 1, rows, 1).getValues();
+    var vals = range.getValues().map(function (v, i) { return String(orderNums[i][0]).trim() === '' ? [''] : v; });
+    range.setValues(vals);
+  });
+  // Existing orders keep their Paid checkbox.
+  sheet.getRange(2, col('Order #') + 1, rows, 1).getValues().forEach(function (v, i) {
+    if (String(v[0]).trim() !== '') sheet.getRange(i + 2, col('Paid') + 1).insertCheckboxes();
+  });
   sheet.getRange(2, col('Status') + 1, rows, 1).setDataValidation(
     SpreadsheetApp.newDataValidation().requireValueInList(STATUS, true).setAllowInvalid(false).build());
 
@@ -278,29 +300,25 @@ function setupSettings(ss) {
 function setupSummary(ss) {
   var s = getOrCreate(ss, SHEETS.summary);
   s.clear();
-  var range = "'" + SHEETS.orders + "'!A2:" + colLetter(COLUMNS[COLUMNS.length - 1]);
-  var num = colLetter('Order #');
-  var d = colLetter('Delivery date');
-  var st = colLetter('Status');
-  var sums = BreadClub.MENU.map(function (item) { return 'sum(' + colLetter(item.name.en) + ')'; });
-  sums.push('sum(' + colLetter('Loaves') + ')');
-  var labels = BreadClub.MENU.map(function (item) {
-    return 'sum(' + colLetter(item.name.en) + ") '" + item.name.en + "'";
-  });
-  labels.push('sum(' + colLetter('Loaves') + ") 'Total loaves'");
+  var o = "'" + SHEETS.orders + "'!";
+  function c(name) { var l = colLetter(name); return o + l + '2:' + l; }
+  var notCanceled = c('Status') + ', "<>canceled"';
+  var dates = '$A3:$A';
 
   s.getRange('A1').setValue('What to bake (canceled orders not counted)').setFontWeight('bold');
-  s.getRange('A2').setFormula('=QUERY(' + range + ', "select ' + d + ', ' + sums.join(', ') +
-    ' where ' + d + " is not null and " + st + " <> 'canceled' group by " + d + ' order by ' + d +
-    ' desc label ' + d + " 'Delivery date', " + labels.join(', ') + '", 0)');
+  var head = ['Delivery date'].concat(BreadClub.MENU.map(function (item) { return item.name.en; }), ['Total loaves']);
+  s.getRange(2, 1, 1, head.length).setValues([head]).setFontWeight('bold');
+  s.getRange('A3').setFormula('=IFERROR(SORT(UNIQUE(FILTER(' + c('Delivery date') + ', ' + c('Delivery date') + '<>"")), 1, FALSE), "")');
+  BreadClub.MENU.concat([{ name: { en: 'Loaves' } }]).forEach(function (item, i) {
+    s.getRange(3, i + 2).setFormula('=ARRAYFORMULA(IF(' + dates + '="", "", SUMIFS(' + c(item.name.en) + ', ' +
+      c('Delivery date') + ', ' + dates + ', ' + notCanceled + ')))');
+  });
 
-  s.getRange('L1').setValue('Bit orders still unpaid').setFontWeight('bold');
-  var pays = colLetter('Payment');
-  var paid = colLetter('Paid');
-  var total = colLetter('Total ₪');
-  s.getRange('L2').setFormula('=QUERY(' + range + ', "select ' + d + ', count(' + num + '), sum(' + total + ')' +
-    ' where ' + d + ' is not null and ' + pays + " = 'Bit' and not " + paid + ' = true and ' + st +
-    " <> 'canceled' group by " + d +
-    ' order by ' + d + ' desc label ' + d + " 'Delivery date', count(" + num + ") 'Unpaid orders', sum(" + total +
-    ") 'Unpaid ₪'\", 0)");
+  var u = head.length + 2; // a gap column, then the unpaid table
+  s.getRange(1, u).setValue('Bit orders still unpaid').setFontWeight('bold');
+  s.getRange(2, u, 1, 3).setValues([['Delivery date', 'Unpaid orders', 'Unpaid ₪']]).setFontWeight('bold');
+  s.getRange(3, u).setFormula('=' + dates.replace('$A3:$A', 'A3:A'));
+  var unpaid = c('Delivery date') + ', ' + dates + ', ' + c('Payment') + ', "Bit", ' + c('Paid') + ', "<>TRUE", ' + notCanceled;
+  s.getRange(3, u + 1).setFormula('=ARRAYFORMULA(IF(' + dates + '="", "", COUNTIFS(' + unpaid + ')))');
+  s.getRange(3, u + 2).setFormula('=ARRAYFORMULA(IF(' + dates + '="", "", SUMIFS(' + c('Total ₪') + ', ' + unpaid + ')))');
 }
