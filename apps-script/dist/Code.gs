@@ -37,8 +37,7 @@ var BreadClub = (function () {
     maxQtyPerItem: 99,
     maxName: 80,
     maxAddress: 200,
-    maxNotes: 500,
-    maxOrdersPerPhonePerDay: 3 // stops one person (or a script) from filling a day; more by WhatsApp
+    maxNotes: 500
   };
 
   // No prototype, so names like "constructor" or "toString" are never menu items.
@@ -334,10 +333,6 @@ var BreadClubServer = (function () {
         var order = checked.order;
 
         var q = logic.quote(order.items, order.method);
-        var samePhone = orders.filter(function (o) {
-          return o.phone === order.phone && o.date === order.date && o.status !== 'canceled';
-        }).length;
-        if (samePhone >= logic.RULES.maxOrdersPerPhonePerDay) return { ok: false, error: 'limit', date: order.date };
         var cap = logic.checkCapacity(bookedLoaves(orders, order.date), q.loaves, settings.capacity);
         if (!cap.ok) return { ok: false, error: 'full', date: order.date, remaining: cap.remaining };
 

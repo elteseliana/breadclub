@@ -24,4 +24,4 @@ Fixed after review: formula injection into the sheet, zero-loaf orders via proto
 - A Pays-by value typed by hand in lowercase ("bit") is warned about by the dropdown but would be missed by the unpaid-Bit summary.
 
 ## Still needs Eliana's approval
-- About-us text; 3 orders per phone per bake day; Hebrew proofreading; going live (hosting, connecting the sheet, switching the Instagram link).
+- Hebrew proofreading (About text approved; per-phone limit removed at her request); going live (hosting, connecting the sheet, switching the Instagram link).

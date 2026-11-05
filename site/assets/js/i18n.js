@@ -72,7 +72,6 @@ var BreadClubI18n = (function () {
       'order.submit': 'Place order', 'order.sending': 'Placing your order…',
       'order.confirmNote': 'Bit payment confirms your order. Cash is paid at the door.',
       'done.confirmBit': 'Your order is confirmed once your Bit payment arrives.', 'done.confirmCash': 'See you at the door.',
-      'order.limit': 'You already have 3 orders for {day}. To add more, message us on WhatsApp.',
       'order.left': 'Only {n} loaves left for {day}. Choose fewer, or message us to check.',
       'order.leftOne': 'Only 1 loaf left for {day}. Choose fewer, or message us to check.',
       'order.fullNow': '{day} just filled up. Choose another day, or message us to check for room.',
@@ -100,7 +99,6 @@ var BreadClubI18n = (function () {
       'wa.room': 'Hi, I\'d like to order for {day}: {items}. Is there room?',
       'wa.hello': 'Hi, I have a question about The Bread Club.',
       'wa.check': 'Hi, I just ordered on the website for {day} ({items}) and I\'m not sure it went through. My name is {name}. Can you check?',
-      'wa.more': 'Hi, I\'d like to add another order for {day}: {items}.'
     },
     he: {
       'meta.title': 'The Bread Club | לחם מחמצת ביתי ברעננה',
@@ -165,7 +163,6 @@ var BreadClubI18n = (function () {
       'order.submit': 'לשליחת ההזמנה', 'order.sending': 'שולחות את ההזמנה…',
       'order.confirmNote': 'תשלום בביט מאשר את ההזמנה. מזומן משלמים בדלת.',
       'done.confirmBit': 'ההזמנה מאושרת כשהתשלום בביט מגיע.', 'done.confirmCash': 'נתראה בדלת.',
-      'order.limit': 'כבר יש לכם 3 הזמנות ל{day}. כדי להוסיף, כתבו לנו בוואטסאפ.',
       'order.left': 'נשארו רק {n} לחמים ל{day}. בחרו פחות, או כתבו לנו לבדוק.',
       'order.leftOne': 'נשאר רק לחם אחד ל{day}. בחרו פחות, או כתבו לנו לבדוק.',
       'order.fullNow': '{day} התמלא הרגע. בחרו יום אחר, או כתבו לנו לבדוק אם יש מקום.',
@@ -192,7 +189,6 @@ var BreadClubI18n = (function () {
       'wa.room': 'היי, אשמח להזמין ל{day}: {items}. יש מקום?',
       'wa.hello': 'היי, יש לי שאלה על The Bread Club.',
       'wa.check': 'היי, הזמנתי עכשיו באתר ל{day} ({items}) ואני לא בטוח/ה שזה עבר. השם שלי {name}. תוכלו לבדוק?',
-      'wa.more': 'היי, אשמח להוסיף עוד הזמנה ל{day}: {items}.'
     }
   };
 

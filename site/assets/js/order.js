@@ -386,9 +386,6 @@
       else state.message = { key: 'order.fix' };
       update();
       focusFirstError();
-    } else if (error === 'limit') {
-      state.message = { key: 'order.limit', vars: { day: BreadClubI18n.formatDay(res.date) }, waText: 'wa.more' };
-      update();
     } else if (error === 'full') {
       state.message = { key: 'order.fullNow', vars: { day: BreadClubI18n.formatDay(res.date) }, wa: res.date };
       loadDays();

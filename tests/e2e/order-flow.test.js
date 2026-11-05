@@ -431,23 +431,6 @@ test('before Google is connected, the order page points to the current Google Fo
   await p.context().close();
 });
 
-test('one phone number: a 4th order for the same day is sent to WhatsApp', async () => {
-  await fresh();
-  const p = await page();
-  for (let i = 0; i < 4; i++) {
-    await openOrder(p);
-    await p.check('input[name="date"][value="2026-11-13"]', { force: true });
-    await plus(p, 'plain');
-    await fillCustomer(p);
-    await p.click('#submit');
-    if (i < 3) { await p.waitForSelector('#done-view:not([hidden])'); await p.click('#another'); }
-  }
-  await p.waitForFunction(() => /already have 3 orders/.test(document.getElementById('form-message').textContent));
-  assert.ok(await p.getAttribute('#form-message a', 'href'));
-  assert.equal((await orders()).live.length, 3);
-  await p.context().close();
-});
-
 test('Hebrew capacity message reads naturally', async () => {
   await fresh();
   await control({ settings: { capacity: 2 } });

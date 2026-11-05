@@ -33,8 +33,7 @@ var BreadClub = (function () {
     maxQtyPerItem: 99,
     maxName: 80,
     maxAddress: 200,
-    maxNotes: 500,
-    maxOrdersPerPhonePerDay: 3 // stops one person (or a script) from filling a day; more by WhatsApp
+    maxNotes: 500
   };
 
   // No prototype, so names like "constructor" or "toString" are never menu items.

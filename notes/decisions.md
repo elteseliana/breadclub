@@ -32,4 +32,6 @@ Approved by Eliana in chat:
 - 054-911-2175 is Eliana's WhatsApp.
 - Cash orders are **not flagged** as unpaid; the sheet just says "Cash at door". Payment reminders are Bit-only.
 - Any delivery address is accepted.
-- Claude's choice: max 3 website orders per phone number per bake day (anti-abuse); more via WhatsApp.
+- ~~Max 3 orders per phone per bake day~~: Eliana chose **unlimited orders per number**.
+- Eliana approved the About-us text.
+- Eliana asked for a calmer, smoother redesign (one cream page, thin one-line name, transitions, new photos): done.

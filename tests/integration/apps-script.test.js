@@ -311,7 +311,7 @@ test('hand-typed rows: phone without leading 0 and Loaves-only rows are understo
     sheet.set(2 + i, cols.indexOf('Status') + 1, 'new');
   }
   assert.equal(env.get({ action: 'availability' }).dates[0].remaining, 15);
-  assert.deepEqual(env.post(order()), { ok: false, error: 'limit', date: '2026-11-10' }, 'same phone, 4th order that day');
+  assert.equal(env.post(order()).ok, true, 'same phone may order again');
 });
 
 test('test orders go to the Test orders tab only', () => {

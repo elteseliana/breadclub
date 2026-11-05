@@ -140,14 +140,10 @@ test('menu-like names from JavaScript objects never make a zero-loaf order', () 
   assert.equal(store.orders.length, 0);
 });
 
-test('one phone number can place at most 3 orders per bake day', () => {
+test('the same phone number can place any number of orders', () => {
   const { store, handler } = setup();
-  for (let i = 0; i < 3; i++) assert.equal(handler.submit(order({ items: { plain: 1 } })).ok, true);
-  assert.deepEqual(handler.submit(order({ items: { plain: 1 } })), { ok: false, error: 'limit', date: '2026-11-10' });
-  assert.equal(handler.submit(order({ items: { plain: 1 }, date: '2026-11-13' })).ok, true, 'other day is fine');
-  assert.equal(handler.submit(order({ items: { plain: 1 }, phone: '0520000000' })).ok, true, 'other phone is fine');
-  store.orders[0].status = 'canceled';
-  assert.equal(handler.submit(order({ items: { plain: 1 } })).ok, true, 'canceled orders do not count');
+  for (let i = 0; i < 6; i++) assert.equal(handler.submit(order({ items: { plain: 1 } })).ok, true);
+  assert.equal(store.orders.length, 6);
 });
 
 test('cash orders get no payment reminder', () => {

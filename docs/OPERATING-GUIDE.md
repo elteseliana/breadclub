@@ -37,7 +37,7 @@ Unpaid **Bit** orders are highlighted. Cash orders are not flagged; tick Paid wh
 - Ordering closes **4pm Sunday** for Tuesday and **4pm Wednesday** for Friday (Israel time).
 - The order page shows the next two open bake days.
 - Delivery +5 ₪, free when the loaves come to 100 ₪ or more.
-- One phone number can place up to 3 orders per bake day on the website; after that the page asks them to WhatsApp you (this stops someone filling a day with fake orders).
+- There is no limit on orders per phone number. If you ever see fake orders, set their Status to `canceled`: the loaves go straight back on sale.
 - Anything a customer types (name, address, notes) is stored as plain text, never as a formula.
 - The pickup address is never on the website. Customers are told you'll send it on WhatsApp.
 
