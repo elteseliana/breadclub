@@ -73,7 +73,18 @@ function fakeSheet(name) {
         insertCheckboxes: () => { sheet.checkboxes.add(r + ',' + c); return range; },
         setDataValidation: (v) => { sheet.validations.push({ r, c, nr, nc, v }); return range; }
       };
-      range.setNumberFormat = (fmt) => { if (fmt === '@' && nc === 1) sheet.textCols.add(c); if (fmt === 'General') sheet.textCols.clear(); return range; };
+      // Like Sheets: 'General' turns text that looks like a date into a real date; '@' then turns a real
+      // date into display text such as 11/10/2026 (not 2026-11-10).
+      range.setNumberFormat = (fmt) => {
+        for (let i = 0; i < nr; i++) for (let j = 0; j < nc; j++) {
+          const v = sheet.get(r + i, c + j);
+          if (fmt === 'General' && typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) sheet.set(r + i, c + j, new Date(v + 'T00:00:00Z'));
+          if (fmt === '@' && v instanceof Date) sheet.set(r + i, c + j, (v.getUTCMonth() + 1) + '/' + v.getUTCDate() + '/' + v.getUTCFullYear());
+        }
+        if (fmt === '@' && nc === 1) sheet.textCols.add(c);
+        if (fmt === 'General') { for (let j = 0; j < nc; j++) sheet.textCols.delete(c + j); }
+        return range;
+      };
       range.clearDataValidations = () => { sheet.validations = []; return range; };
       for (const m of ['setFontWeight', 'setBackground']) range[m] = () => range;
       return range;

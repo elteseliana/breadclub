@@ -615,7 +615,9 @@ function setupOrdersSheet(ss, name) {
 function formatOrderRows(sheet) {
   var rows = sheet.getMaxRows() - 1;
   // Start clean, so running setup again after a layout change leaves no checkbox in the wrong column.
-  sheet.getRange(2, 1, rows, sheet.getMaxColumns()).clearDataValidations().setNumberFormat('General');
+  // Never reset number formats here: Sheets would turn the text dates of existing orders into
+  // real dates, and they would stop matching their bake day.
+  sheet.getRange(2, 1, rows, sheet.getMaxColumns()).clearDataValidations();
   sheet.getRange(2, col('Payment') + 1, rows, 1).setDataValidation(
     SpreadsheetApp.newDataValidation().requireValueInList(['Bit', 'Cash at door'], true).build());
   // Plain text, so a date typed by hand (2026-11-10) stays text like the website's and is summed.
