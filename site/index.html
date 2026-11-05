@@ -43,7 +43,7 @@
       <a class="nav__brand" href="./" data-i18n-attr="aria-label:nav.home" aria-label="The Bread Club, home" lang="en">The Bread Club</a>
       <a class="nav__link" href="info.html" data-i18n="nav.info">info</a>
       <button class="nav__lang" type="button" data-lang-toggle data-i18n="nav.lang" data-i18n-attr="aria-label:nav.langLabel" lang="he" aria-label="קראו את האתר בעברית">עברית</button>
-      <a class="sticker" href="order.html" data-i18n="nav.order">Order</a>
+      <a class="nav__cta" href="order.html" data-i18n="nav.order">Order</a>
     </div>
   </header>
 
@@ -61,6 +61,8 @@
         </div>
       </div>
     </section>
+
+    <div class="marquee" aria-hidden="true"><div class="marquee__inner"><div class="marquee__track"></div></div></div>
 
     <section class="section intro" aria-label="About our bread">
       <div class="wrap wrap--text">
@@ -84,25 +86,29 @@
       <p class="wrap strip__hint" aria-hidden="true" data-i18n="gallery.swipe">swipe for more</p>
     </section>
 
-    <section class="section" id="menu" aria-labelledby="menu-title">
-      <div class="wrap menu reveal">
-        <div class="section__head">
-          <h2 class="display" id="menu-title" data-i18n="menu.title">The menu</h2>
+    <section class="hscroll" id="menu" aria-labelledby="menu-title">
+      <div class="hscroll__sticky">
+        <div class="wrap hscroll__head">
+          <h2 class="label" id="menu-title" data-i18n="menu.title">The menu</h2>
+          <span class="hscroll__count" aria-hidden="true" dir="ltr"></span>
         </div>
-        <div id="menu-list"><noscript><p>Please turn on JavaScript to see the menu, or see it on <a href="https://instagram.com/thebreadclub.il">Instagram</a>.</p></noscript></div>
-        <h3 class="label menu__section" data-i18n="menu.extras">Extras</h3>
+        <div class="hscroll__track" id="menu-list"><noscript><p class="wrap">Please turn on JavaScript to see the menu, or see it on <a href="https://instagram.com/thebreadclub.il">Instagram</a>.</p></noscript></div>
+        <div class="wrap"><div class="hscroll__bar" aria-hidden="true"><span></span></div></div>
+      </div>
+    </section>
+
+    <section class="section menu-after" aria-label="Delivery and payment">
+      <div class="wrap wrap--text reveal">
         <ul class="menu-list">
           <li>
             <div class="menu-item">
               <span class="menu-item__name" data-i18n="menu.delivery">Delivery, Tue &amp; Fri</span>
-              <span class="menu-item__dots" aria-hidden="true"></span>
               <span class="menu-item__price" dir="ltr">+5 ₪</span>
             </div>
             <p class="menu-note" data-i18n="menu.deliveryNote">free on orders of 100 ₪ or more</p>
           </li>
         </ul>
         <p class="menu__foot"><span data-i18n="menu.pay1">Payment via Bit confirms your order</span>, <span data-i18n="menu.pay2">or cash at the door</span>.</p>
-        <p class="tagline menu__tagline" lang="en" dir="ltr">members only. everyone's a member.</p>
       </div>
       <div class="wrap menu-cta reveal">
         <a class="btn" href="order.html" data-i18n="cta.order">Order now</a>
@@ -110,6 +116,7 @@
       </div>
     </section>
 
+    <div class="marquee marquee--reverse" aria-hidden="true"><div class="marquee__inner"><div class="marquee__track"></div></div></div>
   </main>
 
   <footer class="footer">

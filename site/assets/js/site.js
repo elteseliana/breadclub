@@ -1,7 +1,11 @@
-/* The Bread Club: home page. Renders the menu from logic.js so prices live in one place. */
+/* The Bread Club: home and info pages. Renders the menu from logic.js (prices live in one place)
+   and runs the scroll motion: sideways menu, moving text strips, hero drift, reveals. */
 (function () {
   'use strict';
   var t = BreadClubI18n.t;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var PHOTOS = ['04', '01', '02', '06', '08', '03', '07'];
+  var PHOTO_ALT = 'A loaf of The Bread Club sourdough';
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -9,27 +13,41 @@
     if (text !== undefined) e.textContent = text;
     return e;
   }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  // ---- menu: one panel per loaf -------------------------------------------------
 
   function renderMenu() {
     var host = document.getElementById('menu-list');
     if (!host) return;
     var lang = BreadClubI18n.lang;
     host.textContent = '';
-    [['original', 'menu.original'], ['collection', 'menu.collection']].forEach(function (section) {
-      host.appendChild(el('h3', 'label menu__section', t(section[1])));
-      var ul = el('ul', 'menu-list');
-      BreadClub.MENU.filter(function (m) { return m.section === section[0]; }).forEach(function (m) {
-        var li = el('li');
-        var row = el('div', 'menu-item');
-        row.appendChild(el('span', 'menu-item__name', m.name[lang]));
-        var dots = el('span', 'menu-item__dots');
-        dots.setAttribute('aria-hidden', 'true');
-        row.appendChild(dots);
-        row.appendChild(el('span', 'menu-item__price', BreadClubI18n.money(m.price)));
-        li.appendChild(row);
-        ul.appendChild(li);
-      });
-      host.appendChild(ul);
+    BreadClub.MENU.forEach(function (m, i) {
+      var panel = el('article', 'panel menu-item');
+      panel.appendChild(el('p', 'label panel__section', t(m.section === 'original' ? 'menu.original' : 'menu.collection')));
+      var img = el('img', 'panel__photo');
+      img.src = 'assets/img/bread-' + PHOTOS[i % PHOTOS.length] + '-700.webp';
+      img.alt = PHOTO_ALT;
+      img.width = 700; img.height = 933;
+      img.loading = 'lazy';
+      panel.appendChild(img);
+      var text = el('div', 'panel__text');
+      text.appendChild(el('h3', 'menu-item__name', m.name[lang]));
+      var row = el('p', 'panel__row');
+      row.appendChild(el('span', 'menu-item__price', BreadClubI18n.money(m.price)));
+      var link = el('a', 'text-link', t('menu.addLink'));
+      link.href = 'order.html';
+      row.appendChild(link);
+      text.appendChild(row);
+      panel.appendChild(text);
+      host.appendChild(panel);
+    });
+  }
+
+  function renderMarquees() {
+    document.querySelectorAll('.marquee__track').forEach(function (track) {
+      track.textContent = '';
+      for (var i = 0; i < 4; i++) track.appendChild(el('span', '', t('marquee') + ' '));
     });
   }
 
@@ -43,6 +61,8 @@
     });
     document.querySelectorAll('.js-instagram').forEach(function (a) { a.href = BreadClubConfig.instagram; });
   }
+
+  // ---- motion -----------------------------------------------------------------------
 
   function reveal() {
     var items = document.querySelectorAll('.reveal, .strip');
@@ -58,22 +78,77 @@
     items.forEach(function (n) { io.observe(n); });
   }
 
-  /* The nav sits over the photo at the top of the home page, then turns cream once you scroll. */
-  function scrollCues() {
-    var nav = document.querySelector('.nav');
-    var ticking = false;
-    function check() {
-      ticking = false;
-      if (nav) nav.classList.toggle('is-scrolled', window.scrollY > 24);
-    }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { ticking = true; window.requestAnimationFrame(check); }
-    }, { passive: true });
-    check();
+  var hs = null; // sideways menu state
+
+  /* The menu section stays on screen while vertical scrolling slides the loaves sideways. */
+  function setupSideways() {
+    var sec = document.querySelector('.hscroll');
+    if (!sec || reduceMotion) return;
+    sec.classList.add('hscroll--on');
+    hs = {
+      sec: sec, track: sec.querySelector('.hscroll__track'), bar: sec.querySelector('.hscroll__bar span'),
+      count: sec.querySelector('.hscroll__count'), dist: 0
+    };
+    measureSideways();
+    window.addEventListener('resize', measureSideways);
   }
 
-  function render() { renderMenu(); renderContacts(); }
+  function measureSideways() {
+    if (!hs) return;
+    hs.dist = Math.max(0, hs.track.scrollWidth - hs.track.clientWidth);
+    hs.sec.style.height = (window.innerHeight + hs.dist) + 'px';
+    updateSideways();
+  }
 
-  document.addEventListener('DOMContentLoaded', function () { render(); reveal(); scrollCues(); });
-  document.addEventListener('bc:lang', render);
+  function updateSideways() {
+    if (!hs) return;
+    var top = hs.sec.getBoundingClientRect().top;
+    var p = hs.dist ? Math.min(1, Math.max(0, -top / hs.dist)) : 0;
+    var dir = document.documentElement.dir === 'rtl' ? 1 : -1;
+    hs.track.style.transform = 'translate3d(' + (dir * p * hs.dist) + 'px,0,0)';
+    hs.bar.style.transform = 'scaleX(' + p + ')';
+    var panels = hs.track.children;
+    var current = Math.round(p * (panels.length - 1));
+    for (var i = 0; i < panels.length; i++) panels[i].classList.toggle('is-current', i === current);
+    hs.count.textContent = pad(current + 1) + ' / ' + pad(panels.length);
+  }
+
+  var lastY = window.scrollY;
+  var drift = 0;
+
+  function onScroll() {
+    var y = window.scrollY;
+    var nav = document.querySelector('.nav');
+    if (nav) nav.classList.toggle('is-scrolled', y > 24);
+    if (reduceMotion) return;
+
+    // Hero: the photo zooms in a little and the words drift up as you scroll away.
+    var hero = document.querySelector('.hero');
+    if (hero) {
+      var p = Math.min(1, Math.max(0, y / hero.offsetHeight));
+      hero.style.setProperty('--hero-p', p.toFixed(3));
+    }
+
+    // Text strips: they always drift, and scrolling pushes them further.
+    drift += (y - lastY) * 0.6;
+    document.querySelectorAll('.marquee__inner').forEach(function (m, i) {
+      m.style.transform = 'translate3d(' + ((i % 2 ? 1 : -1) * drift % 2000) + 'px,0,0)';
+    });
+    lastY = y;
+
+    updateSideways();
+  }
+
+  function scrollMotion() {
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(function () { ticking = false; onScroll(); }); }
+    }, { passive: true });
+    onScroll();
+  }
+
+  function render() { renderMenu(); renderMarquees(); renderContacts(); }
+
+  document.addEventListener('DOMContentLoaded', function () { render(); reveal(); setupSideways(); scrollMotion(); });
+  document.addEventListener('bc:lang', function () { render(); measureSideways(); });
 })();
