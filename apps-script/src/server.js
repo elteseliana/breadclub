@@ -4,9 +4,10 @@
  * `store` is a small interface so the same code runs against Google Sheets
  * (Code.js) and against an in-memory/file store in tests and local preview:
  *   store.getSettings()      -> { capacity: number, closedDates: ['YYYY-MM-DD'] }
- *   store.listOrders()       -> [{ orderId, orderNumber, date, loaves, total, method, payment, status }]
- *   store.appendOrder(rec, reminderLinkFor) -> orderNumber (number)
- *                            reminderLinkFor(orderNumber) builds the WhatsApp reminder link
+ *   store.listOrders()       -> [{ orderId, orderNumber, date, phone, loaves, total, method, payment, status }]
+ *   store.appendOrder(rec, reminderFor) -> orderNumber (number)
+ *                            reminderFor(orderNumber) -> null (cash) or { phone, before, after }:
+ *                            WhatsApp reminder text = before + current total + after
  * The caller must hold a lock around submit() so two orders cannot race for
  * the last loaves (Code.js uses LockService).
  */
@@ -29,17 +30,29 @@ var BreadClubServer = (function () {
     return Number(iso.slice(8, 10)) + '.' + Number(iso.slice(5, 7));
   }
 
-  /** Pre-written payment reminder, opened in WhatsApp by Eliana or Shayna. They press send. */
-  function reminderText(logic, order, total, orderNumber) {
+  /**
+   * Pre-written Bit payment reminder, opened in WhatsApp by Eliana or Shayna (they press send).
+   * Returned in two parts around the total, so the sheet can rebuild it if the total is edited.
+   */
+  function reminderParts(logic, order, orderNumber) {
     var day = DAY_NAMES[order.lang][logic.weekday(order.date)];
     if (order.lang === 'he') {
-      return 'היי ' + order.name + ', כאן The Bread Club. תזכורת קטנה: ההזמנה שלך (#' + orderNumber +
-        ') ליום ' + day + ' ' + shortDate(order.date) + ' יוצאת ₪' + total +
-        '. אפשר לשלם בביט ל-' + BIT_NUMBER + ' (עם השם המלא בהערה). תודה';
+      return {
+        before: 'היי ' + order.name + ', כאן The Bread Club. תזכורת קטנה: ההזמנה שלך (#' + orderNumber +
+          ') ליום ' + day + ' ' + shortDate(order.date) + ' יוצאת ₪',
+        after: '. אפשר לשלם בביט ל-' + BIT_NUMBER + ' (עם השם המלא בהערה). תודה'
+      };
     }
-    return 'Hi ' + order.name + ', this is The Bread Club. A quick reminder that your order (#' + orderNumber +
-      ') for ' + day + ' ' + shortDate(order.date) + ' comes to ₪' + total +
-      '. You can pay by Bit to ' + BIT_NUMBER + ' (please write your full name in the note). Thank you';
+    return {
+      before: 'Hi ' + order.name + ', this is The Bread Club. A quick reminder that your order (#' + orderNumber +
+        ') for ' + day + ' ' + shortDate(order.date) + ' comes to ₪',
+      after: '. You can pay by Bit to ' + BIT_NUMBER + ' (please write your full name in the note). Thank you'
+    };
+  }
+
+  function reminderText(logic, order, total, orderNumber) {
+    var parts = reminderParts(logic, order, orderNumber);
+    return parts.before + total + parts.after;
   }
 
   function receipt(orderNumber, orderId, date, q, extra) {
@@ -75,8 +88,9 @@ var BreadClubServer = (function () {
       try {
         var input = payload && typeof payload === 'object' ? payload : {};
 
-        // Bots fill the hidden "website" field. Pretend success, store nothing.
-        if (input.website) return { ok: true, orderNumber: null };
+        // Bots fill the hidden "website" field. Store nothing, and never claim success: a real
+        // customer whose browser autofilled it sees "couldn't confirm" plus the WhatsApp option.
+        if (input.website) return { ok: false, error: 'server' };
 
         var orders = store.listOrders();
 
@@ -97,6 +111,10 @@ var BreadClubServer = (function () {
         var order = checked.order;
 
         var q = logic.quote(order.items, order.method);
+        var samePhone = orders.filter(function (o) {
+          return o.phone === order.phone && o.date === order.date && o.status !== 'canceled';
+        }).length;
+        if (samePhone >= logic.RULES.maxOrdersPerPhonePerDay) return { ok: false, error: 'limit', date: order.date };
         var cap = logic.checkCapacity(bookedLoaves(orders, order.date), q.loaves, settings.capacity);
         if (!cap.ok) return { ok: false, error: 'full', date: order.date, remaining: cap.remaining };
 
@@ -108,7 +126,10 @@ var BreadClubServer = (function () {
           total: q.total, notes: order.notes, lang: order.lang, status: 'new', paid: false
         };
         var orderNumber = store.appendOrder(record, function (n) {
-          return logic.whatsappLink(order.phone, reminderText(logic, order, q.total, n));
+          // Cash is paid at the door, so cash orders get no payment reminder.
+          if (order.payment !== 'bit') return null;
+          var parts = reminderParts(logic, order, n);
+          return { phone: order.phone, before: parts.before, after: parts.after };
         });
         return receipt(orderNumber, order.orderId, order.date, q, { method: order.method, payment: order.payment });
       } catch (e) {
@@ -119,7 +140,7 @@ var BreadClubServer = (function () {
     return { availability: availability, submit: submit };
   }
 
-  return { createHandler: createHandler, reminderText: reminderText, bookedLoaves: bookedLoaves };
+  return { createHandler: createHandler, reminderParts: reminderParts, reminderText: reminderText, bookedLoaves: bookedLoaves };
 })();
 
 /* node:coverage ignore next */

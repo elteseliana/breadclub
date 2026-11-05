@@ -126,10 +126,41 @@ test('canceled orders free up their loaves', () => {
   assert.equal(handler.submit(order({ items: { plain: 1 } })).ok, true);
 });
 
-test('honeypot: bots get a fake success and nothing is stored', () => {
+test('honeypot: bots are refused without a success message, nothing is stored', () => {
   const { store, handler } = setup();
-  assert.deepEqual(handler.submit(order({ website: 'http://spam' })), { ok: true, orderNumber: null });
+  assert.deepEqual(handler.submit(order({ website: 'http://spam' })), { ok: false, error: 'server' });
   assert.equal(store.orders.length, 0);
+});
+
+test('menu-like names from JavaScript objects never make a zero-loaf order', () => {
+  const { store, handler } = setup();
+  for (const items of [{ constructor: 3 }, { toString: 1 }, {}]) {
+    assert.equal(handler.submit(order({ items })).error, 'invalid', JSON.stringify(items));
+  }
+  assert.equal(store.orders.length, 0);
+});
+
+test('one phone number can place at most 3 orders per bake day', () => {
+  const { store, handler } = setup();
+  for (let i = 0; i < 3; i++) assert.equal(handler.submit(order({ items: { plain: 1 } })).ok, true);
+  assert.deepEqual(handler.submit(order({ items: { plain: 1 } })), { ok: false, error: 'limit', date: '2026-11-10' });
+  assert.equal(handler.submit(order({ items: { plain: 1 }, date: '2026-11-13' })).ok, true, 'other day is fine');
+  assert.equal(handler.submit(order({ items: { plain: 1 }, phone: '0520000000' })).ok, true, 'other phone is fine');
+  store.orders[0].status = 'canceled';
+  assert.equal(handler.submit(order({ items: { plain: 1 } })).ok, true, 'canceled orders do not count');
+});
+
+test('cash orders get no payment reminder', () => {
+  const { store, handler } = setup();
+  handler.submit(order({ payment: 'cash' }));
+  assert.equal(store.orders[0].reminderLink, '');
+});
+
+test('reminder parts wrap the total so the sheet can rebuild the message', () => {
+  const o = { name: 'Dana', lang: 'en', date: '2026-11-13' };
+  const parts = Server.reminderParts(logic, o, 1005);
+  assert.equal(parts.before, 'Hi Dana, this is The Bread Club. A quick reminder that your order (#1005) for Friday 13.11 comes to ₪');
+  assert.equal(Server.reminderText(logic, o, 77, 1005), parts.before + '77' + parts.after);
 });
 
 test('storage failures are reported, never shown as success', () => {

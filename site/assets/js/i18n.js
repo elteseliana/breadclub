@@ -40,7 +40,7 @@ var BreadClubI18n = (function () {
       'faq.label': 'Questions',
       'faq.q1': 'Can I order a different flour, like spelt?', 'faq.a1': 'Yes. Message us on WhatsApp, minimum 2 loaves.',
       'faq.q2': 'Do you deliver outside Ra\'anana?', 'faq.a2': 'We deliver around Ra\'anana, Herzliya and close by. For bigger orders we\'re happy to drive further, so message us first.',
-      'faq.q3': 'I have an allergy.', 'faq.a3': 'Write it in the notes when you order and we\'ll get back to you.',
+      'faq.q3': 'I have an allergy.', 'faq.a3': 'Please write it in the notes when you order.',
       'faq.q4': 'How do you match my Bit payment?', 'faq.a4': 'By your full name in the Bit note, so please don\'t skip it.',
       'contact.label': 'Say hello', 'contact.title': 'Questions? Message us',
       'contact.instagram': 'Follow on Instagram', 'contact.wa': 'WhatsApp {name}',
@@ -67,12 +67,14 @@ var BreadClubI18n = (function () {
       'order.notesLabel': 'Notes or allergies (optional)',
       'order.subtotal': 'Loaves', 'order.deliveryFee': 'Delivery', 'order.free': 'free', 'order.total': 'Total',
       'order.submit': 'Place order', 'order.sending': 'Placing your order…',
-      'order.confirmNote': 'Your order is confirmed once payment is received.',
+      'order.confirmNote': 'Bit payment confirms your order. Cash is paid at the door.',
+      'done.confirmBit': 'Your order is confirmed once your Bit payment arrives.', 'done.confirmCash': 'See you at the door.',
+      'order.limit': 'You already have 3 orders for {day}. To add more, message us on WhatsApp.',
       'order.left': 'Only {n} loaves left for {day}. Choose fewer, or message us to check.',
       'order.leftOne': 'Only 1 loaf left for {day}. Choose fewer, or message us to check.',
       'order.fullNow': '{day} just filled up. Choose another day, or message us to check for room.',
       'order.dayClosed': 'Ordering for that day just closed. Please choose another day.',
-      'order.unknown': 'We couldn\'t confirm your order went through. Please try again. It\'s safe: you won\'t get a duplicate order.',
+      'order.unknown': 'We couldn\'t confirm your order went through. Please tap "Place order" again on this page. It\'s safe: from this page you won\'t get a duplicate order. Still stuck? Message us:',
       'order.fix': 'Please check the highlighted fields.',
       'order.offline': 'Online ordering opens soon. For now, please use our order form.',
       'order.useForm': 'Open the order form',
@@ -114,7 +116,7 @@ var BreadClubI18n = (function () {
       'info.label': 'משלוח ואיסוף',
       'info.days': 'ימי אפייה', 'info.daysText': 'שלישי ושישי',
       'info.cutoff': 'מזמינים עד', 'info.cutoffText': 'ראשון ב-16:00 לשלישי. רביעי ב-16:00 לשישי.',
-      'info.delivery': 'משלוח', 'info.deliveryText': '5 ₪, חינם בהזמנה מ-100 ₪. רעננה, הרצליה והסביבה. להזמנות גדולות אפשר גם רחוק יותר, רק תשאלו.',
+      'info.delivery': 'משלוח', 'info.deliveryText': 'תוספת 5 ₪, חינם בהזמנה מ-100 ₪. רעננה, הרצליה והסביבה. להזמנות גדולות אפשר גם רחוק יותר, רק תשאלו.',
       'info.pickup': 'איסוף', 'info.pickupText': 'חינם. את הכתובת נשלח בוואטסאפ אחרי ההזמנה.',
       'info.payment': 'תשלום', 'info.paymentText': 'ביט ל-054-911-2175 עם השם המלא בהערה, או מזומן בדלת.',
       'info.limit': 'בכל אפייה', 'info.limitText': 'אנחנו אופות כמות קטנה בכל יום. כשהיום מלא, שלחו לנו הודעה ונראה מה אפשר לעשות.',
@@ -128,7 +130,7 @@ var BreadClubI18n = (function () {
       'faq.label': 'שאלות',
       'faq.q1': 'אפשר להזמין מקמח אחר, כמו כוסמין?', 'faq.a1': 'כן. שלחו לנו הודעה בוואטסאפ, מינימום 2 לחמים.',
       'faq.q2': 'יש משלוחים מחוץ לרעננה?', 'faq.a2': 'אנחנו מגיעות לרעננה, הרצליה והסביבה. להזמנות גדולות נשמח לנסוע רחוק יותר, אז כתבו לנו קודם.',
-      'faq.q3': 'יש לי אלרגיה.', 'faq.a3': 'כתבו את זה בהערות בזמן ההזמנה ונחזור אליכם.',
+      'faq.q3': 'יש לי אלרגיה.', 'faq.a3': 'כתבו את זה בהערות בזמן ההזמנה.',
       'faq.q4': 'איך אתן יודעות שהתשלום בביט שלי?', 'faq.a4': 'לפי השם המלא בהערה של הביט, אז חשוב לא לדלג על זה.',
       'contact.label': 'דברו איתנו', 'contact.title': 'שאלות? כתבו לנו',
       'contact.instagram': 'עקבו באינסטגרם', 'contact.wa': 'וואטסאפ ל{name}',
@@ -145,7 +147,7 @@ var BreadClubI18n = (function () {
       'order.noDays': 'ההזמנות סגורות כרגע. כתבו לנו בוואטסאפ.',
       'order.less': 'פחות {item}', 'order.more': 'עוד {item}',
       'order.pickup': 'איסוף', 'order.pickupHint': 'חינם. את הכתובת נשלח בוואטסאפ.',
-      'order.delivery': 'משלוח', 'order.deliveryHint': '5 ₪, חינם מ-100 ₪. רעננה, הרצליה והסביבה.',
+      'order.delivery': 'משלוח', 'order.deliveryHint': 'תוספת 5 ₪, חינם מ-100 ₪. רעננה, הרצליה והסביבה.',
       'order.address': 'כתובת למשלוח', 'order.addressHint': 'רחוב, מספר, עיר. רחוק יותר? כתבו לנו קודם.',
       'order.name': 'שם מלא', 'order.phone': 'מספר נייד', 'order.phoneHint': 'נכתוב לכם בוואטסאפ.',
       'order.bit': 'ביט', 'order.bitHint': 'ל-054-911-2175 עם השם המלא בהערה.',
@@ -153,12 +155,14 @@ var BreadClubI18n = (function () {
       'order.notesLabel': 'הערות או אלרגיות (לא חובה)',
       'order.subtotal': 'לחמים', 'order.deliveryFee': 'משלוח', 'order.free': 'חינם', 'order.total': 'סה״כ',
       'order.submit': 'לשליחת ההזמנה', 'order.sending': 'שולחות את ההזמנה…',
-      'order.confirmNote': 'ההזמנה מאושרת אחרי שהתשלום מתקבל.',
-      'order.left': 'נשארו רק {n} לחמים ליום {day}. בחרו פחות, או כתבו לנו לבדוק.',
-      'order.leftOne': 'נשאר רק לחם אחד ליום {day}. בחרו פחות, או כתבו לנו לבדוק.',
-      'order.fullNow': 'יום {day} התמלא הרגע. בחרו יום אחר, או כתבו לנו לבדוק אם יש מקום.',
+      'order.confirmNote': 'תשלום בביט מאשר את ההזמנה. מזומן משלמים בדלת.',
+      'done.confirmBit': 'ההזמנה מאושרת כשהתשלום בביט מגיע.', 'done.confirmCash': 'נתראה בדלת.',
+      'order.limit': 'כבר יש לכם 3 הזמנות ל{day}. כדי להוסיף, כתבו לנו בוואטסאפ.',
+      'order.left': 'נשארו רק {n} לחמים ל{day}. בחרו פחות, או כתבו לנו לבדוק.',
+      'order.leftOne': 'נשאר רק לחם אחד ל{day}. בחרו פחות, או כתבו לנו לבדוק.',
+      'order.fullNow': '{day} התמלא הרגע. בחרו יום אחר, או כתבו לנו לבדוק אם יש מקום.',
       'order.dayClosed': 'ההזמנות ליום הזה נסגרו הרגע. בחרו יום אחר.',
-      'order.unknown': 'לא הצלחנו לוודא שההזמנה התקבלה. נסו שוב. זה בטוח: ההזמנה לא תירשם פעמיים.',
+      'order.unknown': 'לא הצלחנו לוודא שההזמנה התקבלה. לחצו שוב על "לשליחת ההזמנה" בעמוד הזה. זה בטוח: מהעמוד הזה ההזמנה לא תירשם פעמיים. עדיין לא עובד? כתבו לנו:',
       'order.fix': 'בדקו את השדות המסומנים.',
       'order.offline': 'ההזמנה באתר תיפתח בקרוב. בינתיים, הזמינו דרך הטופס שלנו.',
       'order.useForm': 'לטופס ההזמנה',
@@ -177,7 +181,7 @@ var BreadClubI18n = (function () {
       'done.delivery': 'נביא את ההזמנה לכתובת שנתתם.',
       'done.questions': 'שאלות או שינויים? כתבו לנו בוואטסאפ.',
       'done.another': 'הזמנה נוספת',
-      'wa.room': 'היי, אשמח להזמין ליום {day}: {items}. יש מקום?',
+      'wa.room': 'היי, אשמח להזמין ל{day}: {items}. יש מקום?',
       'wa.hello': 'היי, יש לי שאלה על The Bread Club.'
     }
   };
@@ -213,6 +217,7 @@ var BreadClubI18n = (function () {
         el.setAttribute(bits[0], t(bits[1]));
       });
     });
+    document.querySelectorAll('[data-lang-toggle]').forEach(function (b) { b.lang = lang === 'he' ? 'en' : 'he'; });
     var titleKey = document.body.getAttribute('data-title');
     if (titleKey) document.title = t(titleKey);
   }

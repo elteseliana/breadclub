@@ -14,13 +14,15 @@ function memoryStore(settings, initialOrders) {
     getSettings() { return store.settings; },
     listOrders() {
       return store.orders.map((o) => ({
-        orderId: o.orderId, orderNumber: o.orderNumber, date: o.date, loaves: o.loaves, total: o.total,
+        orderId: o.orderId, orderNumber: o.orderNumber, date: o.date, phone: o.phone, loaves: o.loaves, total: o.total,
         method: o.method, payment: o.payment, status: o.status
       }));
     },
-    appendOrder(rec, reminderLinkFor) {
+    appendOrder(rec, reminderFor) {
       const orderNumber = Math.max(FIRST_ORDER_NUMBER - 1, ...store.orders.map((o) => Number(o.orderNumber) || 0)) + 1;
-      store.orders.push(Object.assign({ orderNumber, reminderLink: reminderLinkFor(orderNumber) }, rec));
+      const r = reminderFor(orderNumber);
+      const reminderLink = r ? 'https://wa.me/972' + r.phone.slice(1) + '?text=' + encodeURIComponent(r.before + rec.total + r.after) : '';
+      store.orders.push(Object.assign({ orderNumber, reminderLink }, rec));
       return orderNumber;
     }
   };
@@ -33,7 +35,7 @@ function fileStore(path, settings) {
   const store = memoryStore(Object.assign({}, saved.settings, settings), saved.orders || []);
   const save = () => fs.writeFileSync(path, JSON.stringify({ settings: store.settings, orders: store.orders }, null, 2));
   const append = store.appendOrder;
-  store.appendOrder = (rec, linkFor) => { const n = append(rec, linkFor); save(); return n; };
+  store.appendOrder = (rec, reminderFor) => { const n = append(rec, reminderFor); save(); return n; };
   store.save = save;
   return store;
 }

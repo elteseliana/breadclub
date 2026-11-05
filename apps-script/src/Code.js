@@ -34,10 +34,44 @@ function colLetter(name) {
 
 function toIsoDate(v) {
   if (Object.prototype.toString.call(v) === '[object Date]') return Utilities.formatDate(v, BreadClub.RULES.timeZone, 'yyyy-MM-dd');
-  return String(v || '').trim();
+  return String(v || '').trim().replace(/^'/, '');
 }
 
 // ---- Store backed by the spreadsheet ---------------------------------------
+
+/**
+ * Text typed by customers must never become a formula. Sheets treats a value starting with
+ * = + - @ as a formula (e.g. =IMPORTXML(...) could leak the sheet), so force it to plain text.
+ */
+function safeText(v) {
+  var s = String(v === undefined || v === null ? '' : v);
+  return /^[=+\-@\t\r\n]/.test(s) ? "'" + s : s;
+}
+
+function quoteFormulaString(s) { return '"' + String(s).replace(/"/g, '""') + '"'; }
+
+/** Spreadsheet formulas for one row, so totals follow any quantity Eliana edits by hand. */
+function rowFormulas(r) {
+  var first = colLetter(BreadClub.MENU[0].name.en);
+  var lastItem = colLetter(BreadClub.MENU[BreadClub.MENU.length - 1].name.en);
+  var subtotal = BreadClub.MENU.map(function (item) { return 'N(' + colLetter(item.name.en) + r + ')*' + item.price; }).join('+');
+  var sub = colLetter('Subtotal ₪') + r;
+  return {
+    loaves: '=SUM(' + first + r + ':' + lastItem + r + ')',
+    subtotal: '=' + subtotal,
+    delivery: '=IF(AND(' + colLetter('Pickup / delivery') + r + '="Delivery",' + sub + '<' +
+      BreadClub.RULES.freeDeliveryFrom + '),' + BreadClub.RULES.deliveryFee + ',0)',
+    total: '=' + sub + '+' + colLetter('Delivery ₪') + r
+  };
+}
+
+/** WhatsApp reminder that always uses the row's current total, and disappears once Paid is ticked. */
+function reminderFormula(r, reminder) {
+  var url = 'https://wa.me/972' + reminder.phone.slice(1) + '?text=';
+  return '=IF(' + colLetter('Paid') + r + '=TRUE,"",HYPERLINK(' + quoteFormulaString(url) + '&ENCODEURL(' +
+    quoteFormulaString(reminder.before) + '&' + colLetter('Total ₪') + r + '&' + quoteFormulaString(reminder.after) +
+    '),"Send reminder"))';
+}
 
 function sheetStore(test) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -47,8 +81,9 @@ function sheetStore(test) {
   return {
     getSettings: function () {
       var s = ss.getSheetByName(SHEETS.settings);
-      var capacity = Number(s.getRange('B2').getValue());
-      if (!(capacity >= 0) || capacity % 1 !== 0) capacity = BreadClub.RULES.defaultCapacity;
+      var raw = s.getRange('B2').getValue();
+      var capacity = Number(raw);
+      if (raw === '' || raw === null || !(capacity >= 0) || capacity % 1 !== 0) capacity = BreadClub.RULES.defaultCapacity;
       var last = s.getLastRow();
       var closed = last >= 6 ? s.getRange(6, 1, last - 5, 1).getValues()
         .map(function (r) { return toIsoDate(r[0]); })
@@ -60,43 +95,56 @@ function sheetStore(test) {
       var last = sheet.getLastRow();
       if (last < 2) return [];
       return sheet.getRange(2, 1, last - 1, COLUMNS.length).getValues().map(function (r) {
+        // Count loaves from the flavor columns, so editing a quantity updates the day's count.
+        var items = {};
+        var counted = 0;
+        BreadClub.MENU.forEach(function (item) {
+          var q = Number(r[col(item.name.en)]) || 0;
+          if (q > 0) { items[item.id] = q; counted += q; }
+        });
+        var method = r[col('Pickup / delivery')] === 'Delivery' ? 'delivery' : 'pickup';
+        var digits = String(r[col('Phone')] || '').replace(/\D/g, '');
+        if (digits.length === 9) digits = '0' + digits; // a hand-typed number that lost its leading 0
         return {
           orderNumber: r[col('Order #')],
           orderId: String(r[col('Order ID')] || ''),
           date: toIsoDate(r[col('Delivery date')]),
-          loaves: Number(r[col('Loaves')]) || 0,
-          total: Number(r[col('Total ₪')]) || 0,
-          method: r[col('Pickup / delivery')] === 'Delivery' ? 'delivery' : 'pickup',
-          payment: r[col('Pays by')] === 'Cash' ? 'cash' : 'bit',
+          phone: digits,
+          // A hand-typed row may only fill in "Loaves".
+          loaves: counted || Number(r[col('Loaves')]) || 0,
+          total: counted ? BreadClub.quote(items, method).total : Number(r[col('Total ₪')]) || 0,
+          method: method,
+          payment: /^cash/i.test(String(r[col('Pays by')])) ? 'cash' : 'bit',
           status: String(r[col('Status')] || '').trim().toLowerCase()
         };
       });
     },
 
-    appendOrder: function (rec, reminderLinkFor) {
+    appendOrder: function (rec, reminderFor) {
       var last = sheet.getLastRow();
       var numbers = last >= 2 ? sheet.getRange(2, 1, last - 1, 1).getValues()
         .map(function (r) { return Number(r[0]) || 0; }) : [];
       var orderNumber = Math.max.apply(null, [FIRST_ORDER_NUMBER - 1].concat(numbers)) + 1;
-      var link = reminderLinkFor(orderNumber);
+      var rowIndex = last + 1;
+      var f = rowFormulas(rowIndex);
+      var reminder = reminderFor(orderNumber);
 
       var row = [
         orderNumber,
         Utilities.formatDate(new Date(rec.receivedAt), BreadClub.RULES.timeZone, 'yyyy-MM-dd HH:mm'),
-        "'" + rec.date,
+        rec.date, // column is plain-text format (set in setup), so it stays text
         ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][rec.weekday],
-        rec.name,
-        "'" + rec.phone,
+        safeText(rec.name),
+        rec.phone, // plain-text column keeps the leading 0
         rec.method === 'delivery' ? 'Delivery' : 'Pickup',
-        rec.address,
-        rec.payment === 'bit' ? 'Bit' : 'Cash'
+        safeText(rec.address),
+        rec.payment === 'bit' ? 'Bit' : 'Cash at door'
       ];
       BreadClub.MENU.forEach(function (item) { row.push(rec.items[item.id] || ''); });
-      row.push(rec.loaves, rec.subtotal, rec.deliveryFee, rec.total, rec.notes,
+      row.push(f.loaves, f.subtotal, f.delivery, f.total, safeText(rec.notes),
         rec.lang === 'he' ? 'Hebrew' : 'English', false, rec.status,
-        '=HYPERLINK("' + link + '","Send reminder")', rec.orderId);
+        reminder ? reminderFormula(rowIndex, reminder) : '', safeText(rec.orderId));
 
-      var rowIndex = last + 1;
       sheet.getRange(rowIndex, 1, 1, row.length).setValues([row]);
       sheet.getRange(rowIndex, col('Paid') + 1).insertCheckboxes();
       SpreadsheetApp.flush();
@@ -166,22 +214,27 @@ function setupOrdersSheet(ss, name) {
   sheet.setFrozenColumns(1);
 
   var rows = sheet.getMaxRows() - 1;
+  // Plain text, so a date typed by hand (2026-11-10) stays text like the website's and is summed.
+  sheet.getRange(2, col('Delivery date') + 1, rows, 1).setNumberFormat('@');
+  sheet.getRange(2, col('Phone') + 1, rows, 1).setNumberFormat('@');
   sheet.getRange(2, col('Paid') + 1, rows, 1).setDataValidation(
     SpreadsheetApp.newDataValidation().requireCheckbox().build());
   sheet.getRange(2, col('Status') + 1, rows, 1).setDataValidation(
     SpreadsheetApp.newDataValidation().requireValueInList(STATUS, true).setAllowInvalid(false).build());
 
-  // Highlight: unpaid (not canceled) rows in soft tan; canceled rows greyed out.
+  // Highlight: unpaid Bit orders (not canceled) in soft tan; canceled rows greyed out.
+  // Cash orders are not flagged: they pay at the door.
   var all = sheet.getRange(2, 1, rows, COLUMNS.length);
   var paid = '$' + colLetter('Paid') + '2';
   var status = '$' + colLetter('Status') + '2';
   var first = '$A2';
+  var pays = '$' + colLetter('Pays by') + '2';
   sheet.setConditionalFormatRules([
     SpreadsheetApp.newConditionalFormatRule()
       .whenFormulaSatisfied('=AND(' + first + '<>"",' + status + '="canceled")')
       .setFontColor('#9C8B77').setStrikethrough(true).setRanges([all]).build(),
     SpreadsheetApp.newConditionalFormatRule()
-      .whenFormulaSatisfied('=AND(' + first + '<>"",' + paid + '=FALSE,' + status + '<>"canceled")')
+      .whenFormulaSatisfied('=AND(' + first + '<>"",' + pays + '="Bit",' + paid + '<>TRUE,' + status + '<>"canceled")')
       .setBackground('#F4E1CF').setRanges([all]).build()
   ]);
 }
@@ -216,11 +269,13 @@ function setupSummary(ss) {
     ' where ' + d + " is not null and " + st + " <> 'canceled' group by " + d + ' order by ' + d +
     ' desc label ' + d + " 'Delivery date', " + labels.join(', ') + '", 0)');
 
-  s.getRange('L1').setValue('Still unpaid').setFontWeight('bold');
+  s.getRange('L1').setValue('Bit orders still unpaid').setFontWeight('bold');
+  var pays = colLetter('Pays by');
   var paid = colLetter('Paid');
   var total = colLetter('Total ₪');
   s.getRange('L2').setFormula('=QUERY(' + range + ', "select ' + d + ', count(A), sum(' + total + ')' +
-    ' where ' + d + ' is not null and ' + paid + ' = false and ' + st + " <> 'canceled' group by " + d +
+    ' where ' + d + ' is not null and ' + pays + " = 'Bit' and not " + paid + ' = true and ' + st +
+    " <> 'canceled' group by " + d +
     ' order by ' + d + ' desc label ' + d + " 'Delivery date', count(A) 'Unpaid orders', sum(" + total +
     ") 'Unpaid ₪'\", 0)");
 }

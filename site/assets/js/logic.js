@@ -33,10 +33,12 @@ var BreadClub = (function () {
     maxQtyPerItem: 99,
     maxName: 80,
     maxAddress: 200,
-    maxNotes: 500
+    maxNotes: 500,
+    maxOrdersPerPhonePerDay: 3 // stops one person (or a script) from filling a day; more by WhatsApp
   };
 
-  var MENU_BY_ID = {};
+  // No prototype, so names like "constructor" or "toString" are never menu items.
+  var MENU_BY_ID = Object.create(null);
   MENU.forEach(function (item) { MENU_BY_ID[item.id] = item; });
 
   // ---- Dates (all calendar dates are 'YYYY-MM-DD' strings in Israel time) --

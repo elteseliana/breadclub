@@ -36,6 +36,6 @@ module.exports = [
   {
     // code inside page.evaluate() runs in the browser
     files: ['tests/e2e/**/*.js'],
-    languageOptions: { globals: Object.assign({}, globals.node, { document: 'readonly' }) }
+    languageOptions: { globals: Object.assign({}, globals.node, { document: 'readonly', window: 'readonly' }) }
   }
 ];

@@ -154,7 +154,8 @@ test('validateOrder reports every bad field', () => {
 });
 
 test('validateOrder rejects bad quantities and unknown items', () => {
-  const bad = [{ plain: -1 }, { plain: 1.5 }, { plain: '2' }, { plain: 100 }, { plain: NaN }, { croissant: 1 }];
+  const bad = [{ plain: -1 }, { plain: 1.5 }, { plain: '2' }, { plain: 100 }, { plain: NaN }, { croissant: 1 },
+    { constructor: 3 }, { toString: 1 }, { hasOwnProperty: 2 }, JSON.parse('{"__proto__": 1}')];
   for (const items of bad) {
     const r = L.validateOrder(Object.assign(good(), { items }), { now: NOW });
     assert.equal(r.errors.items, 'invalid', JSON.stringify(items));

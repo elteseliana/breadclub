@@ -26,3 +26,10 @@ Approved by Eliana in chat:
 - The nav bar is cream instead of powder blue, because brown text on powder blue is slightly below accessible contrast for small text (4.35:1 vs 4.5:1).
 - Menu-card section labels are brown with blue-gray dashes (blue-gray text alone fails contrast).
 - About-us text, FAQ and the payment-reminder wording were written by Claude from Eliana's materials. She needs to approve them.
+
+## Second round (Nov 5, 2026, after review)
+- After launch the website is the **only** order channel; the Google Form is retired (Eliana will also fix its Friday "order by Tuesday" typo while it's still up).
+- 054-911-2175 is Eliana's WhatsApp.
+- Cash orders are **not flagged** as unpaid; the sheet just says "Cash at door". Payment reminders are Bit-only.
+- Any delivery address is accepted.
+- Claude's choice: max 3 website orders per phone number per bake day (anti-abuse); more via WhatsApp.

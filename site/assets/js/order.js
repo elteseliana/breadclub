@@ -201,6 +201,7 @@
     var next = Math.max(0, Math.min(L.RULES.maxQtyPerItem, (state.items[id] || 0) + delta));
     if (next) state.items[id] = next; else delete state.items[id];
     delete state.errors.items;
+    if (state.message && /^order\.left/.test(state.message.key)) state.message = null;
     renderLoaves();
     var again = document.querySelector('.loaf[data-id="' + id + '"] button[data-step="' + delta + '"]');
     if (again && !again.disabled) again.focus();
@@ -209,6 +210,7 @@
       if (other) other.focus();
     }
     update();
+    clearFixMessage();
   }
 
   // ---- totals, capacity and messages -----------------------------------------------
@@ -246,6 +248,14 @@
 
   var FIELD_INPUT = { name: 'name', phone: 'phone', address: 'address', notes: 'notes' };
 
+  /** Once every highlighted field is fixed, drop the "please check the highlighted fields" message. */
+  function clearFixMessage() {
+    if (state.message && state.message.key === 'order.fix' && !Object.keys(state.errors).length) {
+      state.message = null;
+      renderMessage();
+    }
+  }
+
   function renderErrors() {
     ['date', 'items', 'method', 'address', 'name', 'phone', 'payment', 'notes'].forEach(function (f) {
       var key = state.errors[f];
@@ -264,6 +274,7 @@
     if (!m) return;
     var p = el('p', {}, [document.createTextNode(t(m.key, m.vars) + ' ')]);
     if (m.wa) p.appendChild(el('a', { href: roomLink(m.wa), text: 'WhatsApp' }));
+    else if (m.key === 'order.unknown') p.appendChild(el('a', { href: L.whatsappLink(cfg.bakers[0].phone, t('wa.hello')), text: 'WhatsApp' }));
     host.appendChild(el('div', { className: 'notice notice--strong' }, [p]));
   }
 
@@ -330,7 +341,12 @@
       return;
     }
     var over = overCapacity();
-    if (over) { update(); $('capacity-note').scrollIntoView({ block: 'center' }); return; }
+    if (over) {
+      state.message = { key: over.remaining === 1 ? 'order.leftOne' : 'order.left',
+        vars: { n: over.remaining, day: BreadClubI18n.formatDay(over.date) }, wa: over.date };
+      update();
+      return;
+    }
 
     setSending(true);
     update();
@@ -362,6 +378,9 @@
       else state.message = { key: 'order.fix' };
       update();
       focusFirstError();
+    } else if (error === 'limit') {
+      state.message = { key: 'order.limit', vars: { day: BreadClubI18n.formatDay(res.date) }, wa: res.date };
+      update();
     } else if (error === 'full') {
       state.message = { key: 'order.fullNow', vars: { day: BreadClubI18n.formatDay(res.date) }, wa: res.date };
       loadDays();
@@ -369,7 +388,7 @@
     } else {
       // Network error, timeout, busy or server error: we don't know if it was saved.
       // Retrying is safe because the same order ID is sent again.
-      state.message = { key: 'order.unknown' };
+      state.message = { key: 'order.unknown', wa: radioValue('date') || null };
       update();
       $('submit').focus();
     }
@@ -383,8 +402,9 @@
     var v = $('done-view');
     v.hidden = false;
     renderDone();
-    window.scrollTo(0, 0);
-    v.focus();
+    // 'instant' so the page's smooth scrolling can't be interrupted halfway by the focus below
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    v.focus({ preventScroll: true });
   }
 
   function renderDone() {
@@ -403,6 +423,7 @@
     $('done-bit-number').textContent = cfg.bitNumber;
     $('done-cash').textContent = t('done.payCash', { total: total });
     $('done-method').textContent = t(r.method === 'delivery' ? 'done.delivery' : 'done.pickup');
+    $('done-confirm').textContent = t(bit ? 'done.confirmBit' : 'done.confirmCash');
   }
 
   function copyBit() {
@@ -445,9 +466,10 @@
       if (e.target.name === 'date' || e.target.name === 'method' || e.target.name === 'payment') delete state.errors[e.target.name];
       if (e.target.name === 'date') state.draftDate = e.target.value;
       update();
+      clearFixMessage();
     });
     form.addEventListener('input', function (e) {
-      if (state.errors[e.target.name]) { delete state.errors[e.target.name]; renderErrors(); }
+      if (state.errors[e.target.name]) { delete state.errors[e.target.name]; renderErrors(); clearFixMessage(); }
       saveDraft();
     });
   }

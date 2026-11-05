@@ -116,6 +116,9 @@ test('ordinary order: live total, one stored order, Bit instructions, survives r
   assert.equal(await text(p, '#done-total'), '89 ₪');
   assert.equal(await text(p, '#done-bit-number'), '054-911-2175');
   assert.equal(await p.isHidden('#done-cash'), true);
+  await p.waitForTimeout(600); // let any smooth scrolling finish
+  assert.equal(await p.evaluate(() => window.scrollY), 0, 'confirmation opens at the top');
+  assert.ok(await p.evaluate(() => document.getElementById('done-total').getBoundingClientRect().top > 0), 'total on screen');
 
   const { live } = await orders();
   assert.equal(live.length, 1);
@@ -154,6 +157,7 @@ test('pickup with cash, and delivery becomes free at exactly 100 ₪', async () 
   assert.equal(await p.isHidden('#done-bit'), true);
   assert.equal(await text(p, '#done-cash'), 'Please have 100 ₪ in cash ready when you get your bread.');
   assert.equal(await text(p, '#done-method'), 'We\'ll send you the pickup address on WhatsApp.');
+  assert.equal(await text(p, '#done-confirm'), 'See you at the door.');
   const o = (await orders()).live[0];
   assert.deepEqual([o.method, o.payment, o.address, o.total, o.date], ['pickup', 'cash', '', 100, '2026-11-13']);
   await p.context().close();
@@ -181,9 +185,11 @@ test('invalid input: errors shown next to fields, nothing stored', async () => {
   assert.equal(await text(p, '#address-error'), 'Please write the delivery address.');
   assert.equal(await p.getAttribute('#phone', 'aria-invalid'), 'true');
   assert.equal((await orders()).live.length, 0);
+  assert.equal(await text(p, '#form-message'), 'Please check the highlighted fields.');
 
   await p.fill('#address', '1 Test St, Herzliya');
   await p.fill('#phone', '+972 54 000 0000');
+  assert.equal(await text(p, '#form-message'), '', 'message goes away once everything is fixed');
   await p.click('#submit');
   await p.waitForSelector('#done-view:not([hidden])');
   assert.equal((await orders()).live[0].phone, '0540000000');
@@ -221,6 +227,7 @@ test('capacity: warns before ordering too many, sold-out days offer WhatsApp', a
   await fillCustomer(p);
   await p.click('#submit');
   assert.equal(await p.isVisible('#order-form'), true);
+  assert.match(await text(p, '#form-message'), /^Only 4 loaves left for Tuesday 10 November/, 'told next to the button');
   assert.equal((await orders()).live.length, 0, 'over-capacity order was not sent');
 
   await p.click('.loaf[data-id="plain"] button[data-step="-1"]');
@@ -391,6 +398,7 @@ test('Hebrew order end to end', async () => {
   await p.click('#submit');
   await p.waitForSelector('#done-view:not([hidden])');
   assert.equal(await text(p, '#done-title'), 'תודה, לקוחה');
+  assert.doesNotMatch(await p.content(), /יום יום|ליום יום/);
   assert.equal(await p.evaluate(() => document.documentElement.scrollWidth), 390);
   assert.equal((await orders()).live[0].lang, 'he');
   assert.deepEqual(p.errors, []);
@@ -418,5 +426,33 @@ test('before Google is connected, the order page points to the current Google Fo
   await p.waitForSelector('#offline:not([hidden])');
   assert.match(await p.getAttribute('#google-form-link', 'href'), /^https:\/\/docs\.google\.com\/forms\//);
   assert.equal(await p.isHidden('#order-form'), true);
+  await p.context().close();
+});
+
+test('one phone number: a 4th order for the same day is sent to WhatsApp', async () => {
+  await fresh();
+  const p = await page();
+  for (let i = 0; i < 4; i++) {
+    await openOrder(p);
+    await p.check('input[name="date"][value="2026-11-13"]', { force: true });
+    await plus(p, 'plain');
+    await fillCustomer(p);
+    await p.click('#submit');
+    if (i < 3) { await p.waitForSelector('#done-view:not([hidden])'); await p.click('#another'); }
+  }
+  await p.waitForFunction(() => /already have 3 orders/.test(document.getElementById('form-message').textContent));
+  assert.ok(await p.getAttribute('#form-message a', 'href'));
+  assert.equal((await orders()).live.length, 3);
+  await p.context().close();
+});
+
+test('Hebrew capacity message reads naturally', async () => {
+  await fresh();
+  await control({ settings: { capacity: 2 } });
+  const p = await page();
+  await openOrder(p, '&lang=he');
+  await p.check('input[name="date"][value="2026-11-13"]', { force: true });
+  await plus(p, 'plain', 3);
+  assert.match(await text(p, '#capacity-note'), /^נשארו רק 2 לחמים ליום שישי, 13 בנובמבר/);
   await p.context().close();
 });
