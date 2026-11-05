@@ -229,9 +229,11 @@ var BreadClubI18n = (function () {
   function setLang(next) {
     lang = next;
     write(STORAGE_KEY, next);
-    var url = new URL(window.location.href);
-    url.searchParams.delete('lang');
-    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.delete('lang');
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    } catch (e) { /* some embedded viewers don't allow changing the address */ }
     apply();
     document.dispatchEvent(new CustomEvent('bc:lang', { detail: next }));
   }
