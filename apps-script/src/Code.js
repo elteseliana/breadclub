@@ -4,7 +4,7 @@
  * This is the thin layer between the order rules (logic.js, server.js) and the
  * spreadsheet. It is not run by the automated unit tests because it needs Google's
  * SpreadsheetApp; the same handler is exercised end to end with a file store.
- * See docs/SETUP-google-sheet.md for how to install it.
+ * Setup steps are in the owners' private guide (Sheet setup).
  */
 
 var SHEETS = {

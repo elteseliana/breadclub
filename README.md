@@ -5,8 +5,7 @@ Website and order page for The Bread Club, homemade sourdough in Ra'anana.
 - `site/`: the website (plain HTML, CSS and JavaScript, no build step). `index.html` is the home page; `order.html` is the order page.
 - `site/assets/js/logic.js`: **the menu, prices and order rules** (cutoffs, delivery fee, 18-loaf limit). The only place prices live.
 - `apps-script/`: the Google Sheets side. `src/` is the source; `dist/Code.gs` is the file to paste into Apps Script (generated).
-- `docs/`: [setup](docs/SETUP-google-sheet.md), [operating guide](docs/OPERATING-GUIDE.md), [Hebrew to proofread](docs/HEBREW-to-proofread.md).
-- `notes/`: interview answers, workflow map and decisions.
+- The owners' notes and guides are kept privately, not in this repository.
 
 ## Try it locally
 ```sh

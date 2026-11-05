@@ -3,7 +3,7 @@
  * Runs the real generated apps-script/dist/Code.gs against a small fake of Google's
  * SpreadsheetApp, so the sheet layout, numbering, locking and parsing are tested
  * without a Google account. It is a fake: real Google behavior must still be checked
- * once with a test order after setup (see docs/SETUP-google-sheet.md).
+ * once with a test order after setup (see the owners' private setup guide).
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');

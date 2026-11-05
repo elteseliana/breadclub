@@ -1,7 +1,7 @@
 /*
  * The Bread Club: settings Eliana may need to change.
  *
- * apiUrl: the web app URL from Google Apps Script (see docs/SETUP-google-sheet.md).
+ * apiUrl: the web app URL from Google Apps Script (see the owners' private setup guide).
  *         While it is empty, the order page sends people to the current Google Form instead.
  */
 var BreadClubConfig = {

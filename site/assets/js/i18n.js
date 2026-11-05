@@ -1,7 +1,7 @@
 /*
  * The Bread Club: English and Hebrew text.
  * Hebrew was written by Claude and must be proofread by a native speaker before launch
- * (see docs/HEBREW-to-proofread.md).
+ * (checklist kept in the owners' private guide).
  */
 var BreadClubI18n = (function () {
   'use strict';

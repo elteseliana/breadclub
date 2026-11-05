@@ -1,3 +1,8 @@
 .data/
 node_modules/
 test-results/
+
+# Private: kept in the owners' Google Drive, never committed
+notes/
+docs/
+eliana-sourdough-claude-starter.md
