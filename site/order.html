@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order | The Bread Club</title>
+  <meta name="description" content="Order homemade sourdough from The Bread Club in Ra'anana. Delivery or pickup on Tuesdays and Fridays.">
+  <meta name="theme-color" content="#F7F2E7">
+  <link rel="icon" href="assets/img/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <meta property="og:title" content="Order | The Bread Club">
+  <meta property="og:image" content="assets/img/og-image.png">
+  <link rel="preload" href="assets/fonts/BodoniModa.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/Cormorant.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600&family=Frank+Ruhl+Libre:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body data-title="meta.orderTitle">
+  <a class="skip-link label" href="#main" data-i18n="nav.skip">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav__inner">
+      <a class="nav__logo" href="./" data-i18n-attr="aria-label:nav.home" aria-label="The Bread Club, home">
+        <img src="assets/img/logo.png" alt="The Bread Club" width="160" height="80">
+      </a>
+      <button class="nav__lang" type="button" data-lang-toggle data-i18n="nav.lang" data-i18n-attr="aria-label:nav.langLabel" lang="he" aria-label="קראו את האתר בעברית">עברית</button>
+    </div>
+  </header>
+
+  <main id="main" class="wrap wrap--text">
+    <!-- Order form -->
+    <div id="order-view">
+      <div class="order-head">
+        <p class="label" data-i18n="order.label">Order</p>
+        <h1 class="display" data-i18n="order.title">Place an order</h1>
+        <p class="tagline" data-i18n="order.line">baked to order, Tuesdays and Fridays</p>
+      </div>
+
+      <div id="offline" hidden>
+        <div class="notice notice--strong">
+          <p data-i18n="order.offline">Online ordering opens soon. For now, please use our order form.</p>
+          <p><a class="btn" id="google-form-link" href="#" data-i18n="order.useForm">Open the order form</a></p>
+        </div>
+      </div>
+
+      <form id="order-form" class="order-form" novalidate hidden>
+        <fieldset class="fieldset" id="day-fieldset" aria-describedby="date-error">
+          <legend class="label" data-i18n="order.day">Bake day</legend>
+          <div id="days" class="choices" aria-live="polite">
+            <p class="status" data-i18n="order.loadingDays">Checking bake days…</p>
+          </div>
+          <span class="error" id="date-error" role="alert"></span>
+        </fieldset>
+
+        <fieldset class="fieldset" aria-describedby="items-error capacity-note">
+          <legend class="label" data-i18n="order.loaves">Your loaves</legend>
+          <ul class="loaves" id="loaves"></ul>
+          <span class="error" id="items-error" role="alert"></span>
+          <div id="capacity-note" aria-live="polite"></div>
+        </fieldset>
+
+        <fieldset class="fieldset" aria-describedby="method-error">
+          <legend class="label" data-i18n="order.method">Pickup or delivery</legend>
+          <div class="choices choices--2">
+            <label class="choice">
+              <input type="radio" name="method" value="pickup">
+              <span class="choice__box"><span class="choice__title" data-i18n="order.pickup">Pickup</span><span class="hint" data-i18n="order.pickupHint">Free. We'll send the address on WhatsApp.</span></span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="method" value="delivery">
+              <span class="choice__box"><span class="choice__title" data-i18n="order.delivery">Delivery</span><span class="hint" data-i18n="order.deliveryHint">+5 ₪, free from 100 ₪. Ra'anana, Herzliya and close by.</span></span>
+            </label>
+          </div>
+          <span class="error" id="method-error" role="alert"></span>
+          <div class="field" id="address-field" hidden>
+            <label for="address" data-i18n="order.address">Delivery address</label>
+            <input id="address" name="address" type="text" autocomplete="street-address" maxlength="200" aria-describedby="address-hint address-error">
+            <span class="hint" id="address-hint" data-i18n="order.addressHint">Street, number, city. Further away? Message us first.</span>
+            <span class="error" id="address-error" role="alert"></span>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="label" data-i18n="order.details">Your details</legend>
+          <div class="field">
+            <label for="name" data-i18n="order.name">Full name</label>
+            <input id="name" name="name" type="text" autocomplete="name" maxlength="80" aria-describedby="name-error">
+            <span class="error" id="name-error" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="phone" data-i18n="order.phone">Mobile number</label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="054-123-4567" aria-describedby="phone-hint phone-error">
+            <span class="hint" id="phone-hint" data-i18n="order.phoneHint">We'll message you on WhatsApp.</span>
+            <span class="error" id="phone-error" role="alert"></span>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset" aria-describedby="payment-error">
+          <legend class="label" data-i18n="order.payment">Payment</legend>
+          <div class="choices choices--2">
+            <label class="choice">
+              <input type="radio" name="payment" value="bit">
+              <span class="choice__box"><span class="choice__title" data-i18n="order.bit">Bit</span><span class="hint" data-i18n="order.bitHint">Pay to 054-911-2175 with your full name in the note.</span></span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="payment" value="cash">
+              <span class="choice__box"><span class="choice__title" data-i18n="order.cash">Cash at the door</span><span class="hint" data-i18n="order.cashHint">Pay when you get your bread.</span></span>
+            </label>
+          </div>
+          <span class="error" id="payment-error" role="alert"></span>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="label" data-i18n="order.notes">Notes</legend>
+          <div class="field">
+            <label for="notes" data-i18n="order.notesLabel">Notes or allergies (optional)</label>
+            <textarea id="notes" name="notes" maxlength="500" aria-describedby="notes-error"></textarea>
+            <span class="error" id="notes-error" role="alert"></span>
+          </div>
+        </fieldset>
+
+        <div class="hp" aria-hidden="true">
+          <label for="website">Leave this empty</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="summary" aria-live="polite">
+          <dl class="summary__rows">
+            <div class="summary__row"><dt><span data-i18n="order.subtotal">Loaves</span> (<span id="sum-loaves">0</span>)</dt><dd id="sum-subtotal">0 ₪</dd></div>
+            <div class="summary__row" id="sum-delivery-row" hidden><dt data-i18n="order.deliveryFee">Delivery</dt><dd id="sum-delivery">5 ₪</dd></div>
+            <div class="summary__row summary__row--total"><dt data-i18n="order.total">Total</dt><dd id="sum-total">0 ₪</dd></div>
+          </dl>
+        </div>
+
+        <div id="form-message" aria-live="assertive"></div>
+
+        <div class="submit-row">
+          <button class="btn" type="submit" id="submit" data-i18n="order.submit">Place order</button>
+          <p class="hint" data-i18n="order.confirmNote">Your order is confirmed once payment is received.</p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Confirmation -->
+    <div id="done-view" class="done" hidden tabindex="-1">
+      <p class="label" data-i18n="done.label">Order received</p>
+      <h1 class="display" id="done-title"></h1>
+      <p id="done-summary"></p>
+      <div class="done__card">
+        <p class="done__total" id="done-total"></p>
+        <div id="done-bit" hidden>
+          <p id="done-bit-text"></p>
+          <div class="bit-number">
+            <strong id="done-bit-number"></strong>
+            <button type="button" class="btn btn--outline" id="copy-bit" data-i18n="done.copy">Copy number</button>
+          </div>
+          <p data-i18n="done.payBitNote">Write your full name in the Bit note so we can match it to your order.</p>
+        </div>
+        <p id="done-cash" hidden></p>
+        <p id="done-method"></p>
+        <p class="hint" data-i18n="order.confirmNote">Your order is confirmed once payment is received.</p>
+      </div>
+      <div class="done__links">
+        <p data-i18n="done.questions">Questions or changes? Message us on WhatsApp.</p>
+        <a class="btn btn--outline js-wa" data-baker="0" href="https://wa.me/972549112175">WhatsApp Eliana</a>
+        <a class="btn btn--outline js-wa" data-baker="1" href="https://wa.me/972586786900">WhatsApp Shayna</a>
+        <p><a href="order.html" id="another" data-i18n="done.another">Place another order</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <img src="assets/img/logo.png" alt="The Bread Club" width="160" height="80" loading="lazy">
+      <div class="footer__links">
+        <a class="js-instagram" href="https://instagram.com/thebreadclub.il">@thebreadclub.il</a>
+        <a class="js-wa" data-baker="0" href="https://wa.me/972549112175">Eliana · 054-911-2175</a>
+        <a class="js-wa" data-baker="1" href="https://wa.me/972586786900">Shayna · 058-678-6900</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/logic.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/order.js"></script>
+</body>
+</html>
