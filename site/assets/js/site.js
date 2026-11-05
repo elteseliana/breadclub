@@ -4,8 +4,10 @@
   'use strict';
   var t = BreadClubI18n.t;
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var PHOTOS = ['04', '01', '02', '06', '08', '03', '07'];
-  var PHOTO_ALT = 'A loaf of The Bread Club sourdough';
+  /* One cut-out loaf (transparent background) rolls through the menu. When there is a cut-out
+     photo of a flavor, add it here, e.g. garlic: 'assets/img/loaf-garlic.webp'. */
+  var FLAVOR_PHOTOS = {};
+  var DEFAULT_LOAF = 'assets/img/loaf-spin.webp';
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -25,12 +27,14 @@
     BreadClub.MENU.forEach(function (m, i) {
       var panel = el('article', 'panel menu-item');
       panel.appendChild(el('p', 'label panel__section', t(m.section === 'original' ? 'menu.original' : 'menu.collection')));
-      var img = el('img', 'panel__photo');
-      img.src = 'assets/img/bread-' + PHOTOS[i % PHOTOS.length] + '-700.webp';
-      img.alt = PHOTO_ALT;
-      img.width = 700; img.height = 933;
-      img.loading = 'lazy';
-      panel.appendChild(img);
+      var wheel = el('div', 'panel__loaf');
+      var img = el('img');
+      img.src = FLAVOR_PHOTOS[m.id] || DEFAULT_LOAF;
+      img.alt = '';
+      img.width = 800; img.height = 800;
+      img.loading = i < 2 ? 'eager' : 'lazy';
+      wheel.appendChild(img);
+      panel.appendChild(wheel);
       var text = el('div', 'panel__text');
       text.appendChild(el('h3', 'menu-item__name', m.name[lang]));
       var row = el('p', 'panel__row');
@@ -102,7 +106,18 @@
     hs.bar.style.transform = 'scaleX(' + p + ')';
     var panels = hs.track.children;
     var current = Math.round(p * (panels.length - 1));
-    for (var i = 0; i < panels.length; i++) panels[i].classList.toggle('is-current', i === current);
+    var tx = dir * p * hs.dist;
+    var centre = window.innerWidth / 2;
+    for (var i = 0; i < panels.length; i++) {
+      panels[i].classList.toggle('is-current', i === current);
+      // Each loaf turns by exactly how far it has travelled, so it rolls like a wheel.
+      var wheel = panels[i].querySelector('.panel__loaf');
+      if (wheel) {
+        var offset = panels[i].offsetLeft + panels[i].offsetWidth / 2 + tx - centre;
+        var radius = Math.max(1, wheel.offsetWidth / 2);
+        wheel.style.setProperty('--spin', (offset / radius * 57.2958).toFixed(1) + 'deg');
+      }
+    }
     hs.count.textContent = pad(current + 1) + ' / ' + pad(panels.length);
   }
 
