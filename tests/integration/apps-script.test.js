@@ -55,6 +55,7 @@ function fakeSheet(name) {
     },
     maxRows: 1000,
     getMaxRows() { return sheet.maxRows; },
+    getMaxColumns() { return 26; },
     insertRowsAfter(after, n) { assert.equal(after, sheet.maxRows); sheet.maxRows += n; },
     getRange(r, c, nr, nc) {
       if (typeof r === 'string') [r, c, nr, nc] = a1(r);
@@ -72,7 +73,8 @@ function fakeSheet(name) {
         insertCheckboxes: () => { sheet.checkboxes.add(r + ',' + c); return range; },
         setDataValidation: (v) => { sheet.validations.push({ r, c, nr, nc, v }); return range; }
       };
-      range.setNumberFormat = (fmt) => { if (fmt === '@' && nc === 1) sheet.textCols.add(c); return range; };
+      range.setNumberFormat = (fmt) => { if (fmt === '@' && nc === 1) sheet.textCols.add(c); if (fmt === 'General') sheet.textCols.clear(); return range; };
+      range.clearDataValidations = () => { sheet.validations = []; return range; };
       for (const m of ['setFontWeight', 'setBackground']) range[m] = () => range;
       return range;
     },
@@ -153,13 +155,14 @@ test('setup creates the order, test, settings and summary tabs', () => {
   env.ctx.setup();
   assert.deepEqual([...env.sheets.keys()].sort(), ['Bake summary', 'Settings', 'Test orders', 'Website orders']);
   const orders = env.sheets.get('Website orders');
-  assert.equal(orders.get(1, 1), 'Order #');
+  assert.equal(orders.get(1, 1), 'Timestamp');
+  assert.deepEqual([1, 2, 3].map((c) => orders.get(1, c)), ['Timestamp', 'Full name', 'Phone number'], 'same order as the old form');
   assert.equal(orders.get(1, env.ctx.COLUMNS.length), 'Order ID');
   assert.equal(env.sheets.get('Settings').get(2, 2), 18);
   assert.equal(orders.rules.length, 2, 'unpaid and canceled highlighting');
   const summary = env.sheets.get('Bake summary').formulas.get('2,1');
-  assert.match(summary, /^=QUERY\('Website orders'!A2:Z, "select C, sum\(J\), sum\(K\), sum\(L\), sum\(M\), sum\(N\), sum\(O\), sum\(P\), sum\(Q\) where C is not null and X <> 'canceled' group by C/);
-  assert.match(env.sheets.get('Bake summary').formulas.get('2,12'), /where C is not null and I = 'Bit' and not W = true and X <> 'canceled'/);
+  assert.match(summary, /^=QUERY\('Website orders'!A2:Z, "select P, sum\(D\), sum\(E\), sum\(F\), sum\(G\), sum\(H\), sum\(I\), sum\(J\), sum\(Q\) where P is not null and V <> 'canceled' group by P/);
+  assert.match(env.sheets.get('Bake summary').formulas.get('2,12'), /select P, count\(X\), sum\(T\) where P is not null and L = 'Bit' and not U = true and V <> 'canceled'/);
   // Running setup again keeps settings Eliana changed
   env.sheets.get('Settings').set(2, 2, 12);
   env.ctx.setup();
@@ -175,25 +178,25 @@ test('an order lands in the sheet as one complete row', () => {
   assert.equal(r.total, 90);
   const row = env.row('Website orders', 2);
   assert.equal(row['Order #'], 1001);
-  assert.equal(row.Received, '2026-11-05 10:00', 'Israel time');
+  assert.equal(row.Timestamp, '2026-11-05 10:00', 'Israel time');
   assert.equal(row['Delivery date'], '2026-11-10');
-  assert.equal(row.Day, 'Tuesday');
-  assert.equal(row.Phone, '0540000000', 'leading zero kept');
-  assert.equal(row['Pickup / delivery'], 'Delivery');
-  assert.equal(row['Pays by'], 'Bit');
+  assert.equal(row['Pickup / delivery day'], 'Tuesday 10.11');
+  assert.equal(row['Phone number'], '0540000000', 'leading zero kept');
+  assert.equal(row['Pickup or delivery'], 'Delivery');
+  assert.equal(row['Payment'], 'Bit');
   assert.equal(row['Plain sourdough'], 1);
   assert.equal(row.Pesto, 1);
   assert.equal(row.Garlic, '');
   // Totals are formulas, so they follow quantities edited by hand
-  assert.equal(row.Loaves, '=SUM(J2:P2)');
-  assert.equal(row['Subtotal ₪'], '=N(J2)*35+N(K2)*42+N(L2)*44+N(M2)*42+N(N2)*44+N(O2)*44+N(P2)*50');
-  assert.equal(row['Delivery ₪'], '=IF(AND(G2="Delivery",R2<100),5,0)');
+  assert.equal(row.Loaves, '=SUM(D2:J2)');
+  assert.equal(row['Subtotal ₪'], '=N(D2)*35+N(E2)*42+N(F2)*44+N(G2)*42+N(H2)*44+N(I2)*44+N(J2)*50');
+  assert.equal(row['Delivery fee ₪'], '=IF(AND(K2="Delivery",R2<100),5,0)');
   assert.equal(row['Total ₪'], '=R2+S2');
-  assert.equal(row.Notes, 'no sesame');
+  assert.equal(row['Notes or allergies'], 'no sesame');
   assert.equal(row.Paid, false);
   assert.equal(row.Status, 'new');
   assert.equal(row['Payment reminder'],
-    '=IF(W2=TRUE,"",HYPERLINK("https://wa.me/972540000000?text="&ENCODEURL("Hi Test Customer, this is The Bread Club. ' +
+    '=IF(U2=TRUE,"",HYPERLINK("https://wa.me/972540000000?text="&ENCODEURL("Hi Test Customer, this is The Bread Club. ' +
     'A quick reminder that your order (#1001) for Tuesday 10.11 comes to ₪"&T2&". You can pay by Bit to 054-911-2175 ' +
     '(please write your full name in the note). Thank you"),"Send reminder"))');
   assert.equal(row['Order ID'], 'sheet-row-0001');
@@ -209,17 +212,17 @@ test('customer text can never become a formula in the sheet', () => {
   assert.equal(r.ok, true);
   const sheet = env.sheets.get('Website orders');
   const cols = env.ctx.COLUMNS;
-  for (const c of ['Name', 'Address', 'Notes']) {
+  for (const c of ['Full name', 'Delivery address', 'Notes or allergies']) {
     assert.equal(sheet.formulas.has('2,' + (cols.indexOf(c) + 1)), false, c + ' must stay text');
   }
   const row = env.row('Website orders', 2);
-  assert.equal(row.Name, '=HYPERLINK("x") "Bob"');
-  assert.equal(row.Address, '+972 street 4');
-  assert.equal(row.Notes, evil);
+  assert.equal(row['Full name'], '=HYPERLINK("x") "Bob"');
+  assert.equal(row['Delivery address'], '+972 street 4');
+  assert.equal(row['Notes or allergies'], evil);
   // quotes in a name cannot break out of the reminder formula
   assert.match(row['Payment reminder'], /ENCODEURL\("Hi =HYPERLINK\(""x""\) ""Bob"", this is/);
   env.post(order({ notes: '- no sesame' }));
-  assert.equal(env.row('Website orders', 3).Notes, '- no sesame');
+  assert.equal(env.row('Website orders', 3)['Notes or allergies'], '- no sesame');
 });
 
 test('cash orders say "Cash at door" and get no payment reminder', () => {
@@ -227,7 +230,7 @@ test('cash orders say "Cash at door" and get no payment reminder', () => {
   env.ctx.setup();
   env.post(order({ payment: 'cash' }));
   const row = env.row('Website orders', 2);
-  assert.equal(row['Pays by'], 'Cash at door');
+  assert.equal(row['Payment'], 'Cash at door');
   assert.equal(row['Payment reminder'], '');
   const dup = env.post(Object.assign(order(), { orderId: row['Order ID'] }));
   assert.equal(dup.payment, 'cash');
@@ -306,7 +309,7 @@ test('hand-typed rows: phone without leading 0 and Loaves-only rows are understo
   for (let i = 0; i < 3; i++) {
     sheet.set(2 + i, 1, 900 + i);
     sheet.set(2 + i, cols.indexOf('Delivery date') + 1, '2026-11-10');
-    sheet.set(2 + i, cols.indexOf('Phone') + 1, 540000000); // number: leading 0 lost
+    sheet.set(2 + i, cols.indexOf('Phone number') + 1, 540000000); // number: leading 0 lost
     sheet.set(2 + i, cols.indexOf('Loaves') + 1, 1);
     sheet.set(2 + i, cols.indexOf('Status') + 1, 'new');
   }
@@ -343,8 +346,8 @@ test('Hebrew orders are labelled and get a Hebrew reminder', () => {
   env.post(order({ lang: 'he', method: 'pickup' }));
   const row = env.row('Website orders', 2);
   assert.equal(row.Language, 'Hebrew');
-  assert.equal(row['Pickup / delivery'], 'Pickup');
-  assert.equal(row.Address, '');
+  assert.equal(row['Pickup or delivery'], 'Pickup');
+  assert.equal(row['Delivery address'], '');
   assert.match(row['Payment reminder'], /ENCODEURL\("היי Test Customer, כאן The Bread Club\. תזכורת קטנה: ההזמנה שלך \(#1001\) ליום שלישי 10\.11 יוצאת ₪"&T2&"\. אפשר לשלם בביט/);
 });
 
@@ -360,6 +363,6 @@ test('when the sheet runs out of rows, more are added with the same formats', ()
   env.post(order({ items: { plain: 1 }, phone: '0530000000' })); // row 4: past the end
   assert.equal(sheet.maxRows, 503);
   assert.equal(sheet.getLastRow(), 4);
-  assert.equal(env.row('Website orders', 4).Phone, '0530000000');
-  assert.ok(sheet.textCols.has(env.ctx.COLUMNS.indexOf('Phone') + 1), 'new rows formatted');
+  assert.equal(env.row('Website orders', 4)['Phone number'], '0530000000');
+  assert.ok(sheet.textCols.has(env.ctx.COLUMNS.indexOf('Phone number') + 1), 'new rows formatted');
 });
