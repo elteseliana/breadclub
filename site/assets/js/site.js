@@ -4,10 +4,17 @@
   'use strict';
   var t = BreadClubI18n.t;
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  /* One cut-out loaf (transparent background) rolls through the menu. When there is a cut-out
-     photo of a flavor, add it here, e.g. garlic: 'assets/img/loaf-garlic.webp'. */
-  var FLAVOR_PHOTOS = {};
-  var DEFAULT_LOAF = 'assets/img/loaf-spin.webp';
+  /* Each flavor's loaf, cut in half (transparent background, all the same size). */
+  var FLAVOR_PHOTOS = {
+    plain: 'assets/img/loaf-plain.webp',
+    garlic: 'assets/img/loaf-garlic.webp',
+    'rosemary-garlic': 'assets/img/loaf-rosemary-garlic.webp',
+    'cinnamon-sugar': 'assets/img/loaf-cinnamon-sugar.webp',
+    olive: 'assets/img/loaf-olive.webp',
+    'chocolate-chip': 'assets/img/loaf-chocolate-chip.webp',
+    pesto: 'assets/img/loaf-pesto.webp'
+  };
+  var DEFAULT_LOAF = 'assets/img/loaf-plain.webp';
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -30,7 +37,7 @@
       var wheel = el('div', 'panel__loaf');
       var img = el('img');
       img.src = FLAVOR_PHOTOS[m.id] || DEFAULT_LOAF;
-      img.alt = '';
+      img.alt = t('loafAlt', { name: m.name[lang] });
       img.width = 800; img.height = 800;
       img.loading = i < 2 ? 'eager' : 'lazy';
       wheel.appendChild(img);
