@@ -112,6 +112,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
 .btn:hover { opacity: 0.88; }
 .btn--outline { background: transparent; color: var(--brown); }
 .btn--outline:hover { background: var(--brown); color: var(--cream); opacity: 1; }
+.btn--light { background: var(--cream); border-color: var(--cream); color: var(--brown); }
 .btn[disabled] { cursor: progress; opacity: 0.7; }
 [dir="rtl"] .btn { letter-spacing: 0; font-size: 17px; }
 
@@ -122,6 +123,22 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
   border-bottom: 1px solid transparent; transition: border-color 300ms var(--ease);
 }
 .nav.is-scrolled { border-bottom-color: var(--line-color); }
+.nav--over { position: fixed; left: 0; right: 0; background: transparent; color: var(--cream); transition: background-color 400ms var(--ease), color 400ms var(--ease), border-color 400ms var(--ease); }
+.nav--over.is-scrolled { background: var(--cream); color: var(--brown); }
+
+/* Round "Order" sticker, like the stickers on the bread bags */
+.sticker {
+  flex: none; width: 62px; height: 62px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; text-align: center;
+  background: var(--brown); color: var(--cream); text-decoration: none;
+  font: 600 12px/1.1 var(--font-body); letter-spacing: 0.14em; text-transform: uppercase;
+  transform: rotate(-8deg); transition: transform 350ms var(--ease), background-color 400ms var(--ease), color 400ms var(--ease);
+}
+.sticker:hover { transform: rotate(0deg); }
+.nav--over:not(.is-scrolled) .sticker { background: var(--cream); color: var(--brown); }
+[dir="rtl"] .sticker { letter-spacing: 0; font-size: 14px; }
+.nav__inner { min-height: 84px; padding-block: 10px; }
+@media (min-width: 760px) { .hero__title { max-width: 13ch; } }
 .nav__inner { display: flex; align-items: center; gap: 18px; min-height: 64px; }
 @media (min-width: 760px) { .nav__inner { gap: var(--space-4); } }
 .nav__brand {
@@ -138,7 +155,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
 }
 .nav__links a:hover, .nav__order:hover, .nav__link:hover { background-size: 100% 1px; }
 .nav__order { border-bottom: 0; }
-.nav__lang { background: none; border: 0; color: var(--brown); cursor: pointer; font: 600 16px/1 var(--font-body); padding: 12px 4px; min-height: 44px; }
+.nav__lang { background: none; border: 0; color: inherit; cursor: pointer; font: 600 16px/1 var(--font-body); padding: 12px 4px; min-height: 44px; }
 .nav__lang:hover { text-decoration: underline; }
 @media (min-width: 900px) { .nav__links { display: flex; } }
 
@@ -149,22 +166,21 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
 .section__head { text-align: center; margin-bottom: var(--space-4); }
 @media (min-width: 760px) { .section__head { margin-bottom: var(--space-5); } }
 
-/* ---- hero -------------------------------------------------------------------- */
+/* ---- hero: full-screen photo, headline over it ------------------------------------ */
 
-.hero { padding-top: var(--space-5); }
-@media (min-width: 760px) { .hero { padding-top: 96px; } }
-.hero__text { text-align: center; }
-.hero__eyebrow { margin-bottom: var(--space-3); }
+.hero { position: relative; min-height: 92vh; min-height: 92svh; display: flex; align-items: flex-end; overflow: hidden; color: var(--cream); }
+.hero__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+.hero__shade { position: absolute; inset: 0; background: var(--brown); mix-blend-mode: multiply; opacity: 0.68; }
+.hero__text { position: relative; padding-bottom: 56px; }
+@media (min-width: 760px) { .hero__text { padding-bottom: 88px; } }
+.hero__eyebrow { margin-bottom: var(--space-2); }
 .hero__title {
   font-family: var(--font-display); font-weight: 400; font-variation-settings: "opsz" 96;
-  font-size: clamp(44px, 12.4vw, 92px); line-height: 1; letter-spacing: -0.02em; white-space: nowrap;
-  margin-bottom: var(--space-3);
+  font-size: clamp(46px, 13vw, 96px); line-height: 1.02; letter-spacing: -0.02em; max-width: 10ch;
+  margin-bottom: var(--space-4);
 }
-.hero .tagline { margin-bottom: var(--space-4); }
-.hero__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2) var(--space-4); }
-.hero__photo { margin-top: var(--space-5); }
-.hero__photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 40%; }
-@media (min-width: 760px) { .hero__photo { margin-top: 88px; max-width: calc(860px + 2 * var(--gutter)); } .hero__photo img { aspect-ratio: 5 / 4; object-position: 50% 50%; } }
+.hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.hero .text-link { color: var(--cream); }
 
 /* ---- intro ------------------------------------------------------------------ */
 
@@ -192,25 +208,23 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
 .strip__hint { font-style: italic; text-align: end; margin: var(--space-2) auto 0; }
 @media (min-width: 760px) { .strip__hint { display: none; } }
 
-/* ---- menu: a printed card ------------------------------------------------------ */
+/* ---- menu: big poster-style lines ----------------------------------------------------- */
 
-.menu-card {
-  width: calc(100% - 2 * var(--gutter)); max-width: 620px; margin-inline: auto;
-  padding: 56px 24px 48px; border: var(--line); text-align: center;
-}
-@media (min-width: 760px) { .menu-card { padding: 80px 72px 64px; } }
-.menu-card .section__head { margin-bottom: var(--space-4); }
-.menu-card .label { margin: var(--space-4) 0 var(--space-2); }
+.menu .section__head { margin-bottom: var(--space-4); }
+.menu .label { margin: var(--space-5) 0 var(--space-1); }
 #menu-list > .label:first-child { margin-top: 0; }
-.menu-list { list-style: none; margin: 0; padding: 0; text-align: start; }
-.menu-item { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; }
-.menu-item__name { font-family: var(--font-display); font-weight: 500; font-variation-settings: "opsz" 18; font-size: 20px; line-height: 1.3; }
-@media (min-width: 760px) { .menu-item__name { font-size: 24px; } }
-.menu-item__dots { flex: 1; min-width: 20px; height: 0.9em; align-self: center; transform: translateY(0.1em); border-bottom: 2px dotted var(--line-color); }
-.menu-item__price { font-size: 20px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.menu-note { font-style: italic; margin: 2px 0 0; text-align: end; }
-.menu__foot { margin: var(--space-4) 0 var(--space-1); padding-top: var(--space-3); border-top: var(--line); }
-.menu__tagline { margin: 0; }
+.menu-list { list-style: none; margin: 0; padding: 0; border-top: var(--line); }
+.menu-item { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); padding: 18px 0 14px; border-bottom: var(--line); }
+.menu-list li:has(.menu-note) .menu-item { border-bottom: 0; padding-bottom: 0; }
+.menu-item__name {
+  font-family: var(--font-display); font-weight: 400; font-variation-settings: "opsz" 96;
+  font-size: clamp(28px, 8vw, 46px); line-height: 1.1; letter-spacing: -0.01em;
+}
+.menu-item__dots { display: none; }
+.menu-item__price { font-size: 21px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.menu-note { font-style: italic; margin: 0; padding-bottom: 14px; border-bottom: var(--line); }
+.menu__foot { margin: var(--space-4) 0 var(--space-1); text-align: center; }
+.menu__tagline { margin: 0; text-align: center; }
 .menu-cta { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); margin-top: var(--space-5); }
 
 /* ---- page heading (info page) ------------------------------------------------------ */
@@ -269,26 +283,10 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
 .contact__buttons .btn { min-width: 260px; }
 
 .footer { text-align: center; padding: var(--space-6) 0 var(--space-5); margin-top: var(--section); border-top: var(--line); }
-.home .footer { padding-bottom: 120px; } /* room for the order bar on phones */
-@media (min-width: 760px) { .home .footer { padding-bottom: var(--space-5); } }
 .footer__brand { font-family: var(--font-display); font-variation-settings: "opsz" 96; font-size: 34px; line-height: 1; margin: 0 0 var(--space-1); }
 .footer__links { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin: var(--space-3) 0 var(--space-2); }
 .footer__links a { padding: 10px 0; display: inline-block; }
 .footer small { font-size: 17px; }
-
-/* ---- phone order bar (appears after the top of the page) ---------------------------------- */
-
-.order-bar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
-  margin: 0 var(--gutter) calc(var(--gutter) + env(safe-area-inset-bottom, 0px));
-  display: flex; align-items: center; justify-content: center; min-height: 54px;
-  background: var(--brown); color: var(--cream); text-decoration: none;
-  font: 600 14px/1 var(--font-body); letter-spacing: 0.24em; text-transform: uppercase;
-  transform: translateY(140%); transition: transform 450ms var(--ease);
-}
-.order-bar.is-shown { transform: none; }
-[dir="rtl"] .order-bar { letter-spacing: 0; font-size: 17px; }
-@media (min-width: 760px) { .order-bar { display: none; } }
 
 /* ---- motion ---------------------------------------------------------------------------- */
 
@@ -305,11 +303,10 @@ h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
 @media (prefers-reduced-motion: no-preference) {
   /* Opening moment: the name, line and buttons rise in one after another, then the photo settles */
   .hero__text > * { animation: fade-up 800ms var(--ease) both; }
-  .hero__text > :nth-child(2) { animation-delay: 80ms; }
-  .hero__text > :nth-child(3) { animation-delay: 180ms; }
-  .hero__text > :nth-child(4) { animation-delay: 280ms; }
-  .hero__photo { overflow: hidden; }
-  .hero__photo img { animation: settle 1400ms var(--ease) 200ms both; }
+  .hero__text > * { animation-delay: 250ms; }
+  .hero__text > :nth-child(2) { animation-delay: 350ms; }
+  .hero__text > :nth-child(3) { animation-delay: 480ms; }
+  .hero__bg { animation: settle 1600ms var(--ease) both; }
   .order-head > *, .page-head > * { animation: fade-up 700ms var(--ease) both; }
   .page-head > :nth-child(2) { animation-delay: 80ms; }
   .order-head > :nth-child(2) { animation-delay: 80ms; }

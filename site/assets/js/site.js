@@ -58,25 +58,13 @@
     items.forEach(function (n) { io.observe(n); });
   }
 
-  /* Hairline under the nav once the page scrolls; phone order bar once the top of the page is gone. */
+  /* The nav sits over the photo at the top of the home page, then turns cream once you scroll. */
   function scrollCues() {
     var nav = document.querySelector('.nav');
-    var bar = document.querySelector('.order-bar');
-    var hero = document.querySelector('.hero');
-    var menuCta = document.querySelector('.menu-cta');
     var ticking = false;
     function check() {
       ticking = false;
-      if (nav) nav.classList.toggle('is-scrolled', window.scrollY > 8);
-      if (bar && hero) {
-        var pastHero = hero.getBoundingClientRect().bottom < 0;
-        var r = menuCta ? menuCta.getBoundingClientRect() : null;
-        var ctaOnScreen = r && r.top < window.innerHeight && r.bottom > 0;
-        var show = pastHero && !ctaOnScreen;
-        bar.classList.toggle('is-shown', show);
-        bar.setAttribute('aria-hidden', show ? 'false' : 'true');
-        bar.tabIndex = show ? 0 : -1;
-      }
+      if (nav) nav.classList.toggle('is-scrolled', window.scrollY > 24);
     }
     window.addEventListener('scroll', function () {
       if (!ticking) { ticking = true; window.requestAnimationFrame(check); }

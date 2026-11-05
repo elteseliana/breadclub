@@ -38,29 +38,27 @@
 <body data-title="meta.title" class="home">
   <a class="skip-link label" href="#main" data-i18n="nav.skip">Skip to content</a>
 
-  <header class="nav">
+  <header class="nav nav--over">
     <div class="wrap nav__inner">
       <a class="nav__brand" href="./" data-i18n-attr="aria-label:nav.home" aria-label="The Bread Club, home" lang="en">The Bread Club</a>
       <a class="nav__link" href="info.html" data-i18n="nav.info">info</a>
       <button class="nav__lang" type="button" data-lang-toggle data-i18n="nav.lang" data-i18n-attr="aria-label:nav.langLabel" lang="he" aria-label="קראו את האתר בעברית">עברית</button>
-      <a class="nav__order" href="order.html" data-i18n="nav.order">Order</a>
+      <a class="sticker" href="order.html" data-i18n="nav.order">Order</a>
     </div>
   </header>
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
+      <img class="hero__bg" src="assets/img/bread-04-1200.webp" srcset="assets/img/bread-04-700.webp 700w, assets/img/bread-04-1200.webp 1200w" sizes="100vw"
+        alt="A golden sourdough loaf from above, with a long centre score and wheat-leaf cuts on both sides, dusted with flour" width="1200" height="1600" fetchpriority="high">
+      <div class="hero__shade" aria-hidden="true"></div>
       <div class="wrap hero__text">
-        <p class="label hero__eyebrow"><span lang="en">Est. 2025</span> · <span data-i18n="hero.place">Ra'anana</span></p>
-        <h1 class="hero__title" id="hero-title" lang="en">The Bread Club</h1>
-        <p class="tagline" data-i18n="hero.line">homemade sourdough, baked to order</p>
+        <p class="label hero__eyebrow"><span lang="en">The Bread Club · Est. 2025</span></p>
+        <h1 class="hero__title" id="hero-title" data-i18n="hero.title">Sourdough, baked to order.</h1>
         <div class="hero__actions">
-          <a class="btn" href="order.html" data-i18n="cta.order">Order now</a>
+          <a class="btn btn--light" href="order.html" data-i18n="cta.order">Order now</a>
           <a class="text-link" href="#menu" data-i18n="cta.menu">See the menu</a>
         </div>
-      </div>
-      <div class="wrap hero__photo">
-        <img src="assets/img/bread-04-1200.webp" srcset="assets/img/bread-04-700.webp 700w, assets/img/bread-04-1200.webp 1200w" sizes="(min-width: 1040px) 1040px, 100vw"
-          alt="A golden sourdough loaf from above, with a long centre score and wheat-leaf cuts on both sides, dusted with flour" width="1200" height="1600" fetchpriority="high">
       </div>
     </section>
 
@@ -87,7 +85,7 @@
     </section>
 
     <section class="section" id="menu" aria-labelledby="menu-title">
-      <div class="wrap menu-card reveal">
+      <div class="wrap menu reveal">
         <div class="section__head">
           <h2 class="display" id="menu-title" data-i18n="menu.title">The menu</h2>
         </div>
@@ -126,8 +124,6 @@
       <small data-i18n="footer.small">Homemade sourdough, baked to order in Ra'anana.</small>
     </div>
   </footer>
-
-  <a class="order-bar" href="order.html" data-i18n="cta.order" tabindex="-1" aria-hidden="true">Order now</a>
 
   <script src="assets/js/logic.js"></script>
   <script src="assets/js/config.js"></script>
