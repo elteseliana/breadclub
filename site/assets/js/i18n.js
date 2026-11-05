@@ -95,7 +95,9 @@ var BreadClubI18n = (function () {
       'done.questions': 'Questions or changes? Message us on WhatsApp.',
       'done.another': 'Place another order',
       'wa.room': 'Hi, I\'d like to order for {day}: {items}. Is there room?',
-      'wa.hello': 'Hi, I have a question about The Bread Club.'
+      'wa.hello': 'Hi, I have a question about The Bread Club.',
+      'wa.check': 'Hi, I just ordered on the website for {day} ({items}) and I\'m not sure it went through. My name is {name}. Can you check?',
+      'wa.more': 'Hi, I\'d like to add another order for {day}: {items}.'
     },
     he: {
       'meta.title': 'The Bread Club | לחם מחמצת ביתי ברעננה',
@@ -182,7 +184,9 @@ var BreadClubI18n = (function () {
       'done.questions': 'שאלות או שינויים? כתבו לנו בוואטסאפ.',
       'done.another': 'הזמנה נוספת',
       'wa.room': 'היי, אשמח להזמין ל{day}: {items}. יש מקום?',
-      'wa.hello': 'היי, יש לי שאלה על The Bread Club.'
+      'wa.hello': 'היי, יש לי שאלה על The Bread Club.',
+      'wa.check': 'היי, הזמנתי עכשיו באתר ל{day} ({items}) ואני לא בטוח/ה שזה עבר. השם שלי {name}. תוכלו לבדוק?',
+      'wa.more': 'היי, אשמח להוסיף עוד הזמנה ל{day}: {items}.'
     }
   };
 

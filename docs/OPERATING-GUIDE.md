@@ -25,7 +25,7 @@ Unpaid **Bit** orders are highlighted. Cash orders are not flagged; tick Paid wh
 ## Changes and cancellations
 - To cancel: set **Status** to `canceled`. Those loaves go back on sale right away.
 - To change an order: edit the loaf quantities in the row. Loaves, Total and the reminder update by themselves, and the day's count on the website follows.
-- Phone or WhatsApp orders can be typed into the sheet by hand. Fill in at least Delivery date (like `2026-11-10`), the loaf quantities (or just Loaves) and Status `new`, so the day's count stays right.
+- Phone or WhatsApp orders can be typed into the sheet by hand. Fill in Delivery date (like `2026-11-10`), the loaf quantities, Pays by and Status `new`. Then copy the Loaves, Subtotal, Delivery and Total cells from the row above (select them, Ctrl/Cmd+C, select the same cells in your row, Ctrl/Cmd+V) so the totals and the Bake summary include it.
 
 ## The 18-loaf limit and closed days (Settings tab)
 - **Loaves per bake day** (cell B2): the website stops taking orders for a day once this many loaves are booked. Customers then see "fully booked" and a button to WhatsApp you.
@@ -45,5 +45,6 @@ Unpaid **Bit** orders are highlighted. Cash orders are not flagged; tick Paid wh
 Prices and loaf names live in one place: `site/assets/js/logic.js`. Ask Claude to change them. Both the website and the sheet script are updated from that file, and the tests check the new prices.
 
 ## If something goes wrong
-- If a customer says the site showed "we couldn't confirm your order", check the sheet. If the order is there, it went through. If they tapped "try again", it still appears only once.
-- If the order page can't reach Google, it says so and offers WhatsApp. Your current Google Form keeps working the whole time.
+- If a customer says the site showed "we couldn't confirm your order", check the sheet. If the order is there, it went through. If they tapped "Place order" again on the same page, it still appears only once.
+- If the order page can't reach Google, it says so and offers WhatsApp.
+- Before retiring the Google Form, make sure the website is connected (see SETUP-google-sheet.md, step 4). Until then the order page sends people to the Form.

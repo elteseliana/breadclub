@@ -342,6 +342,8 @@ test('connection lost after the order was saved: retry shows the same order, no 
   await p.click('#submit');
   await p.waitForFunction(() => /couldn't confirm/.test(document.getElementById('form-message').textContent));
   assert.equal(await p.isVisible('#done-view'), false, 'no false confirmation');
+  assert.match(decodeURIComponent(await p.getAttribute('#form-message a', 'href')),
+    /text=Hi, I just ordered on the website for Tuesday 10 November \(1 × Olive\) and I'm not sure it went through\. My name is Test Customer\./);
   assert.equal((await orders()).live.length, 1, 'it was in fact saved');
 
   await p.reload(); // even after a reload, the retry reuses the same order ID

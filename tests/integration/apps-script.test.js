@@ -53,7 +53,9 @@ function fakeSheet(name) {
       for (const [k, v] of cells) if (v !== '' && v !== null) last = Math.max(last, Number(k.split(',')[0]));
       return last;
     },
-    getMaxRows() { return 1000; },
+    maxRows: 1000,
+    getMaxRows() { return sheet.maxRows; },
+    insertRowsAfter(after, n) { assert.equal(after, sheet.maxRows); sheet.maxRows += n; },
     getRange(r, c, nr, nc) {
       if (typeof r === 'string') [r, c, nr, nc] = a1(r);
       nr = nr || 1; nc = nc || 1;
@@ -344,4 +346,20 @@ test('Hebrew orders are labelled and get a Hebrew reminder', () => {
   assert.equal(row['Pickup / delivery'], 'Pickup');
   assert.equal(row.Address, '');
   assert.match(row['Payment reminder'], /ENCODEURL\("היי Test Customer, כאן The Bread Club\. תזכורת קטנה: ההזמנה שלך \(#1001\) ליום שלישי 10\.11 יוצאת ₪"&T2&"\. אפשר לשלם בביט/);
+});
+
+test('when the sheet runs out of rows, more are added with the same formats', () => {
+  const env = makeEnv(THURSDAY);
+  env.ctx.setup();
+  const sheet = env.sheets.get('Website orders');
+  sheet.maxRows = 3; // pretend the sheet is nearly full
+  env.ctx.formatOrderRows(sheet);
+  sheet.textCols.clear();
+  env.post(order({ items: { plain: 1 } }));
+  env.post(order({ items: { plain: 1 }, phone: '0520000000' }));
+  env.post(order({ items: { plain: 1 }, phone: '0530000000' })); // row 4: past the end
+  assert.equal(sheet.maxRows, 503);
+  assert.equal(sheet.getLastRow(), 4);
+  assert.equal(env.row('Website orders', 4).Phone, '0530000000');
+  assert.ok(sheet.textCols.has(env.ctx.COLUMNS.indexOf('Phone') + 1), 'new rows formatted');
 });

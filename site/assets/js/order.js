@@ -273,9 +273,17 @@
     var m = state.message;
     if (!m) return;
     var p = el('p', {}, [document.createTextNode(t(m.key, m.vars) + ' ')]);
-    if (m.wa) p.appendChild(el('a', { href: roomLink(m.wa), text: 'WhatsApp' }));
-    else if (m.key === 'order.unknown') p.appendChild(el('a', { href: L.whatsappLink(cfg.bakers[0].phone, t('wa.hello')), text: 'WhatsApp' }));
+    if (m.waText) {
+      p.appendChild(el('a', { href: L.whatsappLink(cfg.bakers[0].phone, t(m.waText, waVars())), text: 'WhatsApp' }));
+    } else if (m.wa) {
+      p.appendChild(el('a', { href: roomLink(m.wa), text: 'WhatsApp' }));
+    }
     host.appendChild(el('div', { className: 'notice notice--strong' }, [p]));
+  }
+
+  function waVars() {
+    var date = radioValue('date');
+    return { day: date ? BreadClubI18n.formatDay(date) : '…', items: itemsText() || '…', name: $('name').value.trim() || '…' };
   }
 
   function errorKey(field, code) {
@@ -379,7 +387,7 @@
       update();
       focusFirstError();
     } else if (error === 'limit') {
-      state.message = { key: 'order.limit', vars: { day: BreadClubI18n.formatDay(res.date) }, wa: res.date };
+      state.message = { key: 'order.limit', vars: { day: BreadClubI18n.formatDay(res.date) }, waText: 'wa.more' };
       update();
     } else if (error === 'full') {
       state.message = { key: 'order.fullNow', vars: { day: BreadClubI18n.formatDay(res.date) }, wa: res.date };
@@ -388,7 +396,7 @@
     } else {
       // Network error, timeout, busy or server error: we don't know if it was saved.
       // Retrying is safe because the same order ID is sent again.
-      state.message = { key: 'order.unknown', wa: radioValue('date') || null };
+      state.message = { key: 'order.unknown', waText: 'wa.check' };
       update();
       $('submit').focus();
     }

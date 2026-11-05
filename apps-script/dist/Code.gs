@@ -498,6 +498,11 @@ function sheetStore(test) {
         .map(function (r) { return Number(r[0]) || 0; }) : [];
       var orderNumber = Math.max.apply(null, [FIRST_ORDER_NUMBER - 1].concat(numbers)) + 1;
       var rowIndex = last + 1;
+      if (rowIndex > sheet.getMaxRows()) {
+        // A new sheet has 1,000 rows; add more (with the same formats) when they run out.
+        sheet.insertRowsAfter(sheet.getMaxRows(), 500);
+        formatOrderRows(sheet);
+      }
       var f = rowFormulas(rowIndex);
       var reminder = reminderFor(orderNumber);
 
@@ -585,7 +590,14 @@ function setupOrdersSheet(ss, name) {
   sheet.setFrozenRows(1);
   sheet.setFrozenColumns(1);
 
+  formatOrderRows(sheet);
+}
+
+/** Formats, checkboxes, dropdowns and highlighting for every data row (safe to run again). */
+function formatOrderRows(sheet) {
   var rows = sheet.getMaxRows() - 1;
+  sheet.getRange(2, col('Pays by') + 1, rows, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['Bit', 'Cash at door'], true).build());
   // Plain text, so a date typed by hand (2026-11-10) stays text like the website's and is summed.
   sheet.getRange(2, col('Delivery date') + 1, rows, 1).setNumberFormat('@');
   sheet.getRange(2, col('Phone') + 1, rows, 1).setNumberFormat('@');
