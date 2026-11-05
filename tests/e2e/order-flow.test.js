@@ -441,3 +441,18 @@ test('Hebrew capacity message reads naturally', async () => {
   assert.match(await text(p, '#capacity-note'), /^נשארו רק 2 לחמים ליום שישי, 13 בנובמבר/);
   await p.context().close();
 });
+
+test('info page: how it works, delivery, about, questions and contact, linked from home', async () => {
+  const p = await page();
+  await p.goto(base + '/');
+  assert.equal(await p.locator('#how, #faq, #about').count(), 0, 'home stays short');
+  await p.click('.nav__link');
+  await p.waitForURL(/info\.html$/);
+  for (const id of ['#how', '#delivery', '#about', '#faq', '#contact']) assert.equal(await p.locator(id).count(), 1, id);
+  assert.match(await text(p, '#delivery'), /Sunday 4pm for Tuesday\. Wednesday 4pm for Friday\./);
+  assert.equal(await p.evaluate(() => document.documentElement.scrollWidth), 390);
+  await p.click('.nav__lang');
+  assert.equal(await text(p, 'h1'), 'מידע');
+  assert.deepEqual(p.errors, []);
+  await p.context().close();
+});
