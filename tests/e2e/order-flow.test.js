@@ -422,9 +422,9 @@ test('test mode (?test=1) keeps test orders out of the real list', async () => {
   await p.context().close();
 });
 
-test('before Google is connected, the order page points to the current Google Form', async () => {
+test('if the order system is switched off, the order page points to the Google Form', async () => {
   const p = await page();
-  await p.goto(base + '/order.html');
+  await p.goto(base + '/order.html?api=none');
   await p.waitForSelector('#offline:not([hidden])');
   assert.match(await p.getAttribute('#google-form-link', 'href'), /^https:\/\/docs\.google\.com\/forms\//);
   assert.equal(await p.isHidden('#order-form'), true);

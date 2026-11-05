@@ -5,7 +5,7 @@
  *         While it is empty, the order page sends people to the current Google Form instead.
  */
 var BreadClubConfig = {
-  apiUrl: '',
+  apiUrl: 'https://script.google.com/macros/s/AKfycbxQll0UVrAQF430H2LEJRAh7BOxeeQnWV-Spx_Zfhh2yjTDJRopptZzvcWf5AjPaqO6/exec',
   googleFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLScGMVUOGpUVIJcJeUJD4ZQQKjjtO7Lz7QrCDOjez_7dTyQVBg/viewform',
   bitNumber: '054-911-2175',
   instagram: 'https://instagram.com/thebreadclub.il',
@@ -16,10 +16,11 @@ var BreadClubConfig = {
   ]
 };
 
-// For local testing only: http://localhost:8080/order.html?api=/api uses the preview server.
+// For local testing only: http://localhost:8080/order.html?api=/api uses the preview server
+// (?api=none shows the not-connected fallback).
 // Ignored on the real website so nobody can send customers' orders somewhere else with a link.
 (function () {
   var host = window.location.hostname;
   var override = new URLSearchParams(window.location.search).get('api');
-  if (override && (host === 'localhost' || host === '127.0.0.1')) BreadClubConfig.apiUrl = override;
+  if (override && (host === 'localhost' || host === '127.0.0.1')) BreadClubConfig.apiUrl = override === 'none' ? '' : override;
 })();
